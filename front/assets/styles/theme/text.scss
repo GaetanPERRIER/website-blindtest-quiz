@@ -1,0 +1,45 @@
+// Font familly
+.font-base {
+    font-family: $font-base;
+}
+
+//Colors
+.t-color-white {
+    color: $color-white;
+}
+
+.t-color-black {
+    color: $color-black;
+}
+
+// Class d'apparition au scroll (Il faut géré le scroll avec du JS pour que ça fonctionne)
+.t-entrance {
+    display: block;
+    opacity: 0;
+    transform: translateY(75px);
+    transition: all 650ms $easeInOutQuart;
+
+    &.is-inview {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.t-entrance-flip {
+    opacity: 0;
+    transform: translateY(75px);
+    transition: all 650ms $easeInOutQuart;
+
+    &.is-inview {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+// Transformation
+.t-uppercase {text-transform: uppercase;}
+.t-outline {-webkit-text-stroke-width: 1px; color: transparent;}
+.t-align-right {text-align: right;}
+.t-rtl {direction: rtl;}
+.t-ltr {direction: ltr;}
+

@@ -1,0 +1,35 @@
+button {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    background-color: transparent;
+    border: none;
+    margin: 0;
+    padding: 0;
+}
+
+.t-btn {
+    // Style de button
+}
+
+
+// Class animation de button au click
+.t-pressed {
+    transition: transform 250ms $easeOutBackPlus;
+    &:active {
+        transform: scale(0.93);
+        transition: transform 150ms $authenticMotion;
+    }
+}
+
+.t-pressed-light {
+    transition: transform 150ms $authenticMotion;
+    &:active {
+        transform: scale(0.95);
+    }
+}
+
+
+@include max-width(s) {
+
+}
