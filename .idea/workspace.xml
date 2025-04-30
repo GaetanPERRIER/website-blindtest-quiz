@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="8be1de84-97b1-4564-b780-88d17e53ac0f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/base/base.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/base/fonts.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/base/reset.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/settings/settings.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/styles.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/styles.css.map" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/styles.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/theme/buttons.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/theme/img.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/theme/text.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/front/assets/styles/utils/displays.scss" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="TypeScript File" />
+        <option value="JavaScript File" />
+        <option value="Vue Composition API Component" />
+        <option value="tsconfig.json" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;GaetanPERRIER&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/GaetanPERRIER/website-quiz.git&quot;,
+    &quot;accountId&quot;: &quot;93ccefb4-eb40-4eab-aae1-f499f0399134&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;customColor&quot;: &quot;&quot;,
+  &quot;associatedIndex&quot;: 4
+}</component>
+  <component name="ProjectId" id="2wGnjNJaPAWMH7cCt7lIuUbuMyG" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "main",
+    "last_opened_file_path": "C:/website-quiz/front",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "settings.editor.selected.configurable": "com.github.copilot.settings.ApplicationConfigurable",
+    "ts.external.directory.path": "C:\\Users\\perri\\AppData\\Local\\Programs\\WebStorm\\plugins\\javascript-plugin\\jsLanguageServicesImpl\\external",
+    "vue.rearranger.settings.migration": "true"
+  },
+  "keyToStringList": {
+    "vue.recent.templates": [
+      "Vue Composition API Component"
+    ]
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\website-quiz\front" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\website-quiz\front\pages\blindtest" />
+      <recent name="C:\website-quiz\front\pages" />
+    </key>
+  </component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-WS-243.21565.180" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="8be1de84-97b1-4564-b780-88d17e53ac0f" name="Changes" comment="" />
+      <created>1745676918983</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1745676918983</updated>
+      <workItem from="1745676918987" duration="17224000" />
+      <workItem from="1745708929580" duration="3829000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
