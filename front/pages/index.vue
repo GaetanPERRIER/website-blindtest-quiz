@@ -1,5 +1,5 @@
 <script setup>
-const gamemodes = ["Blindtest", "Quizz", "Films"];
+const gamemodes = ["Blindtest-room", "Quizz", "Films"];
 </script>
 
 <template>
