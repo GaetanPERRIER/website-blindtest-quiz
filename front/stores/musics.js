@@ -2,6 +2,10 @@ import { defineStore } from 'pinia'
 
 export const useMusicStore = defineStore('music', {
     state: () => ({
+        score: 0,
+        startTime: null,
+        maxPointsPerQuestion: 1000,
+
         blindtestCategories: [],
         musicsToGuess : [],
         currentMusic : 0,
@@ -24,8 +28,19 @@ export const useMusicStore = defineStore('music', {
             this.gameStarted = true
         },
 
+        resetGame() {
+            this.gameStarted = false
+            this.gamePaused = false
+            this.gameFinished = false
+            this.currentMusic = 0
+            this.titleGuessed = false
+            this.artistGuessed = false
+        },
+
         finishGame() {
             this.gameFinished = true
+            this.currentMusic = 0
+            this.gamePaused = false
         },
 
         pauseGame() {
