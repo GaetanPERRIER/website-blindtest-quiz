@@ -1,17 +1,15 @@
 <script setup>
-const musicStore = useMusicStore();
+const playerStore = usePlayerStore();
 
-const gamePaused = computed(() => musicStore.gamePaused);
-const gameFinished = computed(() => musicStore.gameFinished)
-const musicsToGuess = computed(() => musicStore.musicsToGuess)
-const currentMusic = computed(() => musicStore.currentMusic);
+const currentPlayer = computed(() => playerStore.player);
+const room = computed(() => playerStore.room);
+const musicToGuess = computed(() => room.value.musicsToGuess[room.value.currentMusic]);
 
 const audioVolume = ref(0.01);
 
 let userAnswer = ref("");
-const titleGuessed = computed(() => musicStore.titleGuessed);
-const artistGuessed = computed(() => musicStore.artistGuessed);
 
+/*
 function checkAnswer() {
     // Check title
     if (userAnswer.value.trim().toLowerCase() === musicsToGuess.value[currentMusic.value].title_short.toLowerCase()) {
@@ -29,11 +27,48 @@ function checkAnswer() {
     }
     userAnswer.value = "";
 }
+
+ */
+
+function RoundEnded(){
+    if (currentPlayer.value.host) {
+        socket.emit("round ended", room.value.id);
+    }
+}
+
+function nextMusic() {
+    if (currentPlayer.value.host) {
+        socket.emit("next music", room.value.id);
+    }
+}
+
 </script>
 
 <template>
     <div class="game">
-        <div v-if="!gameFinished" class="u-flex u-flex-direction-column u-justify-content-center u-align-items-center">
+        <div class="u-flex u-flex-direction-column u-justify-content-center u-align-items-center">
+            <div class="musicToDisplay">
+                <img v-if="room.roundEnded" :src="musicToGuess.album.cover_xl" alt="" class="album-cover">
+                <audio :src="musicToGuess.preview" controls autoplay :volume="audioVolume/2"
+                       @ended="RoundEnded"></audio>
+            </div>
+
+            <div v-if="!room.roundEnded" class="input-container">
+                <input v-model="userAnswer" type="text" placeholder="Entrez le nom de la musique ou l'artiste" @keydown.enter="">
+                <button @click="">Valider</button>
+            </div>
+
+            <div v-else class="music-info">
+                <h2>{{ musicToGuess.title_short }}</h2>
+                <p>par {{ musicToGuess.artist.name }}</p>
+            </div>
+
+            <div class="actions">
+                <button v-if="currentPlayer.host && room.roundEnded" @click="nextMusic">Musique suivante</button>
+            </div>
+
+
+            <!--
             <div class="musicToDisplay">
                 <img v-if="gamePaused" :src="musicsToGuess[currentMusic].album.cover_xl" alt="Album Cover"
                      class="album-cover">
@@ -76,6 +111,8 @@ function checkAnswer() {
                 <router-link to="/">Accueil</router-link>
                 <router-link to="/front/pages/blindtest/brouillon">Rejouer</router-link>
             </div>
+        </div>
+        -->
         </div>
     </div>
 </template>

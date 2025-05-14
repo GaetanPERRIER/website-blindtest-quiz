@@ -22,8 +22,6 @@ function JoinRoom(roomId) {
         return;
     }
 
-    console.log("Join room", roomId);
-
     const playerData = {
         host: false,
         roomId: roomId,
@@ -63,10 +61,6 @@ onMounted(() => {
                 <p @click="JoinRoom(room.id)">Rejoindre</p>
             </div>
         </div>
-
-
-
-
     </div>
     <ParticleBackground/>
 </template>
