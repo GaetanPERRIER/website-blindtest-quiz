@@ -63,20 +63,19 @@ function startGame() {
 </script>
 
 <template>
-    <div v-if="!room.gameStarted" class="blindtest-container u-flex u-justify-content-center u-align-items-center u-gap10">
-        <div class="w50">
-            <BlindtestCategories/>
-        </div>
-        <div class="w20">
+    <div v-if="!room.gameStarted" class="blindtest-container u-flex u-justify-content-center u-align-items-center u-p25 u-gap100">
+        <div><BlindtestCategories/></div>
+        <div class="u-flex u-flex-direction-column u-align-items-center u-gap15">
             <PlayerList/>
+            <input v-if="player.host" v-model="inviteUrl" type="text" placeholder="Lien d'invitation" readonly />
+            <button @click="startGame" v-if="player.host">Lancer la partie</button>
         </div>
 
-        <button @click="startGame" v-if="player.host">Lancer la partie</button>
-        <input v-if="player.host" v-model="inviteUrl" type="text" placeholder="Lien d'invitation" readonly />
+
     </div>
 
     <div v-else class="blindtest-container">
-        <div class="w50 musics-container">
+        <div class="musics-container">
             <MusicGuessing/>
         </div>
     </div>
@@ -126,16 +125,10 @@ function startGame() {
     button {
         width: 300px;
         cursor: pointer;
-        position: absolute;
-        bottom: 20px;
-        right: 20px;
     }
 
     input {
         cursor: text;
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
     }
 
 

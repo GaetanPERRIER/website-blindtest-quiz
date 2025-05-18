@@ -57,7 +57,8 @@ function selectCategory (event, category) {
     </div>
 
     <div v-else class="blindtest-categories">
-        <img v-if="room && room.category" :src="room.category.picture_big" alt="" class="">
+        <img v-if="room && room.category" :src="room.category.picture_big" alt="" class="choosen-catedory">
+        <h1 v-else>En attente de l'hôte...</h1>
     </div>
 
 </template>
@@ -65,12 +66,13 @@ function selectCategory (event, category) {
 <style scoped lang="scss">
 
 .blindtest-categories {
-    width: 100%;
+    width: 45vw;
+    gap: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 20px;
+    overflow: hidden;
 
     h1 {
         font-size: 30px;
@@ -83,8 +85,10 @@ function selectCategory (event, category) {
     }
 
     .categories-container {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
     }
 
     .blindtest-category {
@@ -120,7 +124,13 @@ function selectCategory (event, category) {
             width: 100%;
             height: 35px;
         }
+    }
 
+    .choosen-catedory {
+        width: 400px;
+        height: 400px;
+        border-radius: 10px;
+        box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
     }
 }
 </style>
