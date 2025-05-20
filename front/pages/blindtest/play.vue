@@ -64,15 +64,10 @@ function startGame() {
 
 <template>
     <div v-if="!room.gameStarted" class="blindtest-container u-flex u-justify-content-center u-align-items-center u-p25 u-gap100">
-        <div><BlindtestCategories/></div>
-        <div class="u-flex u-flex-direction-column u-align-items-center u-gap15">
-            <PlayerList/>
-            <input v-if="player.host" v-model="inviteUrl" type="text" placeholder="Lien d'invitation" readonly />
-            <button @click="startGame" v-if="player.host">Lancer la partie</button>
-        </div>
-
-
+        <ConfigLobby/>
     </div>
+
+
 
     <div v-else class="blindtest-container">
         <div class="musics-container">

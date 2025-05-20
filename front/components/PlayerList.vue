@@ -7,14 +7,18 @@ const bgGradient = computed(() => playerStore.bgGradient);
 const room = computed(() => playerStore.room);
 const currentPlayer = computed(() => playerStore.player);
 
+// Jeu de données de joueurs test
+const playersTest = [
+    { username: "Player 1", host: true, socketId: "123" },
+    { username: "Caler le triso", host: false, socketId: "456" },
+    { username: "Player 3", host: false, socketId: "789" },
+    { username: "Player 4", host: false, socketId: "101" },
+    { username: "Player 5", host: false, socketId: "112" },
+    { username: "Player 6", host: false, socketId: "131" },
+];
+
 
 onMounted(() => {
-    const playerContainer = document.querySelector(".players-container");
-    if (playerContainer) {
-        playerContainer.style.background = bgGradient.value;
-        playerContainer.style.animation = "gradient 10s ease infinite";
-        playerContainer.style.backgroundSize = "200% 200%";
-    }
 
 });
 
@@ -31,82 +35,83 @@ function EjectAPlayer(event) {
 
 <template>
     <div class="player-list">
-        <h1 class="title-blindtest">Players</h1>
-        <div class="players-container u-gap10">
-            <div v-for="(player, index) in room.players" :key="index" class="blindtest-player">
-                <p>{{ player.username }}</p>
+        <div v-for="(player, index) in playersTest" :key="index" class="blindtest-player">
+            <div class="player-avatar-container">
+                <img class="player-avatar" src="/avatar.png" alt="">
                 <img v-if="player.host" class="host" src="/icons/crown.png" alt="Hôte">
-                <img v-if="currentPlayer.host && !player.host" class="cross-eject-player" src="/icons/cross.png" alt="Cross" :data-socket-id="player.socketId" @click="EjectAPlayer"  >
+                <img v-if="currentPlayer.host && !player.host" class="cross-eject-player" src="/icons/cross.png" alt="Cross" :data-socket-id="player.socketId" @click="EjectAPlayer">
             </div>
+            <p class="player-username">{{ player.username }}</p>
+
         </div>
     </div>
 </template>
 
 <style scoped lang="scss">
 
-@keyframes gradient {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
 
 .player-list {
     display: flex;
-    flex-direction: column;
-    justify-content: center;
+    width: 100%;
+    height: 100%;
+    justify-content: space-evenly;
     align-items: center;
 
-    h1 {
-        font-size: 30px;
-        color: #fff;
-        text-align: center;
-        margin-bottom: 15px;
-        width: 100%;
-        height: 35px;
-        overflow: hidden;
-    }
-
-    .players-container {
+    .blindtest-player {
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        padding: 15px 15px;
-        width: 400px;
-        border-radius: 10px;
-        box-shadow: rgba(0, 0, 0, 0.25) 0px 25px 50px -12px;
+        gap: 5px;
+        height: 100%;
 
-        .host {
-            width: 25px;
-            height: 25px;
-        }
 
-        .cross-eject-player {
-            width: 20px;
-            height: 20px;
-            cursor: pointer;
-        }
-
-        .blindtest-player {
-            width: 100%;
-            height: 50px;
+        .player-avatar-container {
+            width: 60px;
+            height: 60px;
+            position: relative;
             display: flex;
-            gap: 10px;
             justify-content: center;
             align-items: center;
-            background-color: rgba(255, 255, 255, 0.25);
-            border: rgba(255, 255, 255, 0.5) 1px solid;
-            border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+
+            .host {
+                position: absolute;
+                top: -5px;
+                right: -5px;
+                width: 25px;
+                height: 25px;
+            }
+
+            .cross-eject-player {
+                position: absolute;
+                top: 0;
+                right: 0;
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+            }
+
+            .player-avatar {
+                width: 100%;
+            }
         }
+
+
+        .player-username {
+            font-size: 14px;
+            width: 100%;
+            color: white;
+            text-align: center;
+            overflow: hidden;
+            white-space: nowrap;
+        }
+
+
     }
 
+
 }
+
+
 
 </style>
