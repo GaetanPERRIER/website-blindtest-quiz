@@ -62,13 +62,13 @@ function EjectAPlayer(event) {
         flex-direction: column;
         justify-content: center;
         align-items: center;
-        gap: 5px;
+        gap: 0.2604166666666667vw;
         height: 100%;
 
 
         .player-avatar-container {
-            width: 60px;
-            height: 60px;
+            width: 3.125vw;
+            height: 3.125vw;
             position: relative;
             display: flex;
             justify-content: center;
@@ -76,18 +76,18 @@ function EjectAPlayer(event) {
 
             .host {
                 position: absolute;
-                top: -5px;
-                right: -5px;
-                width: 25px;
-                height: 25px;
+                top: -0.462962962962963vh;
+                right: -0.2604166666666667vw;
+                width: 1.302083333333333vw;
+                height: 1.302083333333333vw;
             }
 
             .cross-eject-player {
                 position: absolute;
                 top: 0;
                 right: 0;
-                width: 20px;
-                height: 20px;
+                width: 1.041666666666667vw;
+                height: 1.041666666666667vw;
                 cursor: pointer;
             }
 
@@ -98,7 +98,7 @@ function EjectAPlayer(event) {
 
 
         .player-username {
-            font-size: 14px;
+            font-size: 0.7291666666666667vw;
             width: 100%;
             color: white;
             text-align: center;

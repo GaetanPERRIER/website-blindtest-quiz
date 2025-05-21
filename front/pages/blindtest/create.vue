@@ -49,7 +49,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="blindtest-create-container u-flex u-justify-content-center u-flex-direction-column u-align-items-center u-gap25">
+    <div class="blindtest-create-container u-flex u-justify-content-center u-flex-direction-column u-align-items-center">
         <input v-model="username"  type="text" placeholder="Nom du joueur" />
         <p v-if="!roomIdInUrl" @click="SaveUsername">Créer un salon</p>
         <p v-else @click="JoinRoom(route.query.roomId)">Rejoindre le salon</p>
@@ -70,25 +70,26 @@ onMounted(() => {
 .blindtest-create-container {
     width: 100vw;
     height: 100vh;
+    gap :1.302083333333333vw;
 
     p {
-        width: 300px;
+        width: 15.625vw;
         cursor: pointer;
     }
 
     input {
-        width: 300px;
+        width: 15.625vw;
     }
 
     p, input {
-        padding: 12px 15px;
-        border: 2px solid rgba(255, 255, 255, 0.3);
+        padding: 0.625vw 0.78125vw;
+        border: 0.1041666666666667vw solid rgba(255, 255, 255, 0.3);
         background-color: rgba(255, 255, 255, 0.1);
         color: white;
-        border-radius: 25px;
+        border-radius: 1.302083333333333vw;
         outline: none;
-        font-size: 16px;
-        backdrop-filter: blur(5px);
+        font-size: 0.8333333333333333vw;
+        backdrop-filter: blur(0.2604166666666667vw);
         text-align: center;
 
         &::placeholder {

@@ -1,5 +1,4 @@
 <script setup>
-
 </script>
 
 <template>
@@ -9,8 +8,8 @@
             <div class="game-config">
 
             </div>
-            <div class="blindtest-categories">
-
+            <div class="blindtest-categories-container">
+                <BlindtestCategories/>
             </div>
         </div>
         <div class="bottom-side w100">
@@ -31,11 +30,11 @@
 .room-config {
     width: 62.5vw;
     height: 74.0740741vh;
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    border: 0.1041666666666667vw solid rgba(255, 255, 255, 0.3);
     background-color: rgba(255, 255, 255, 0.2);
     color: white;
-    border-radius: 15px;
-    backdrop-filter: blur(5px);
+    border-radius: 0.78125vw;
+    backdrop-filter: blur(0.2604166666666667vw);
 
 
     .top-side {
@@ -44,18 +43,20 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        overflow: hidden;
+
+        border-bottom: 0.1041666666666667vw solid rgba(255, 255, 255, 0.3);
 
         .game-config {
             height: 100%;
-            border-top-left-radius: 15px;
+            border-top-left-radius: 0.78125vw;
             width: 60%;
-            border-right: 2px solid rgba(255, 255, 255, 0.3);
+            border-right: 0.1041666666666667vw solid rgba(255, 255, 255, 0.3);
         }
 
-        .blindtest-categories {
+        .blindtest-categories-container {
             height: 100%;
-            border-top-right-radius: 15px;
+            border-top-right-radius: 0.78125vw;
             width: 40%;
         }
     }
@@ -66,13 +67,13 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        border-bottom-left-radius: 15px;
-        border-bottom-right-radius: 15px;
+        border-bottom-left-radius: 0.78125vw;
+        border-bottom-right-radius: 0.78125vw;
         background-color: rgba(0, 0, 0, 0.25);
-
+        overflow: hidden;
 
         .invite-button-container {
-            border-left: 2px solid rgba(255, 255, 255, 0.3);
+            border-left: 0.1041666666666667vw solid rgba(255, 255, 255, 0.3);
             height: 100%;
             display: flex;
             justify-content: center;

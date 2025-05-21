@@ -49,7 +49,7 @@ function chooseGrandientRandomly(){
                      left: `${Math.random() * 100}%`,
                      top: `${Math.random() * 100}%`,
                      animationDelay: `${Math.random() * 5}s`,
-                     fontSize: `${Math.random() * 20 + 10}px`,
+                     fontSize: `${(Math.random() * 20 + 10) / 1920 * 100}vw`,
                      opacity: Math.random() * 0.5 + 0.3
                  }">
             {{ ['♩', '♪', '♫', '♬', '♭', '♮'][Math.floor(Math.random() * 6)] }}

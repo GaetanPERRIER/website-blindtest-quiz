@@ -16,7 +16,7 @@ onMounted(() => {
 </script>
 
 <template>
-    <div class="invite-button u-flex u-justify-content-center u-align-items-center u-gap10">
+    <div class="invite-button u-flex u-justify-content-center u-align-items-center">
         <p class="invite-button-text">Inviter des amis</p>
         <img class="invite-button-icon" src="/icons/copy%201.png" alt="Invite">
     </div>
@@ -25,11 +25,12 @@ onMounted(() => {
 <style scoped lang="scss">
 
 .invite-button {
-    padding: 15px 20px;
-    border-radius: 15px;
+    padding: 1.388888888888889vh 1.041666666666667vw;
+    border-radius: 0.78125vw;
     cursor: pointer;
-    transition: all 250ms ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    gap: 0.5208333333333333vw;
+    transition: transform 250ms ease;
+    box-shadow: 0 0.2083333333333333vw 0.4166666666666667vw rgba(0, 0, 0, 0.2);
 
 
     &:hover {
@@ -38,8 +39,12 @@ onMounted(() => {
     }
 
     p {
-        font-size: 14px;
+        font-size: 0.7291666666666667vw;
         color: #fff;
+    }
+
+    .invite-button-icon {
+        width: 1.041666666666667vw;
     }
 }
 

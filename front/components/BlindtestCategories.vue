@@ -45,7 +45,7 @@ function selectCategory (event, category) {
 
 <template>
     <div v-if="currentPlayer.host" class="blindtest-categories">
-        <h1 class="title-blindtest">Choisissez une catégorie de blindtest</h1>
+        <input type="text" class="search-bar" placeholder="Search for a category...">
         <div class="categories-container u-gap20">
             <div v-for="category in blindtestCategories">
                 <div @click="selectCategory($event, category)" class="blindtest-category" :key="category.id">
@@ -65,14 +65,28 @@ function selectCategory (event, category) {
 
 <style scoped lang="scss">
 
-.blindtest-categories {
-    width: 45vw;
+.blindtest-categories{
+    width: 100%;
     gap: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    padding: 20px;
+
+    .search-bar {
+        width: 100%;
+        background-color: #fff;
+        height: 40px;
+        border-radius: 25px;
+        border: none;
+        padding: 10px 20px;
+
+        &:focus {
+            outline: none;
+        }
+    }
 
     h1 {
         font-size: 30px;
