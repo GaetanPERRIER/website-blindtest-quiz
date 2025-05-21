@@ -1,12 +1,13 @@
 <script setup>
+import GameConfig from "~/components/GameConfig.vue";
 </script>
 
 <template>
 
     <div class="room-config">
         <div class="top-side w100">
-            <div class="game-config">
-
+            <div class="game-config-container">
+                <GameConfig/>
             </div>
             <div class="blindtest-categories-container">
                 <BlindtestCategories/>
@@ -47,7 +48,7 @@
 
         border-bottom: 0.1041666666666667vw solid rgba(255, 255, 255, 0.3);
 
-        .game-config {
+        .game-config-container {
             height: 100%;
             border-top-left-radius: 0.78125vw;
             width: 60%;

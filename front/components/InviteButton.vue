@@ -32,7 +32,6 @@ onMounted(() => {
     transition: transform 250ms ease;
     box-shadow: 0 0.2083333333333333vw 0.4166666666666667vw rgba(0, 0, 0, 0.2);
 
-
     &:hover {
         background-color: #ffe339;
         transform: translate(0, -2px);

@@ -67,12 +67,13 @@ function selectCategory (event, category) {
 
 .blindtest-categories{
     width: 100%;
+    height: 100%;
     gap: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    overflow: hidden;
+
     padding: 20px;
 
     .search-bar {
@@ -103,11 +104,13 @@ function selectCategory (event, category) {
         flex-wrap: wrap;
         justify-content: center;
         align-items: center;
+        height: 100%;
+        overflow: scroll;
     }
 
     .blindtest-category {
         cursor: pointer;
-        width: 150px;
+        width: 125px;
         height: fit-content;
         text-align: center;
         position: relative;
@@ -118,8 +121,8 @@ function selectCategory (event, category) {
             position: absolute;
             top: 0;
             left: 0;
-            width: 150px;
-            height: 150px;
+            width: 125px;
+            height: 125px;
             background-color: rgba(0, 0, 0, 0.75);
             border-radius: 10px;
             z-index: 1;
