@@ -46,7 +46,7 @@ function selectCategory (event, category) {
 <template>
     <div v-if="currentPlayer.host" class="blindtest-categories">
         <input type="text" class="search-bar" placeholder="Search for a category...">
-        <div class="categories-container u-gap20">
+        <div class="categories-container">
             <div v-for="category in blindtestCategories">
                 <div @click="selectCategory($event, category)" class="blindtest-category" :key="category.id">
                     <img :src="category.picture_big" alt="Category Image" class="">
@@ -68,21 +68,23 @@ function selectCategory (event, category) {
 .blindtest-categories{
     width: 100%;
     height: 100%;
-    gap: 20px;
+    gap: 1.041666666666667vw;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
 
-    padding: 20px;
+    padding: 1.041666666666667vw;
 
     .search-bar {
         width: 100%;
         background-color: #fff;
-        height: 40px;
-        border-radius: 25px;
+        height: 4.62962962962963vh;
+        border-radius: 1.302083333333333vw;
         border: none;
-        padding: 10px 20px;
+        padding: 0.9259259259259259vh 1.041666666666667vw;
+        font-size: 0.8333333333333333vw;
+
 
         &:focus {
             outline: none;
@@ -90,7 +92,7 @@ function selectCategory (event, category) {
     }
 
     h1 {
-        font-size: 30px;
+        font-size: 1.5625vw;
         color: #fff;
         text-align: center;
         margin-top: 20px;
@@ -106,12 +108,20 @@ function selectCategory (event, category) {
         align-items: center;
         height: 100%;
         overflow: scroll;
+        gap:1.041666666666667vw;
+        overflow: auto; /* ou scroll */
+        scrollbar-width: none; /* Firefox */
+        -ms-overflow-style: none;  /* IE et Edge */
+    }
+
+    .categories-container::-webkit-scrollbar {
+        display: none; /* Chrome, Safari et Opera */
     }
 
     .blindtest-category {
         cursor: pointer;
-        width: 125px;
-        height: fit-content;
+        width: 6.510416666666667vw;
+        height: 6.5104166667vw;
         text-align: center;
         position: relative;
 
@@ -121,16 +131,16 @@ function selectCategory (event, category) {
             position: absolute;
             top: 0;
             left: 0;
-            width: 125px;
-            height: 125px;
+            width: 6.510416666666667vw;
+            height: 6.510416666666667vw;
             background-color: rgba(0, 0, 0, 0.75);
-            border-radius: 10px;
+            border-radius: 0.5208333333333333vw;
             z-index: 1;
         }
 
         img {
             width: 100%;
-            border-radius: 10px;
+            border-radius: 0.5208333333333333vw;
         }
 
         h2 {

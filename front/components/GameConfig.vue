@@ -22,8 +22,8 @@ const nbSubCircles = 5;
     height: 100%;
 
     .circle {
-        width: 650px;
-        height: 650px;
+        width: 33.85416666666667vw;
+        height: 33.85416666666667vw;
         border-radius: 50%;
         position: relative;
         display: flex;

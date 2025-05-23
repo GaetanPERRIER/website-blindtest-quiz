@@ -34,7 +34,7 @@ onMounted(() => {
 
     &:hover {
         background-color: #ffe339;
-        transform: translate(0, -2px);
+        transform: scale(1.03);
     }
 
     p {
