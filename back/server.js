@@ -55,7 +55,6 @@ io.on('connection', (socket) => {
 
             // Définir le joueur comme non-hôte
             player.host = false;
-
             room.players.push(player);
         }
 
@@ -91,12 +90,33 @@ io.on('connection', (socket) => {
         io.to(room.id).emit('roomDataUpdated', room);
     })
 
-
-    socket.on('start game', async (roomId, urlTracklist, nbMusics) => {
+    // Sélectionner le nombre de musiques
+    socket.on('select song count', (roomId, songCount) => {
         const room = rooms.find(r => r.id === roomId);
         if (!room) {
             return;
         }
+
+        room.songCount = songCount;
+        io.to(room.id).emit('roomDataUpdated', room);
+    })
+
+    // Sélectionner la difficulté
+    socket.on('select difficulty', (roomId, difficulty) => {
+        const room = rooms.find(r => r.id === roomId);
+        if (!room) {
+            return;
+        }
+
+        room.difficulty = difficulty;
+        io.to(room.id).emit('roomDataUpdated', room);
+    })
+
+
+    // Lancer le jeu
+    socket.on('start game', async (roomId, urlTracklist, nbMusics, difficulty) => {
+        const room = rooms.find(r => r.id === roomId);
+        if (!room) return;
 
         try {
             let allTracks = [];
@@ -104,52 +124,133 @@ io.on('connection', (socket) => {
 
             while (nextUrl) {
                 const response = await fetch(nextUrl);
-                if (!response.ok) {
-                    throw new Error(`Erreur lors de l'appel à Deezer: ${response.statusText}`);
-                }
+                if (!response.ok) throw new Error(`Erreur Deezer: ${response.statusText}`);
                 const data = await response.json();
                 allTracks = allTracks.concat(data.data);
                 nextUrl = data.next;
             }
 
-            // choose random tracks
-            allTracks = allTracks.sort(() => Math.random() - 0.5).slice(0, nbMusics);
-            room.musicsToGuess = allTracks;
+            // Filtrer selon la difficulté
+            let filteredTracks;
+            switch (difficulty) {
+                case 'easy':
+                    filteredTracks = allTracks.filter(track => track.rank >= 700000); // populaires
+                    break;
+                case 'normal':
+                    filteredTracks = allTracks.filter(track => track.rank >= 300000 && track.rank < 700000);
+                    break;
+                case 'hard':
+                    filteredTracks = allTracks.filter(track => track.rank < 300000); // peu connues
+                    break;
+                default:
+                    filteredTracks = allTracks; // fallback
+            }
+
+            // Si pas assez de morceaux, compléter avec des aléatoires
+            if (filteredTracks.length < nbMusics) {
+                filteredTracks = filteredTracks.concat(
+                    allTracks.filter(t => !filteredTracks.includes(t)).slice(0, nbMusics - filteredTracks.length)
+                );
+            }
+
+            // Mélanger et tronquer
+            filteredTracks = filteredTracks.sort(() => Math.random() - 0.5).slice(0, nbMusics);
+
+            room.musicsToGuess = filteredTracks;
             room.currentMusic = 0;
             room.gameStarted = true;
+
+            // Réinitialiser les réponses des joueurs
+            room.players.forEach(player => {
+                player.titleGuessed = false;
+                player.artistGuessed = false;
+                player.score = 0;
+            })
+
             io.to(room.id).emit('roomDataUpdated', room);
         } catch (error) {
-            console.error('Erreur lors de l\'appel à l\'API Deezer:', error);
-            io.to(socket.id).emit('error', 'Erreur lors de l\'appel à l\'API Deezer');
+            console.error('Erreur API Deezer:', error);
+            io.to(socket.id).emit('error', 'Erreur API Deezer');
         }
-
-
-
-        // Fin d'un round
-        socket.on('round ended', (roomId) => {
-            const room = rooms.find(r => r.id === roomId);
-            if (!room) {
-                return;
-            }
-
-            room.roundEnded = true;
-            io.to(room.id).emit('roomDataUpdated', room);
-        });
-
-        // Passer à la musique suivante
-        socket.on ('next music', (roomId) => {
-            const room = rooms.find(r => r.id === roomId);
-            if (!room) {
-                return;
-            }
-
-            room.currentMusic++;
-            room.roundEnded = false;
-            io.to(room.id).emit('roomDataUpdated', room);
-        })
     });
 
 
+    // Vérifier la réponse du joueur
+    socket.on('check answer', (roomId, playerId, answer) => {
+
+        const room = rooms.find(r => r.id === roomId);
+        if (!room || !room.gameStarted) return;
+
+        const currentMusic = room.musicsToGuess[room.currentMusic];
+        const isCorrect = answer.toLowerCase() === currentMusic.title.toLowerCase();
+
+        const player = room.players.find(p => p.socketId === playerId);
+        if (!player) return;
+
+        if (isCorrect) {
+            player.titleGuessed = true;
+            player.score += 10;
+            console.log(`[Bonne réponse] : ${player.username} a trouvé le titre ${currentMusic.title}`);
+
+            // Vérifier si tous les joueurs ont trouvé le titre
+            const allPlayersGuessed = room.players.every(p => p.titleGuessed);
+            if (allPlayersGuessed) {
+                room.roundEnded = true;
+                console.log('[Fin de la ronde] : Tous les joueurs ont trouvé le titre');
+            }
+            io.to(room.id).emit('roomDataUpdated', room);
+        }
+    })
+
+    // Fin du song
+    socket.on('song ended', (roomId, playerId) => {
+
+        const room = rooms.find(r => r.id === roomId);
+        if (!room || !room.gameStarted) return;
+
+        // Vérifier si le joueur a déjà deviné le titre
+        const player = room.players.find(p => p.socketId === playerId);
+        if (!player || player.titleGuessed) return;
+
+        // Si le joueur n'a pas deviné le titre, marquer comme non deviné
+        player.titleGuessed = true;
+        console.log(`[Fin de la chanson] : ${player.username} n'a pas trouvé le titre`);
+
+        // Vérifier si tous les joueurs ont trouvé le titre
+        const allPlayersGuessed = room.players.every(p => p.titleGuessed);
+        if (allPlayersGuessed) {
+            room.roundEnded = true;
+            console.log('[Fin de la ronde] : Tous les joueurs ont trouvé le titre ou la chanson est terminée sans réponse');
+        }
+
+        io.to(room.id).emit('roomDataUpdated', room);
+    })
+
+
+    // Passer à la musique suivante
+    socket.on('next music', (roomId) => {
+        const room = rooms.find(r => r.id === roomId);
+        if (!room || !room.gameStarted) return;
+
+        // Réinitialiser les réponses des joueurs
+        room.players.forEach(player => {
+            player.titleGuessed = false;
+            player.artistGuessed = false;
+        });
+
+        // Passer à la musique suivante
+        room.currentMusic++;
+        room.roundEnded = false;
+
+        if (room.currentMusic >= room.musicsToGuess.length) {
+            console.log('[Fin du jeu] : Toutes les musiques ont été jouées');
+            room.gameStarted = false; // Fin du jeu
+        }
+        io.to(room.id).emit('roomDataUpdated', room);
+    })
+
+
+    // Déconnexion du joueur
     socket.on('disconnect', () => {
         console.log('[Déconnexion] :', socket.id);
 
@@ -190,6 +291,8 @@ function createRoom(player){
         id : generateRoomId(),
         players: [],
         category: null,
+        songCount: 10,
+        difficulty: "easy",
         musicsToGuess: [],
         currentMusic : 0,
         gameStarted : false,

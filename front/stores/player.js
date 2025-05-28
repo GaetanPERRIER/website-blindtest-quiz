@@ -7,6 +7,9 @@ export const usePlayerStore = defineStore('player', {
             roomId : null,
             username : "",
             socketId : "",
+            artistGuessed : false,
+            titleGuessed : false,
+            score : 0,
         },
         socket : null,
         bgGradient : "",
@@ -15,14 +18,12 @@ export const usePlayerStore = defineStore('player', {
             id : null,
             players : [],
             category : null,
+            songCount : 10,
+            difficulty : "easy",
             musicsToGuess : [],
             currentMusic : 0,
             gameStarted : false,
         },
-
-        artistGuessed : false,
-        titleGuessed : false,
-
     }),
 
     actions: {

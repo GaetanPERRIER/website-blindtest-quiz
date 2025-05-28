@@ -14,10 +14,10 @@ import GameConfig from "~/components/GameConfig.vue";
             </div>
         </div>
         <div class="bottom-side w100">
-            <div class="player-list-container w100">
+            <div class="player-list-container w100 h100">
                 <PlayerList/>
             </div>
-            <div class="invite-button-container w25">
+            <div class="invite-button-container w30">
                 <InviteButton/>
             </div>
         </div>

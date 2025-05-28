@@ -50,17 +50,20 @@ onMounted(() => {
 
 <template>
     <div class="blindtest-create-container u-flex u-justify-content-center u-flex-direction-column u-align-items-center">
-        <input v-model="username"  type="text" placeholder="Nom du joueur" />
-        <p v-if="!roomIdInUrl" @click="SaveUsername">Créer un salon</p>
-        <p v-else @click="JoinRoom(route.query.roomId)">Rejoindre le salon</p>
+        <input v-model="username"  type="text" placeholder="Player name" />
+        <p v-if="!roomIdInUrl" @click="SaveUsername">Create a room</p>
+        <p v-else @click="JoinRoom(route.query.roomId)">Join the room</p>
 
+
+        <!--
         <div v-if="!roomIdInUrl">
             <div v-for="room in publicRooms" :key="room.id" class="u-flex u-justify-content-center u-align-items-center">
-                <p> Hôte : {{ room.players[0].username }}</p>
+                <p> Host : {{ room.players[0].username }}</p>
                 <p>{{ room.players.length }}/6</p>
-                <p @click="JoinRoom(room.id)">Rejoindre</p>
+                <p @click="JoinRoom(room.id)">Join</p>
             </div>
         </div>
+        -->
     </div>
     <ParticleBackground/>
 </template>
@@ -88,7 +91,7 @@ onMounted(() => {
         color: white;
         border-radius: 1.302083333333333vw;
         outline: none;
-        font-size: 0.8333333333333333vw;
+        font-size: 0.9375vw;
         backdrop-filter: blur(0.2604166666666667vw);
         text-align: center;
 

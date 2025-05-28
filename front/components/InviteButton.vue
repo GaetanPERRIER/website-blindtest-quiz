@@ -8,16 +8,25 @@ onMounted(() => {
     if (gradientElement) {
         gradientElement.style.background = bgGradient.value;
 
-        gradientElement.style.backgroundSize = "400%";
+        gradientElement.style.backgroundSize = "500%";
         gradientElement.style.backgroundPosition = "center";
     }
 });
 
+function CopyLink() {
+    const inviteUrl = `${window.location.origin}/blindtest/create?roomId=${playerStore.player.roomId}`;
+    navigator.clipboard.writeText(inviteUrl).then(() => {
+        alert("Lien copié dans le presse-papiers !");
+    }).catch(err => {
+        console.error('Erreur lors de la copie du lien : ', err);
+    });
+}
+
 </script>
 
 <template>
-    <div class="invite-button u-flex u-justify-content-center u-align-items-center">
-        <p class="invite-button-text">Inviter des amis</p>
+    <div @click="CopyLink" class="invite-button u-flex u-justify-content-center u-align-items-center">
+        <p class="invite-button-text">Invite friends</p>
         <img class="invite-button-icon" src="/icons/copy%201.png" alt="Invite">
     </div>
 </template>
@@ -38,7 +47,8 @@ onMounted(() => {
     }
 
     p {
-        font-size: 0.7291666666666667vw;
+        font-size: 0.9375vw;
+
         color: #fff;
     }
 

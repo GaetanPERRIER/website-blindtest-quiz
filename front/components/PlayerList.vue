@@ -1,25 +1,22 @@
 <script setup>
 import {usePlayerStore} from "~/stores/player.js";
 
+
+defineProps({
+    gameStatus: {
+        type: Boolean,
+        default: false
+    }
+})
+
 const playerStore = usePlayerStore();
 
 const bgGradient = computed(() => playerStore.bgGradient);
 const room = computed(() => playerStore.room);
 const currentPlayer = computed(() => playerStore.player);
 
-// Jeu de données de joueurs test
-const playersTest = [
-    { username: "Player 1", host: true, socketId: "123" },
-    { username: "Caler le triso", host: false, socketId: "456" },
-    { username: "Player 3", host: false, socketId: "789" },
-    { username: "Player 4", host: false, socketId: "101" },
-    { username: "Player 5", host: false, socketId: "112" },
-    { username: "Player 6", host: false, socketId: "131" },
-];
-
 
 onMounted(() => {
-
 });
 
 function EjectAPlayer(event) {
@@ -34,14 +31,15 @@ function EjectAPlayer(event) {
 </script>
 
 <template>
-    <div class="player-list">
-        <div v-for="(player, index) in playersTest" :key="index" class="blindtest-player">
+    <div :class="gameStatus ? 'player-list u-flex-direction-column' : 'player-list' ">
+        <div v-for="(player, index) in room.players" :key="index" class="blindtest-player">
             <div class="player-avatar-container">
                 <img class="player-avatar" src="/avatar.png" alt="">
                 <img v-if="player.host" class="host" src="/icons/crown.png" alt="Hôte">
                 <img v-if="currentPlayer.host && !player.host" class="cross-eject-player" src="/icons/cross.png" alt="Cross" :data-socket-id="player.socketId" @click="EjectAPlayer">
+                <p class="player-username">{{ player.username }}</p>
             </div>
-            <p class="player-username">{{ player.username }}</p>
+            <p v-if="gameStatus"> {{player.score}}</p>
 
         </div>
     </div>
@@ -59,20 +57,20 @@ function EjectAPlayer(event) {
 
     .blindtest-player {
         display: flex;
-        flex-direction: column;
-        justify-content: center;
+        justify-content: space-between;
         align-items: center;
-        gap: 0.2604166666666667vw;
+        gap: 50px;
         height: 100%;
-
+        transform: scale(0.9);
 
         .player-avatar-container {
-            width: 3.125vw;
-            height: 3.125vw;
             position: relative;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+            gap: 10px;
+            width: 100px;
 
             .host {
                 position: absolute;
@@ -90,19 +88,13 @@ function EjectAPlayer(event) {
                 height: 1.041666666666667vw;
                 cursor: pointer;
             }
-
-            .player-avatar {
-                width: 100%;
-            }
         }
 
 
         .player-username {
-            font-size: 0.7291666666666667vw;
-            width: 100%;
+            font-size: 18px;
             color: white;
             text-align: center;
-            overflow: hidden;
             white-space: nowrap;
         }
 

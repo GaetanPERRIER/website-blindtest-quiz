@@ -57,8 +57,7 @@ function selectCategory (event, category) {
     </div>
 
     <div v-else class="blindtest-categories">
-        <img v-if="room && room.category" :src="room.category.picture_big" alt="" class="choosen-catedory">
-        <h1 v-else>En attente de l'hôte...</h1>
+        <h1>{Player} is choosing the category...</h1>
     </div>
 
 </template>
@@ -95,10 +94,7 @@ function selectCategory (event, category) {
         font-size: 1.5625vw;
         color: #fff;
         text-align: center;
-        margin-top: 20px;
         width: 100%;
-        height: 35px;
-        overflow: hidden;
     }
 
     .categories-container {

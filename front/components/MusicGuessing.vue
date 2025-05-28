@@ -9,31 +9,13 @@ const audioVolume = ref(0.01);
 
 let userAnswer = ref("");
 
-/*
-function checkAnswer() {
-    // Check title
-    if (userAnswer.value.trim().toLowerCase() === musicsToGuess.value[currentMusic.value].title_short.toLowerCase()) {
-        musicStore.setTitleGuessed(true);
-    }
-
-    // Check artist
-    if (userAnswer.value.trim().toLowerCase() === musicsToGuess.value[currentMusic.value].artist.name.toLowerCase()) {
-        musicStore.setArtistGuessed(true);
-    }
-
-    // Check if both title and artist are guessed
-    if (titleGuessed.value && artistGuessed.value) {
-        musicStore.pauseGame()
-    }
+function CheckAnswer() {
+    socket.emit("check answer", room.value.id, currentPlayer.value.socketId, userAnswer.value);
     userAnswer.value = "";
 }
 
- */
-
-function RoundEnded(){
-    if (currentPlayer.value.host) {
-        socket.emit("round ended", room.value.id);
-    }
+function SongEnded() {
+    socket.emit("song ended", room.value.id, currentPlayer.value.socketId);
 }
 
 function nextMusic() {
@@ -46,19 +28,26 @@ function nextMusic() {
 
 <template>
     <div class="game">
-        <div class="u-flex u-flex-direction-column u-justify-content-center u-align-items-center">
+        <div class="game-container u-flex u-flex-direction-column u-justify-content-center u-align-items-center">
+
+            <div class="game-status u-flex u-flex-direction-column">
+                <h2>{{ room.category.title }} - {{ room.currentMusic + 1 }} / {{ room.musicsToGuess.length}}</h2>
+                <div class="players-status">
+                    <PlayerList :game-status="true"/>
+                </div>
+            </div>
+
             <div class="musicToDisplay">
-                <img v-if="room.roundEnded" :src="musicToGuess.album.cover_xl" alt="" class="album-cover">
-                <audio :src="musicToGuess.preview" controls autoplay :volume="audioVolume/2"
-                       @ended="RoundEnded"></audio>
+                <img v-if="room.roundEnded || currentPlayer.titleGuessed" :src="musicToGuess.album.cover_xl" alt="" class="album-cover">
+                <audio :src="musicToGuess.preview" controls autoplay :volume="audioVolume/2" @ended="SongEnded"></audio>
             </div>
 
-            <div v-if="!room.roundEnded" class="input-container">
-                <input v-model="userAnswer" type="text" placeholder="Entrez le nom de la musique ou l'artiste" @keydown.enter="">
-                <button @click="">Valider</button>
+            <div v-if="!room.roundEnded && !currentPlayer.titleGuessed" class="input-container">
+                <input v-model="userAnswer" type="text" placeholder="Entrez le nom de la musique" @keydown.enter="CheckAnswer">
+                <button @click="CheckAnswer">Valider</button>
             </div>
 
-            <div v-else class="music-info">
+            <div v-if="room.roundEnded || currentPlayer.titleGuessed" class="music-info">
                 <h2>{{ musicToGuess.title_short }}</h2>
                 <p>par {{ musicToGuess.artist.name }}</p>
             </div>
@@ -118,48 +107,72 @@ function nextMusic() {
 </template>
 
 <style scoped lang="scss">
+
+#vue-tracer-overlay {
+    display: none !important;
+}
+
 .game {
     width: 100%;
     height: 100%;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    color: white;
-    text-align: center;
-    padding: 20px;
-    box-sizing: border-box;
-    position: relative;
     z-index: 2;
 
+    .game-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        gap: 2.604166666666667vw;
+        text-align: center;
+        color: white;
+    }
+
+    .game-status {
+        position: absolute;
+        max-width: 450px;
+        top: 50%;
+        left: 100px;
+        transform: translateY(-50%);
+        gap: 25px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        padding: 50px 25px;
+        backdrop-filter: blur(0.390625vw);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+
+        h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+    }
+
     .musicToDisplay {
-        margin-bottom: 30px;
 
         .album-cover {
-            width: 250px;
-            height: 250px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            margin-bottom: 20px;
-            border: 3px solid rgba(255, 255, 255, 0.1);
+            width: 19.53125vw;
+            height: 19.53125vw;
+            border-radius: 1.171875vw;
+            box-shadow: 0 0.78125vw 2.34375vw rgba(0, 0, 0, 0.3);
+            border: 0.234375vw solid rgba(255, 255, 255, 0.1);
         }
     }
 
     .input-container {
         display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
+        gap: 0.78125vw;
 
         input {
-            width: 300px;
-            padding: 12px 15px;
+            width: 23.4375vw;
+            padding: 15px 25px;
             border: 2px solid rgba(255, 255, 255, 0.3);
             background-color: rgba(255, 255, 255, 0.1);
             color: white;
-            border-radius: 25px;
+            border-radius: 1.953125vw;
             outline: none;
-            font-size: 16px;
-            backdrop-filter: blur(5px);
+            font-size: 1.25vw;
+            backdrop-filter: blur(0.390625vw);
 
             &::placeholder {
                 color: rgba(255, 255, 255, 0.7);
@@ -167,14 +180,13 @@ function nextMusic() {
         }
 
         button {
-            padding: 12px 25px;
+            padding: 15px 25px;
             background: rgba(255, 255, 255, 0.2);
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 1.953125vw;
             cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s ease;
+            font-size: 1.25vw;
 
             &:hover {
                 background: rgba(255, 255, 255, 0.3);
@@ -183,8 +195,6 @@ function nextMusic() {
     }
 
     .music-info {
-        margin-bottom: 20px;
-
         h2 {
             font-size: 28px;
             margin-bottom: 5px;
@@ -206,17 +216,16 @@ function nextMusic() {
     }
 
     .actions {
-        margin-top: 20px;
 
         button {
-            padding: 12px 25px;
+            padding: 15px 25px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 25px;
+            border-radius: 1.953125vw;
             cursor: pointer;
-            font-size: 16px;
-            transition: all 0.3s ease;
+            font-size: 1vw;
+            transition: transform 0.3s ease;
             margin: 0 10px;
 
             &:hover {
