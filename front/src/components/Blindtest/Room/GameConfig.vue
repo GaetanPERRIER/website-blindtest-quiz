@@ -11,15 +11,13 @@ import RoomSettings from "@/components/Blindtest/Room/RoomSettings.vue";
         <div class="vertical-line"></div>
         <RoomSettings/>
     </div>
-
-
 </template>
 
 <style scoped lang="scss">
 
 .game-config {
     width: 800px;
-    height: 590px;
+    height: 600px;
     justify-content: start;
     background-color: rgba(255, 255, 255, 0.3);
     border-radius: 15px;

@@ -42,14 +42,23 @@ const blindtestCategories = computed(() => musicStore.blindtestCategories);
 const currentPlayer = computed(() => playerStore.player);
 const room = computed(() => playerStore.room);
 
+const hostPlayer = computed(() => {
+    return room.value.players.find(player => player.host);
+});
+
 </script>
 
 <template>
-    <div class="blindtest-categories w50 h100 u-flex-direction-column u-flex u-gap10 u-p10">
+    <div v-if="currentPlayer.host" class="blindtest-categories w50 h100 u-flex-direction-column u-flex u-gap10 u-p10">
         <input class="search-bar t-color-white t-body-text w100" placeholder="Chercher une categorie...">
         <div class="categories w100 h100">
-            <Category v-for="category in blindtestCategories" :img-path="category.picture_big" :name="category.title"/>
+            <Category v-for="category in blindtestCategories" :category="category"/>
         </div>
+    </div>
+
+    <div v-else class="blindtest-categories w50 h100 u-flex-direction-column u-flex u-justify-content-center u-align-items-center u-gap20 u-p10">
+        <h2 v-if="hostPlayer" class="t-body-text t-color-white">{{hostPlayer.username}} configure la partie...</h2>
+        <img v-if="room.category" :src="room.category.picture_big" alt="En attente de l'hôte" class="w100 img-category">
     </div>
 </template>
 
@@ -74,6 +83,13 @@ const room = computed(() => playerStore.room);
         &::placeholder {
             color: rgba(255, 255, 255, 0.7);
         }
+    }
+
+    .img-category {
+        width: 100%;
+        object-fit: cover;
+        border-radius: 10px;
+        box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
     }
 
     .categories {

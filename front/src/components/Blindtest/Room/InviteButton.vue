@@ -29,6 +29,7 @@ function CopyLink() {
     border-radius: 10px;
     cursor: pointer;
     transition: all 200ms $authenticMotion;
+    color: #fff;
 
     &:hover {
         background-color: darken($major-yellow-color, 10%);

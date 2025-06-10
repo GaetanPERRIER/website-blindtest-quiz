@@ -36,9 +36,6 @@ export const usePlayerStore = defineStore('player', {
         setSocket(socket) {
             this.socket = socket
         },
-        setBgGradient(gradient) {
-            this.bgGradient = gradient
-        },
         setRoom(room) {
             this.room = room
         },

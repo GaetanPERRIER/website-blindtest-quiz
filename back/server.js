@@ -83,6 +83,7 @@ io.on('connection', (socket) => {
     socket.on('select category', (roomId, category) => {
         const room = rooms.find(r => r.id === roomId);
         if (!room) {
+            console.log('[Erreur] : Salle non trouvée pour la catégorie');
             return;
         }
 

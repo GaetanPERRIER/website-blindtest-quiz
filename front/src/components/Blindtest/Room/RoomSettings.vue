@@ -5,24 +5,34 @@ import { ref } from "vue";
 
 const trackCount = ref(10);
 
+function setActiveButton(event) {
+    const buttons = document.querySelectorAll('.button-container button');
+    buttons.forEach(button => {
+        button.classList.remove('btn-active');
+    });
+    event.target.classList.add('btn-active');
+}
+
+
+
 </script>
 
 <template>
-    <div class="room-settings u-flex u-flex-direction-column u-gap20 h100 w50">
+    <div class="room-settings u-flex u-flex-direction-column h100 w50">
         <h2 class="t-title t-color-white">Room Settings</h2>
         <div>
             <label class="t-body-text t-color-white">Difficulté</label>
             <div class="button-container u-flex w100 u-justify-content-center u-gap10 u-mt10">
-                <button class="t-body-text">Facile</button>
-                <button class="t-body-text">Moyen</button>
-                <button class="t-body-text">Difficile</button>
+                <button @click="setActiveButton" class="t-body-text btn-active">Facile</button>
+                <button @click="setActiveButton" class="t-body-text">Moyen</button>
+                <button @click="setActiveButton" class="t-body-text">Difficile</button>
             </div>
         </div>
         <div class="vinyl-container u-flex u-flex-direction-column u-justify-content-center u-align-items-center u-gap10">
             <img src="/Settings/vinyl.png" alt="">
-            <div class="mixer-control">
-                <input type="range" min="5" max="20" v-model="trackCount" class="track-count-slider">
+            <div class="mixer-control u-flex u-flex-direction-column u-align-items-center">
                 <div class="track-count-display t-body-text t-color-white">{{trackCount}} musiques</div>
+                <input type="range" min="5" max="20" v-model="trackCount" class="track-count-slider">
             </div>
         </div>
         <div class="w100 u-flex u-justify-content-center u-align-items-center">
@@ -47,7 +57,7 @@ const trackCount = ref(10);
 
 .room-settings {
     padding: 10px;
-    justify-content: start;
+    justify-content: space-around;
 
     .button-container {
         button {
@@ -67,6 +77,18 @@ const trackCount = ref(10);
                 transform: scale(1.05);
             }
         }
+
+        .btn-active {
+            background-color: $major-yellow-color;
+            color: #fff;
+            transform: scale(1.05);
+
+            &:hover {
+                background-color: darken($major-yellow-color, 10%);
+                transform: scale(1.1);
+            }
+        }
+
     }
 
     .vinyl-container {
@@ -80,7 +102,6 @@ const trackCount = ref(10);
 
         .mixer-control {
             width: 100%;
-            margin-top: 20px;
             position: relative;
 
             .track-count-slider {
@@ -129,15 +150,12 @@ const trackCount = ref(10);
             }
 
             .track-count-display {
-                position: absolute;
-                top: -25px;
-                left: 50%;
-                transform: translateX(-50%);
                 background: rgba(0, 0, 0, 0.7);
-                padding: 3px 10px;
+                padding: 5px 10px;
                 border-radius: 15px;
                 font-size: 14px;
                 white-space: nowrap;
+                width: fit-content;
             }
         }
     }
