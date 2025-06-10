@@ -268,7 +268,6 @@ io.on('connection', (socket) => {
                     room.players[0].host = true; // Le premier joueur devient l'hôte
                     console.log(`[Nouveau hôte] : ${room.players[0].username}`);
                 }
-
                 roomToUpdate = room;
             }
         });

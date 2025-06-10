@@ -54,18 +54,25 @@ const room = computed(() => playerStore.room);
 </template>
 
 <style scoped lang="scss">
+@import '@/assets/styles/settings/settings.scss';
 
 .blindtest-categories {
 
     input {
         background-color: rgba(0, 0, 0, 0.5);
-        border: 1px solid rgba(0, 0, 0, 0.5);
         padding: 10px 25px;
-        border-radius: 50px;
+        border-radius: 10px;
         font-size: 18px;
+        border: 2px solid transparent;
+        transition: all 200ms $authenticMotion;
 
         &:focus {
+            border: 2px solid rgba(0, 0, 0, 0.9);
             outline: none;
+        }
+
+        &::placeholder {
+            color: rgba(255, 255, 255, 0.7);
         }
     }
 
@@ -76,8 +83,6 @@ const room = computed(() => playerStore.room);
         gap: 10px;
         height: 100%;
         overflow-y: auto;
-
-        // décaler la scroll barre sur la droite
         scrollbar-width: thin;
         scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
 

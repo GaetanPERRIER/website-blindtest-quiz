@@ -19,7 +19,7 @@ import RoomSettings from "@/components/Blindtest/Room/RoomSettings.vue";
 
 .game-config {
     width: 800px;
-    height: 550px;
+    height: 590px;
     justify-content: start;
     background-color: rgba(255, 255, 255, 0.3);
     border-radius: 15px;

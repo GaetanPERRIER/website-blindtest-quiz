@@ -39,7 +39,7 @@
         padding: 15px 25px;
         background-color: $major-blue-color;
         color: #fff;
-        border-radius: 15px;
+        border-radius: 10px;
         cursor: pointer;
         transition: all 200ms $authenticMotion;
 

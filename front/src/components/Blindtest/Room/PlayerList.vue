@@ -28,7 +28,7 @@ function EjectAPlayer(event) {
 
 <template>
     <div class="player-list u-flex u-flex-direction-column">
-        <div class="top-player-list u-flex u-align-items-center u-justify-content-center u-gap15 u-p10">
+        <div class="top-player-list u-flex u-align-items-center u-justify-content-center u-gap20 u-p15">
             <h2 class="t-title t-color-white">Lobby</h2>
             <InviteButton/>
         </div>

@@ -34,7 +34,7 @@ nav {
         .play-button {
             text-decoration: none;
             background-color: $major-blue-color;
-            border-radius: 15px;
+            border-radius: 10px;
             padding: 10px 25px;
             font-size: 20px;
             cursor: pointer;

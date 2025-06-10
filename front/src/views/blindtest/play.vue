@@ -72,8 +72,6 @@ function startGame() {
         <ConfigLobby/>
     </div>
 
-
-
     <div v-else class="blindtest-container">
         <div class="musics-container">
             <MusicGuessing/>
@@ -83,6 +81,7 @@ function startGame() {
 </template>
 
 <style scoped lang="scss">
+
 .blindtest-container {
     width: 100vw;
     height: 100vh;

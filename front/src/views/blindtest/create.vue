@@ -74,7 +74,7 @@ onMounted(() => {
         padding: 10px 25px;
         background-color: rgba(255, 255, 255, 0.1);
         border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50px;
+        border-radius: 10px;
         text-align: center;
         color: rgba(255, 255, 255, 0.8);
         transition: all 200ms $authenticMotion;

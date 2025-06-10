@@ -1,5 +1,10 @@
 <script setup>
 
+import { usePlayerStore} from "@/stores/playerStore.js";
+import { ref } from "vue";
+
+const trackCount = ref(10);
+
 </script>
 
 <template>
@@ -15,17 +20,30 @@
         </div>
         <div class="vinyl-container u-flex u-flex-direction-column u-justify-content-center u-align-items-center u-gap10">
             <img src="/Settings/vinyl.png" alt="">
-            <input type="range">
+            <div class="mixer-control">
+                <input type="range" min="5" max="20" v-model="trackCount" class="track-count-slider">
+                <div class="track-count-display t-body-text t-color-white">{{trackCount}} musiques</div>
+            </div>
         </div>
         <div class="w100 u-flex u-justify-content-center u-align-items-center">
             <button class="play-button t-body-text">Lancer la partie</button>
         </div>
-
     </div>
 </template>
 
 <style scoped lang="scss">
 @import '@/assets/styles/settings/settings.scss';
+
+// Créer une transition de rotation pour l'élément vinyl
+@keyframes vinyl-rotation {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
 
 .room-settings {
     padding: 10px;
@@ -36,7 +54,7 @@
             display: flex;
             width: 100%;
             padding: 10px 25px;
-            border-radius: 15px;
+            border-radius: 10px;
             font-size: 18px;
             cursor: pointer;
             background-color: rgba(0, 0, 0, 0.5);
@@ -57,18 +75,77 @@
 
         img {
             width: 100%;
+            animation: vinyl-rotation 10s linear infinite;
         }
 
-        input[type="range"] {
+        .mixer-control {
             width: 100%;
-            margin: 0;
+            margin-top: 20px;
+            position: relative;
+
+            .track-count-slider {
+                -webkit-appearance: none;
+                width: 100%;
+                height: 10px;
+                background: linear-gradient(161deg,rgba(255, 223, 107, 1) 0%, rgba(255, 110, 110, 1) 48%, rgba(115, 173, 201, 1) 80%, rgba(56, 159, 255, 1) 100%);
+                border-radius: 5px;
+                outline: none;
+                margin: 15px 0;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+
+                &::-webkit-slider-thumb {
+                    -webkit-appearance: none;
+                    appearance: none;
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: #fff;
+                    cursor: pointer;
+                    border: 3px solid $major-yellow-color;
+                    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+                    transition: all 0.2s $authenticMotion;
+
+                    &:hover {
+                        transform: scale(1.1);
+                        background: $major-yellow-color;
+                    }
+                }
+
+                &::-moz-range-thumb {
+                    width: 20px;
+                    height: 20px;
+                    border-radius: 50%;
+                    background: #fff;
+                    cursor: pointer;
+                    border: 3px solid $major-yellow-color;
+                    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+                    transition: all 0.2s $authenticMotion;
+
+                    &:hover {
+                        transform: scale(1.1);
+                        background: $major-yellow-color;
+                    }
+                }
+            }
+
+            .track-count-display {
+                position: absolute;
+                top: -25px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: rgba(0, 0, 0, 0.7);
+                padding: 3px 10px;
+                border-radius: 15px;
+                font-size: 14px;
+                white-space: nowrap;
+            }
         }
     }
 
     .play-button {
         display: flex;
         padding: 10px 25px;
-        border-radius: 15px;
+        border-radius: 10px;
         font-size: 18px;
         cursor: pointer;
         background-color: rgba(0, 0, 0, 0.5);
