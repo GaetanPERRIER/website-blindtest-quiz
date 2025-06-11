@@ -1,16 +1,28 @@
 <script setup>
-
+import socket from "@/utils/socket.js";
 import { usePlayerStore} from "@/stores/playerStore.js";
 import { ref } from "vue";
+import { computed, onMounted} from "vue";
+
+const playerStore = usePlayerStore()
+
+const room = computed(() => playerStore.room);
+const difficulty = computed(() => playerStore.room.difficulty)
+const currentPlayer = computed(() => playerStore.player)
 
 const trackCount = ref(10);
 
 function setActiveButton(event) {
+    if (event.target.id === difficulty)
+        return
+
     const buttons = document.querySelectorAll('.button-container button');
     buttons.forEach(button => {
         button.classList.remove('btn-active');
     });
     event.target.classList.add('btn-active');
+
+    socket.emit("select difficulty", room.value.id, event.target.id);
 }
 
 
@@ -23,9 +35,9 @@ function setActiveButton(event) {
         <div>
             <label class="t-body-text t-color-white">Difficulté</label>
             <div class="button-container u-flex w100 u-justify-content-center u-gap10 u-mt10">
-                <button @click="setActiveButton" class="t-body-text btn-active">Facile</button>
-                <button @click="setActiveButton" class="t-body-text">Moyen</button>
-                <button @click="setActiveButton" class="t-body-text">Difficile</button>
+                <button @click="setActiveButton" :class="difficulty === 'easy' ? 't-body-text btn-active' : 't-body-text'" id="easy" :disabled="!currentPlayer.host">Facile</button>
+                <button @click="setActiveButton" :class="difficulty === 'medium' ? 't-body-text btn-active' : 't-body-text'" id="medium" :disabled="!currentPlayer.host">Moyen</button>
+                <button @click="setActiveButton" :class="difficulty === 'hard' ? 't-body-text btn-active' : 't-body-text'" id="hard" :disabled="!currentPlayer.host">Difficile</button>
             </div>
         </div>
         <div class="vinyl-container u-flex u-flex-direction-column u-justify-content-center u-align-items-center u-gap10">
@@ -36,7 +48,7 @@ function setActiveButton(event) {
             </div>
         </div>
         <div class="w100 u-flex u-justify-content-center u-align-items-center">
-            <button class="play-button t-body-text">Lancer la partie</button>
+            <button class="play-button t-body-text" :disabled="!currentPlayer.host">Lancer la partie</button>
         </div>
     </div>
 </template>
@@ -75,6 +87,10 @@ function setActiveButton(event) {
             &:hover {
                 background-color: rgba(0, 0, 0, 0.7);
                 transform: scale(1.05);
+            }
+
+            &:disabled {
+                cursor: not-allowed;
             }
         }
 
@@ -174,6 +190,10 @@ function setActiveButton(event) {
         &:hover {
             background-color: rgba(0, 0, 0, 0.7);
             transform: scale(1.05);
+        }
+
+        &:disabled {
+            cursor: not-allowed;
         }
     }
 }
