@@ -25,13 +25,19 @@ defineProps({
 .card-game {
     width: 100%;
     max-width: 350px;
-    background-color: rgba(255, 255, 255, 0.5);
-    border: 2px solid rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.4);
+    border: 2px solid rgba(255, 255, 255, 0.4);
     border-radius: 15px;
     text-align: center;
 
     img {
         width: 200px;
+    }
+}
+
+@media (max-width: 450px) {
+    .card-game {
+        padding: 35px 50px !important;
     }
 }
 

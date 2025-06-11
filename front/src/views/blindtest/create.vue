@@ -100,4 +100,12 @@ onMounted(() => {
     }
 }
 
+@media (max-width: 400px) {
+    .blindtest-create-container {
+        input, p {
+            width: 90%;
+        }
+    }
+}
+
 </style>

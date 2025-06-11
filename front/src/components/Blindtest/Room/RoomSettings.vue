@@ -1,8 +1,7 @@
 <script setup>
 import socket from "@/utils/socket.js";
 import { usePlayerStore} from "@/stores/playerStore.js";
-import { ref } from "vue";
-import { computed, onMounted} from "vue";
+import { computed, onMounted, ref, watch} from "vue";
 
 const playerStore = usePlayerStore()
 
@@ -10,11 +9,16 @@ const room = computed(() => playerStore.room);
 const difficulty = computed(() => playerStore.room.difficulty)
 const currentPlayer = computed(() => playerStore.player)
 
-const trackCount = ref(10);
+const songCount = computed(() => playerStore.room.songCount);
+
+function setSongCount(event) {
+    socket.emit("select song count", room.value.id, event.target.value);
+}
+
 
 function setActiveButton(event) {
-    if (event.target.id === difficulty)
-        return
+    if (event.target.id === difficulty.value)
+        return;
 
     const buttons = document.querySelectorAll('.button-container button');
     buttons.forEach(button => {
@@ -43,8 +47,8 @@ function setActiveButton(event) {
         <div class="vinyl-container u-flex u-flex-direction-column u-justify-content-center u-align-items-center u-gap10">
             <img src="/Settings/vinyl.png" alt="">
             <div class="mixer-control u-flex u-flex-direction-column u-align-items-center">
-                <div class="track-count-display t-body-text t-color-white">{{trackCount}} musiques</div>
-                <input type="range" min="5" max="20" v-model="trackCount" class="track-count-slider">
+                <div class="track-count-display t-body-text t-color-white">{{songCount}} musiques</div>
+                <input type="range" min="5" max="20" v-model="songCount" class="track-count-slider" @change="setSongCount" :disabled="!currentPlayer.host">
             </div>
         </div>
         <div class="w100 u-flex u-justify-content-center u-align-items-center">
@@ -97,7 +101,6 @@ function setActiveButton(event) {
         .btn-active {
             background-color: $major-yellow-color;
             color: #fff;
-            transform: scale(1.05);
 
             &:hover {
                 background-color: darken($major-yellow-color, 10%);
@@ -119,6 +122,7 @@ function setActiveButton(event) {
         .mixer-control {
             width: 100%;
             position: relative;
+
 
             .track-count-slider {
                 -webkit-appearance: none;
@@ -165,6 +169,14 @@ function setActiveButton(event) {
                 }
             }
 
+            .track-count-slider:disabled::-webkit-slider-thumb {
+                cursor: not-allowed;
+            }
+
+            .track-count-slider:disabled::-moz-range-thumb {
+                cursor: not-allowed;
+            }
+
             .track-count-display {
                 background: rgba(0, 0, 0, 0.7);
                 padding: 5px 10px;
@@ -196,6 +208,34 @@ function setActiveButton(event) {
             cursor: not-allowed;
         }
     }
+}
+
+@media (max-width: 1000px) {
+    .room-settings {
+        width: 100% !important;
+        padding: 10px;
+        height: fit-content;
+        align-items: center;
+        justify-content: start;
+        gap: 10px;
+
+        .vinyl-container {
+            img {
+                display: none;
+            }
+        }
+    }
+}
+
+@media (max-width: 450px) {
+    .button-container {
+        flex-wrap: wrap;
+    }
+
+    .vinyl-container {
+        padding: 0 !important;
+    }
+
 }
 
 </style>

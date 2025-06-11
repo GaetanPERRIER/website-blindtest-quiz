@@ -5,7 +5,7 @@
 <template>
     <section class="banner-infos-container u-flex u-flex-direction-column u-gap20 u-align-items-center u-justify-content-center">
         <h2 class="t-title">Quiz musicaux et bien plus encore !</h2>
-        <p class="t-body-text">Bien que pour le moment seul des quiz musicaux sont disponibles, chez {nom}, nous visons à proposer différents types de mini-jeux.</p>
+        <p class="t-body-text">Pour le moment seul des blindtests “classiques” sont disponible et jouables, cependant d’autres mini jeux dans l’univers de la musique sont à venir ainsi que quelques variantes du blindtest traditionnel. Alors reste connecté !</p>
         <p class="t-body-text"> Si tu as une quelconque proposition de jeu à ajouter, nous nous ferons un plaisir de la découvrir ! </p>
         <div class="cta-contact u-flex u-align-items-center u-gap10">
             <span class="t-body-text">Nous contacter</span>
@@ -63,7 +63,18 @@
 @media (max-width: 768px) {
     .banner-infos-container {
         padding: 30px 50px;
-        height: 500px;
+        height: 600px;
+
+        h2, p {
+            max-width: 100%;
+        }
+    }
+}
+
+@media (max-width: 400px) {
+    .banner-infos-container {
+        padding: 30px 50px;
+        height: 650px;
 
         h2, p {
             max-width: 100%;

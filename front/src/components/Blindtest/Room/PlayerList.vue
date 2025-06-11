@@ -48,12 +48,12 @@ function EjectAPlayer(event) {
 @import '@/assets/styles/settings/settings.scss';
 
 .player-list {
-    background-color: rgba(255, 255, 255, 0.3);
-    border: 2px solid rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 2px solid rgba(255, 255, 255, 0.1);
     border-radius: 15px;
 
     .top-player-list {
-        border-bottom: 2px solid rgba(255, 255, 255, 0.3);
+        border-bottom: 2px solid rgba(255, 255, 255, 0.2);
     }
 
     .content-player-list {
@@ -77,6 +77,15 @@ function EjectAPlayer(event) {
 
     }
 }
+
+@media (max-width: 1000px) {
+    .player-list {
+        display: none !important;
+    }
+
+}
+
+
 
 
 

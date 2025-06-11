@@ -117,4 +117,15 @@ const hostPlayer = computed(() => {
     }
 }
 
+@media (max-width: 1000px) {
+    .blindtest-categories {
+        width: 100% !important;
+        height: 100% !important;
+        overflow-x: auto;
+
+
+    }
+
+}
+
 </style>
