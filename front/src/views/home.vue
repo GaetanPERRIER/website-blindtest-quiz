@@ -5,6 +5,7 @@ import Introduction from "@/components/Home/Introduction.vue";
 import MoreGames from "@/components/Home/MoreGames.vue";
 import BannerInfos from "@/components/Home/BannerInfos.vue";
 import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
+import BuyMeACoffeeBugReport from '@/components/Home/BuyMeACoffee&BugReport.vue';
 
 </script>
 
@@ -15,6 +16,7 @@ import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
             <Introduction/>
             <MoreGames />
             <BannerInfos/>
+            <BuyMeACoffeeBugReport/>
         </div>
 
         <ParticleBackground/>

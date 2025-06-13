@@ -6,8 +6,6 @@ defineProps({
     cardContent: String
 })
 
-
-
 </script>
 
 <template>
