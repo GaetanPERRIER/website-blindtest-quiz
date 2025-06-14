@@ -1,6 +1,7 @@
 <script setup>
 
 import Header from '@/components/Basics/Header.vue';
+import Footer from '@/components/Basics/Footer.vue';
 import Introduction from "@/components/Home/Introduction.vue";
 import MoreGames from "@/components/Home/MoreGames.vue";
 import BannerInfos from "@/components/Home/BannerInfos.vue";
@@ -18,6 +19,7 @@ import BuyMeACoffeeBugReport from '@/components/Home/BuyMeACoffee&BugReport.vue'
             <BannerInfos/>
             <BuyMeACoffeeBugReport/>
         </div>
+        <Footer/>
 
         <ParticleBackground/>
     </div>
@@ -31,7 +33,7 @@ import BuyMeACoffeeBugReport from '@/components/Home/BuyMeACoffee&BugReport.vue'
     .global-content {
         gap: 150px;
         margin-top: 175px;
-        margin-bottom: 400px;
+        margin-bottom: 200px;
         position: relative;
         z-index: 1;
     }
@@ -40,7 +42,7 @@ import BuyMeACoffeeBugReport from '@/components/Home/BuyMeACoffee&BugReport.vue'
         .global-content {
             margin-top: 150px;
             gap: 125px;
-            margin-bottom: 350px;
+            margin-bottom: 150px;
         }
     }
 
@@ -48,7 +50,7 @@ import BuyMeACoffeeBugReport from '@/components/Home/BuyMeACoffee&BugReport.vue'
         .global-content {
             margin-top: 125px;
             gap: 100px;
-            margin-bottom: 300px;
+            margin-bottom: 125px;
         }
     }
 }

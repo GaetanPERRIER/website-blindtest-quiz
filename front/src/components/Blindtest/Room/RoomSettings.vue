@@ -6,15 +6,14 @@ import { computed, onMounted, ref, watch} from "vue";
 const playerStore = usePlayerStore()
 
 const room = computed(() => playerStore.room);
-const difficulty = computed(() => playerStore.room.difficulty)
+const difficulty = computed(() => playerStore.room.setting.difficulty)
 const currentPlayer = computed(() => playerStore.player)
+const songCount = computed(() => playerStore.room.setting.songCount);
 
-const songCount = computed(() => playerStore.room.songCount);
 
 function setSongCount(event) {
-    socket.emit("select song count", room.value.id, event.target.value);
+    socket.emit("selectSongCount", room.value.id, event.target.value);
 }
-
 
 function setActiveButton(event) {
     if (event.target.id === difficulty.value)
@@ -26,7 +25,11 @@ function setActiveButton(event) {
     });
     event.target.classList.add('btn-active');
 
-    socket.emit("select difficulty", room.value.id, event.target.id);
+    socket.emit("selectDifficulty", room.value.id, event.target.id);
+}
+
+function StartGame() {
+    socket.emit("startGame", room.value.id);
 }
 
 
@@ -52,7 +55,7 @@ function setActiveButton(event) {
             </div>
         </div>
         <div class="w100 u-flex u-justify-content-center u-align-items-center">
-            <button class="play-button t-body-text" :disabled="!currentPlayer.host">Lancer la partie</button>
+            <button @click="StartGame" class="play-button t-body-text" :disabled="!currentPlayer.host">Lancer la partie</button>
         </div>
     </div>
 </template>

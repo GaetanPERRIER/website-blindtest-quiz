@@ -21,8 +21,14 @@ const cardInfosData = [
 
 <template>
 
-<section class="u-flex u-justify-content-center u-align-items-center u-gap35">
+<section class="u-flex u-justify-content-center u-align-items-center u-gap35 u-flex-direction-column--m">
     <CardInfos v-for="cardInfo in cardInfosData" :card-info-data="cardInfo"/>
 </section>
 
 </template>
+
+
+<style scoped lang="scss">
+
+</style>
+

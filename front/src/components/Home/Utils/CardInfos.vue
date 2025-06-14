@@ -42,8 +42,33 @@ defineProps({
         border-radius: 10px;
         font-size: 16px;
         width: fit-content;
+        cursor: pointer;
+        transition: all 200ms $authenticMotion;
+
+        &:hover {
+            transform: scale(1.1);
+            background-color: darken($major-yellow-color, 10%);
+        }
     }
 }
 
+
+@media (max-width: 400px) {
+    .card-info {
+        width: 100%;
+        padding: 30px;
+    }
+
+    .title-container {
+        img {
+            width: 35px;
+        }
+    }
+
+    button {
+        width: 100%;
+        text-align: center;
+    }
+}
 
 </style>

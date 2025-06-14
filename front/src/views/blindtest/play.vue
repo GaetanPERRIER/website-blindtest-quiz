@@ -33,7 +33,8 @@ onMounted(() => {
             username : player.value.username,
             socketId : socket.id,
         }
-        socket.emit("playerData", playerData);
+        socket.emit("joinRoom", playerData);
+
         socket.on('roomCreated', (data) => {
             playerData.roomId = data.roomId;
             playerStore.setPlayer(playerData);
@@ -57,10 +58,6 @@ onMounted(() => {
     }
 });
 
-
-function startGame() {
-    socket.emit("start game", player.value.roomId, room.value.category.tracklist, 5);
-}
 
 
 

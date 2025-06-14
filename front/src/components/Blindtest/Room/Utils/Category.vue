@@ -18,9 +18,8 @@ const { category } = defineProps({
 });
 
 function selectCategory() {
-    socket.emit("select category", room.value.id, category);
+    socket.emit("selectCategory", room.value.id, category);
 
-    console.log("room id:", room.value.id);
     console.log("Category selected:", category);
 }
 

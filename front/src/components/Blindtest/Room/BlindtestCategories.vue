@@ -3,13 +3,21 @@
 import Category from "@/components/Blindtest/Room/Utils/Category.vue";
 
 import {useMusicStore} from "@/stores/musicStore.js";
-import socket from "@/utils/socket.js";
 import {computed, onMounted} from "vue";
 import {usePlayerStore} from "@/stores/playerStore.js";
 
-
 const musicStore = useMusicStore();
 const playerStore = usePlayerStore();
+
+// Variables calculées depuis le store
+const blindtestCategories = computed(() => musicStore.blindtestCategories);
+const currentPlayer = computed(() => playerStore.player);
+const room = computed(() => playerStore.room);
+
+const hostPlayer = computed(() => {
+    return room.value.players.find(player => player.host);
+});
+
 
 onMounted(async () => {
     try {
@@ -37,14 +45,7 @@ onMounted(async () => {
     }
 });
 
-// Variables calculées depuis le store
-const blindtestCategories = computed(() => musicStore.blindtestCategories);
-const currentPlayer = computed(() => playerStore.player);
-const room = computed(() => playerStore.room);
 
-const hostPlayer = computed(() => {
-    return room.value.players.find(player => player.host);
-});
 
 </script>
 
@@ -58,7 +59,7 @@ const hostPlayer = computed(() => {
 
     <div v-else class="blindtest-categories w50 h100 u-flex-direction-column u-flex u-justify-content-center u-align-items-center u-gap20 u-p10">
         <h2 v-if="hostPlayer" class="t-body-text t-color-white">{{hostPlayer.username}} configure la partie...</h2>
-        <img v-if="room.category" :src="room.category.picture_big" alt="En attente de l'hôte" class="w100 img-category">
+        <img v-if="room.setting.category" :src="room.setting.category.picture_big" alt="En attente de l'hôte" class="w100 img-category">
     </div>
 </template>
 
