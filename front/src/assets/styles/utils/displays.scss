@@ -1,0 +1,250 @@
+@use "sass:math";
+// SIZES
+$sizes: 0, 5, 8, 10, 12, 15, 20, 25, 30, 35, 40, 45, 50, 75, 80, 100,125, 150, 200, 210, 250, 280, 750;
+
+
+/*
+BASIC DISPLAY
+*/
+.u-block {display: block;}
+.u-none {display: none;}
+.u-inline-block {display: inline-block;}
+.u-valign-top {vertical-align: top}
+.u-valign-center {vertical-align: center}
+.u-valign-bottom {vertical-align: bottom}
+.u-mauto {margin: auto;}
+.u-inline-children * {display: inline;}
+.u-hauto {height: auto;}
+
+/*
+DIMENSIONS
+*/
+// If you think that generating all values from 0 to 100 is too much code,
+// you can delete that and do a manual list of the most used widths (tens only for example)
+@for $i from 0 through 100 {
+    $value: percentage(math.div($i, 100));
+    .w#{$i} {width: #{$value};}
+    .h#{$i} {height: #{$value};}
+}
+
+/*
+COLORS
+*/
+
+.u-bck-white {background-color: $color-white;}
+.u-bck-black {background-color: $color-black;}
+
+/*
+DISPLAY FLEX
+*/
+
+.u-flex {display: flex;}
+.u-flex-wrap {flex-wrap: wrap;}
+
+.u-flex-direction-reverse {flex-direction: row-reverse;}
+.u-flex-direction-column {flex-direction: column;}
+.u-flex-direction-column-reverse {flex-direction: column-reverse;}
+
+.u-align-items-start {align-items: flex-start;}
+.u-align-items-end {align-items: flex-end;}
+.u-align-items-center {align-items: center;}
+.u-align-items-baseline {align-items: baseline;}
+
+.u-align-self-start {align-self: flex-start;}
+.u-align-self-end {align-self: flex-end;}
+.u-align-self-center {align-self: center;}
+.u-align-self-baseline {align-self: baseline;}
+
+.u-align-content-start {align-content: flex-start;}
+.u-align-content-end {align-content: flex-end;}
+.u-align-content-center {align-content: center;}
+.u-align-content-between {align-content: space-between;}
+.u-align-content-around {align-content: space-around;}
+.u-align-content-stretch {align-content: stretch;}
+
+// Justify
+.u-justify-content-end {justify-content: flex-end;}
+.u-justify-content-center {justify-content: center;}
+.u-justify-content-between {justify-content: space-between;}
+.u-justify-content-around {justify-content: space-around;}
+.u-justify-content-evenly {justify-content: space-evenly;}
+
+// POSITION
+.u-relative {position: relative;}
+.u-static {position: static;}
+
+// UTILS
+.u-pointer-event-none {pointer-events: none;}
+.u-noselect {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}
+.u-overflow-hidden {overflow: hidden;}
+
+// MARGINS & PADDINGS
+
+@each $size in $sizes {
+    .u-m#{$size} {margin: #{$size}px;}
+    .u-p#{$size} {padding: #{$size}px;}
+
+    .u-mt#{$size} {margin-top: #{$size}px;}
+    .u-mr#{$size} {margin-right: #{$size}px;}
+    .u-mb#{$size} {margin-bottom: #{$size}px;}
+    .u-ml#{$size} {margin-left: #{$size}px;}
+    .u-mlr#{$size} {margin-left: #{$size}px; margin-right: #{$size}px;}
+
+    .u-pt#{$size} {padding-top: #{$size}px;}
+    .u-pr#{$size} {padding-right: #{$size}px;}
+    .u-pb#{$size} {padding-bottom: #{$size}px;}
+    .u-pl#{$size} {padding-left: #{$size}px;}
+    .u-plr#{$size} {padding-left: #{$size}px; padding-right: #{$size}px;}
+
+    .w#{$size}px {width: #{$size}px;}
+    .h#{$size}px {height: #{$size}px;}
+    .fs#{$size}px {font-size: #{$size}px;}
+    .u-gap#{$size} {gap: #{$size}px;}
+}
+
+@include max-width(m) {
+    .u-block--m {display: block;}
+    .u-none--m {display: none;}
+    .u-inline-block--m {display: inline-block;}
+    .u-valign-top--m {vertical-align: top}
+    .u-valign-center--m {vertical-align: center}
+    .u-valign-bottom--m {vertical-align: bottom}
+    .u-mauto--m {margin: auto;}
+
+    @for $i from 0 through 100 {
+        $value: percentage(math.div($i, 100));
+        .w#{$i}--m {
+            width: #{$value};
+        }
+    }
+
+    .u-flex--m {display: flex;}
+
+    .u-flex-direction-reverse--m {flex-direction: row-reverse;}
+    .u-flex-direction-column--m {flex-direction: column;}
+    .u-flex-direction-column-reverse--m {flex-direction: column-reverse;}
+
+    .u-align-items-stretch--m {align-items: stretch;}
+    .u-align-items-start--m {align-items: flex-start;}
+    .u-align-items-end--m {align-items: flex-end;}
+    .u-align-items-center--m {align-items: center;}
+    .u-align-items-baseline--m {align-items: baseline;}
+
+    .u-align-self-start--m {align-self: flex-start;}
+    .u-align-self-end--m {align-self: flex-end;}
+    .u-align-self-center--m {align-self: center;}
+    .u-align-self-baseline--m {align-self: baseline;}
+
+
+    .u-align-content-start--m {align-content: flex-start;}
+    .u-align-content-end--m {align-content: flex-end;}
+    .u-align-content-center--m {align-content: center;}
+    .u-align-content-between--m {align-content: space-between;}
+    .u-align-content-around--m {align-content: space-around;}
+    .u-align-content-stretch--m {align-content: stretch;}
+
+    // Justify
+    .u-justify-content-end--m {justify-content: flex-end;}
+    .u-justify-content-center--m {justify-content: center;}
+    .u-justify-content-between--m {justify-content: space-between;}
+    .u-justify-content-around--m {justify-content: space-around;}
+    .u-justify-content-evenly--m {justify-content: space-evenly;}
+
+    @each $size in $sizes {
+        .u-m#{$size}--m {margin: #{$size}px;}
+        .u-p#{$size}--m {padding: #{$size}px;}
+
+        .u-mt#{$size}--m {margin-top: #{$size}px;}
+        .u-mr#{$size}--m {margin-right: #{$size}px;}
+        .u-mb#{$size}--m {margin-bottom: #{$size}px;}
+        .u-ml#{$size}--m {margin-left: #{$size}px;}
+        .u-mlr#{$size}--m {margin-left: #{$size}px; margin-right: #{$size}px;}
+
+        .u-pt#{$size}--m {padding-top: #{$size}px;}
+        .u-pr#{$size}--m {padding-right: #{$size}px;}
+        .u-pb#{$size}--m {padding-bottom: #{$size}px;}
+        .u-pl#{$size}--m {padding-left: #{$size}px;}
+        .u-plr#{$size}--m {padding-left: #{$size}px; padding-right: #{$size}px;}
+
+        .u-gap#{$size}--m {gap: #{$size}px;}
+    }
+}
+
+@include max-width(s) {
+    .u-block--s {display: block;}
+    .u-none--s {display: none!important;}
+    .u-inline-block--s {display: inline-block;}
+    .u-valign-top--s {vertical-align: top}
+    .u-valign-center--s {vertical-align: center}
+    .u-valign-bottom--s {vertical-align: bottom}
+    .u-inline-children--s * {display: inline;}
+    .u-mauto--s {margin: auto;}
+
+    @for $i from 0 through 100 {
+        $value: percentage(math.div($i, 100));
+        .w#{$i}--s {
+            width: #{$value};
+        }
+    }
+
+    .u-flex--s {display: flex;}
+
+    .u-flex-direction-row--s {flex-direction: row;}
+    .u-flex-direction-reverse--s {flex-direction: row-reverse;}
+    .u-flex-direction-column--s {flex-direction: column;}
+    .u-flex-direction-column-reverse--s {flex-direction: column-reverse;}
+
+    .u-align-items-stretch--s {align-items: stretch;}
+    .u-align-items-start--s {align-items: flex-start;}
+    .u-align-items-end--s {align-items: flex-end;}
+    .u-align-items-center--s {align-items: center;}
+    .u-align-items-baseline--s {align-items: baseline;}
+
+    .u-align-self-start--s {align-self: flex-start;}
+    .u-align-self-end--s {align-self: flex-end;}
+    .u-align-self-center--s {align-self: center;}
+    .u-align-self-baseline--s {align-self: baseline;}
+
+    .u-align-content-start--s {align-content: flex-start;}
+    .u-align-content-end--s {align-content: flex-end;}
+    .u-align-content-center--s {align-content: center;}
+    .u-align-content-between--s {align-content: space-between;}
+    .u-align-content-around--s {align-content: space-around;}
+    .u-align-content-stretch--s {align-content: stretch;}
+
+    // Justify
+    .u-justify-content-end--s {justify-content: flex-end;}
+    .u-justify-content-center--s {justify-content: center;}
+    .u-justify-content-between--s {justify-content: space-between;}
+    .u-justify-content-around--s {justify-content: space-around;}
+    .u-justify-content-evenly--s {justify-content: space-evenly;}
+
+    .u-pointer-event-none--s {pointer-events: none;}
+    .u-noselect--s {-webkit-touch-callout: none;-webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}
+    .u-overflow-hidden--s {overflow: hidden;}
+
+    @each $size in $sizes {
+        .u-m#{$size}--s {margin: #{$size}px;}
+        .u-p#{$size}--s {padding: #{$size}px;}
+
+        .u-mt#{$size}--s {margin-top: #{$size}px;}
+        .u-mr#{$size}--s {margin-right: #{$size}px;}
+        .u-mb#{$size}--s {margin-bottom: #{$size}px;}
+        .u-ml#{$size}--s {margin-left: #{$size}px;}
+        .u-mlr#{$size}--s {margin-left: #{$size}px; margin-right: #{$size}px;}
+
+        .u-pt#{$size}--s {padding-top: #{$size}px;}
+        .u-pr#{$size}--s {padding-right: #{$size}px;}
+        .u-pb#{$size}--s {padding-bottom: #{$size}px;}
+        .u-pl#{$size}--s {padding-left: #{$size}px;}
+        .u-plr#{$size}--s {padding-left: #{$size}px; padding-right: #{$size}px;}
+
+        .u-gap#{$size}--s {gap: #{$size}px;}
+    }
+}
+
+@include max-width(m) {
+    @each $size in $sizes {
+        .u-gap#{$size}--xs {gap: #{$size}px;}
+    }
+}
