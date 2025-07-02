@@ -1,6 +1,6 @@
 # 🎵 Blindtest en ligne
 
-Ce projet en **cours de développement** est un **jeu de blindtest multijoueur en ligne**, permettant à plusieurs utilisateurs de s'affronter en temps réel sur des extraits musicaux, grâce à l'API de **Deezer**.
+Ce projet en **COURS DE DÉVELOPPEMENT** est un **jeu de blindtest multijoueur en ligne**, permettant à plusieurs utilisateurs de s'affronter en temps réel sur des extraits musicaux, grâce à l'API de **Deezer**.
 
 ## 🚀 Stack technique
 
