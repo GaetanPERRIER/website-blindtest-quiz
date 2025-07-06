@@ -24,7 +24,15 @@ module.exports = (io, socket) => {
 
     socket.on('nextMusic', (roomId, socketId) => {
         const room = roomService.nextMusic(roomId, socketId)
-        io.to(room.id).emit('roundStarted', room)
+
+        if(room.gameEnded) {
+            io.to(room.id).emit('gameEnded', room)
+            console.log("[Partie terminée]")
+        }
+        else {
+            io.to(room.id).emit('roundStarted', room)
+            console.log("[Nouveau round commencé]")
+        }
     });
 
     socket.on('checkAnswer', (roomId, socketId, answer) => {

@@ -11,13 +11,17 @@ class RoomService {
         const room = {
             id: this.generateRoomId(),
             players: [player],
+
             setting: {
                 category: null,
                 songCount: DEFAULT_GAME_SETTINGS.songCount,
                 difficulty: DEFAULT_GAME_SETTINGS.difficulty,
             },
+
             musicsToGuess: [],
             gameStarted : false,
+            gameEnded : false,
+
             round : {
                 currentMusic : 0,
                 roundEnded  : false,
@@ -234,20 +238,20 @@ class RoomService {
         const player = room.players.find(p => p.socketId === playerId);
         if (!player) throw new Error('Joueur introuvable');
 
-        console.log(player)
         if (player.host) {
+            room.round.currentMusic++;
+            if (room.round.currentMusic > room.setting.songCount - 1) {
+                console.log('[Fin du jeu] : Toutes les musiques ont été jouées');
+                room.gameEnded = true;
+                return room
+            }
+
             room.players.forEach(player => {
                 player.titleGuessed = false;
             });
 
             // Passer à la musique suivante
-            room.round.currentMusic++;
             room.round.roundEnded = false;
-
-            if (room.currentMusic >= room.musicsToGuess.length) {
-                console.log('[Fin du jeu] : Toutes les musiques ont été jouées');
-                room.gameStarted = false; // Fin du jeu
-            }
         }
 
         return room

@@ -5,13 +5,17 @@ export const usePlayerStore = defineStore('player', {
         room: {
             id: null,
             players: [],
+
             setting: {
                 category: null,
                 songCount: null,
                 difficulty: null,
             },
+
             musicsToGuess: [],
             gameStarted : false,
+            gameEnded : false,
+
             round : {
                 currentMusic : 0,
                 roundEnded  : false,
@@ -19,7 +23,6 @@ export const usePlayerStore = defineStore('player', {
             }
         },
         username : ""
-
     }),
 
     actions: {

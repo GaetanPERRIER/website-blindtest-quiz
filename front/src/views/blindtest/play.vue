@@ -1,7 +1,7 @@
 <script setup>
 import {usePlayerStore} from "@/stores/playerStore.js";
 import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
-import MusicGuessing from "@/components/Blindtest/Game/MusicGuessing.vue";
+import Playing from "@/components/Blindtest/Game/Playing.vue";
 import socket from "@/utils/socket.js";
 import {computed, onMounted, ref} from "vue";
 import GameConfig from "@/components/Blindtest/Room/GameConfig.vue";
@@ -53,7 +53,7 @@ onMounted(() => {
 
     <div v-else class="blindtest-container">
         <div class="musics-container">
-            <MusicGuessing/>
+            <Playing/>
         </div>
     </div>
     <ParticleBackground/>
