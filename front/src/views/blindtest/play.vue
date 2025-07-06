@@ -1,72 +1,54 @@
 <script setup>
-import { useRouter, useRoute } from "vue-router";
 import {usePlayerStore} from "@/stores/playerStore.js";
 import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
-import ConfigLobby from "@/components/Blindtest/ConfigLobby.vue";
 import MusicGuessing from "@/components/Blindtest/Game/MusicGuessing.vue";
 import socket from "@/utils/socket.js";
-import {computed, onMounted} from "vue";
-import BackNavigationArrow from "@/components/Basics/BackNavigationArrow.vue";
+import {computed, onMounted, ref} from "vue";
+import GameConfig from "@/components/Blindtest/Room/GameConfig.vue";
+import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
 
+
+/* Variables */
 const playerStore = usePlayerStore()
-const router = useRouter();
-const route = useRoute();
 
 
-const urlTrackList = "https://api.deezer.com/playlist/53362031/tracks"
-const player = computed(() => playerStore.player);
 const room = computed(() => playerStore.room);
+const currentPlayer = computed(() =>
+    playerStore.room.players.find(player => player.socketId === socket.id)
+)
 
-const inviteUrl = computed(() => {
-    if (player.value.roomId) {
-        return `${window.location.origin}/blindtest/play?roomId=${player.value.roomId}`;
-    }
-    return "";
-});
+
+/* Handle Spawn Animation */
+const gameConfigVisible = ref(false)
+
 
 onMounted(() => {
-    // Créer la session multijoueur
-    if (player.value.username !== ""){
-        const playerData = {
-            host : true,
-            roomId : route.query.roomId ? route.query.roomId : player.value.roomId,
-            username : player.value.username,
-            socketId : socket.id,
-        }
-        socket.emit("joinRoom", playerData);
+    gameConfigVisible.value = !gameConfigVisible.value
 
-        socket.on('roomCreated', (data) => {
-            playerData.roomId = data.roomId;
-            playerStore.setPlayer(playerData);
-        });
+    /* Events socket */
 
-        socket.on('roomDataUpdated', (data) => {
-            console.log("roomDataUpdated", data);
-            playerStore.setRoom(data);
+    // Handle room creation
+    socket.off("roomCreated")
+    socket.on('roomCreated', (newRoom) => {
+        playerStore.SetRoom(newRoom)
+        console.log("[A new room as been created] :", room.value)
+    })
 
-            const player = data.players.find(player => player.socketId === socket.id);
-            if (player) {
-                playerStore.setPlayer(player);
-            }
-            else {
-                router.push("/blindtest");
-            }
-        });
-    }
-    else {
-        route.query.roomId ? router.push(`/blindtest?roomId=${route.query.roomId}`) : router.push("/blindtest/");
-    }
+    // Handle roomJoined by a new player (to give him the room infos)
+    socket.off("roomJoined")
+    socket.on('roomJoined', (room) => {
+        playerStore.SetRoom(room)
+        console.log("[You joined a room] :", room.value)
+    })
 });
-
-
-
 
 </script>
 
 <template>
-
-    <div v-if="!room.gameStarted" class="blindtest-container u-flex u-justify-content-center u-align-items-center u-p25 u-gap100">
-        <ConfigLobby/>
+    <div v-if="!room.gameStarted" class="blindtest-container u-flex u-justify-content-center u-align-items-center u-p50 u-gap100">
+        <ScaleSpawnAnimation :rotate="false">
+            <GameConfig v-if="gameConfigVisible"/>
+        </ScaleSpawnAnimation>
     </div>
 
     <div v-else class="blindtest-container">
@@ -84,7 +66,6 @@ onMounted(() => {
     height: 100vh;
     position: relative;
     z-index: 1;
-
 
     h1 {
         font-size: 30px;
@@ -127,12 +108,8 @@ onMounted(() => {
         cursor: text;
     }
 
-
     &::placeholder {
         color: rgba(255, 255, 255, 0.7);
     }
-
-
-
 }
 </style>

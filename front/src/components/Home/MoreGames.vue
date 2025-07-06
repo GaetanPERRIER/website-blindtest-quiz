@@ -23,7 +23,7 @@ const cardMoreGames = [
 
 <template>
     <div class="more-games-container u-flex u-flex-direction-column u-align-items-center u-gap35 u-plr50">
-        <h2 class="t-title">Découvre plus de jeux</h2>
+        <h2 >Découvre plus de jeux</h2>
         <div class="cards-container">
             <CardGame v-for="card in cardMoreGames" :img-path="card.imgPath" :card-title="card.cardTitle" :card-content="card.cardContent"></CardGame>
         </div>
@@ -35,8 +35,19 @@ const cardMoreGames = [
 
 .more-games-container {
     h2 {
-        color : $major-yellow-color;
+        font-size: 2.5rem;
+        color: $major-yellow-color;
         text-align: center;
+        position: relative;
+
+        &::after {
+            content: '';
+            display: block;
+            width: 100px;
+            height: 3px;
+            background: $major-yellow-color;
+            margin: 20px auto 0;
+        }
     }
 
     .cards-container {

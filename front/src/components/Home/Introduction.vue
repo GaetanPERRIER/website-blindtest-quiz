@@ -6,100 +6,145 @@ const cardIntro = {
     cardTitle: "Blindtest",
     cardContent: "Teste tes connaissances musicales"
 }
-
 </script>
 
 <template>
-    <section class="introdution-container u-flex u-align-items-center u-justify-content-center u-flex-direction-column--s u-gap50">
-        <CardGame :img-path="cardIntro.imgPath" :card-title="cardIntro.cardTitle" :card-content="cardIntro.cardContent"/>
-        <div class="content-intro u-flex u-flex-direction-column u-align-items-center u-justify-content-center u-gap10">
-            <div class="content-intro-title u-flex u-justify-content-center u-align-items-center u-gap15">
-                <h2 class="t-title">Il est l'heure maestro</h2>
-                <img class="u-none" src="/Home/Introduction/clock-icon.png" alt="">
+    <section class="introduction-container">
+        <div class="introduction-content">
+            <CardGame :img-path="cardIntro.imgPath" :card-title="cardIntro.cardTitle" :card-content="cardIntro.cardContent" class="intro-card"/>
+
+            <div class="content-intro">
+                <div class="content-intro-title">
+                    <h2>Il est l'heure <span class="highlight-text">maestro</span> !</h2>
+                </div>
+
+                <p class="intro-description">
+                    Seul ou entre amis, voyage à travers les styles et générations de musiques.
+                    Ici, pas besoin de s'abîmer les cordes vocales pour se faire entendre !
+                </p>
+
+                <button class="cta-lets-go t-body-text">
+                    C'est parti
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
             </div>
-            <p class="t-body-text t-color-white">Seul ou entre amis, voyage à travers les styles et générations de musiques. Ici, pas besoins de s’abimer les cordes vocales pour répondre ! </p>
-            <button class="cta-lets-go t-body-text u-mt10">C'est parti</button>
         </div>
     </section>
-
 </template>
 
 <style scoped lang="scss">
 @import '@/assets/styles/settings/settings.scss';
 
-.introdution-container {
+.introduction-container {
     width: 100%;
-    max-width: 1200px;
-    padding: 0 100px;
+    max-width: 1400px;
+    padding: 0 40px;
 
-    .content-intro {
-        text-align: center;
-        max-width: 600px;
+    .introduction-content {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 80px;
+        width: 100%;
 
-        .content-intro-title {
-            h2 {
-                color: $major-yellow-color;
+        .content-intro {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 25px;
+            max-width: 600px;
+
+            .content-intro-title {
+                display: flex;
+                align-items: center;
+                gap: 20px;
+
+                h2 {
+                    font-size: 3rem;
+                    font-weight: 700;
+                    color: white;
+                    margin: 0;
+                    line-height: 1.2;
+
+                    .highlight-text {
+                        color: $major-yellow-color;
+                    }
+                }
+
+                .clock-icon {
+                    width: 60px;
+                    height: 60px;
+                    animation: pulse 2s infinite;
+                }
             }
-        }
 
-        .lines {
-            padding-top: 10px;
-            padding-bottom: 10px;
-
-            .line {
-                background-color: #fff;
-                height: 2px;
+            .intro-description {
+                font-size: 1.2rem;
+                color: rgba(255, 255, 255, 0.9);
+                line-height: 1.6;
+                margin: 0;
             }
 
-            .first-line {
-                width: 175px;
-                opacity: 75%;
-            }
+            .cta-lets-go {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                background-color: $major-yellow-color;
+                color: #000;
+                padding: 15px 30px;
+                border-radius: 50px;
+                font-size: 18px;
+                font-weight: 500;
+                border: none;
+                cursor: pointer;
+                transition: all 300ms $authenticMotion;
 
-            .second-line {
-                width: 125px;
-                opacity: 50%;
-            }
-
-            .third-line{
-                width: 75px;
-                opacity: 25%;
-            }
-        }
-
-        .cta-lets-go{
-            background-color: $major-yellow-color;
-            color: #fff;
-            padding: 10px 25px;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 200ms $authenticMotion;
-
-            &:hover {
-                transform: scale(1.1);
-                background-color: darken($major-yellow-color, 10%);
+                &:hover {
+                    background-color: darken($major-yellow-color, 10%);
+                    transform: translateY(-3px);
+                    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+                }
             }
         }
     }
 }
 
-@media (max-width: 1000px) {
-    .introdution-container {
-        padding: 0 50px;
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
 
-        .content-intro {
-            max-width: 500px;
+@media (max-width: 1000px) {
+    .introduction-container {
+        padding: 0 30px;
+
+        .introduction-content {
+            flex-direction: column;
+            gap: 50px;
+
+            .content-intro {
+                align-items: center;
+                text-align: center;
+
+                .content-intro-title {
+                    flex-direction: column;
+                    gap: 15px;
+                }
+            }
         }
     }
 }
 
 @media (max-width: 768px) {
-    .introdution-container {
+    .introduction-container {
         padding: 0 20px;
-    }
-    .content-intro {
-        padding: 0 10px;
+
+        .content-intro-title h2 {
+            font-size: 2.5rem !important;
+        }
     }
 }
-
 </style>

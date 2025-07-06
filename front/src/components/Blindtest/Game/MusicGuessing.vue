@@ -4,30 +4,69 @@ import {computed, ref, onMounted} from "vue";
 import socket from "@/utils/socket.js";
 import PlayerList from "@/components/Blindtest/Room/PlayerList.vue";
 import ModalRoundOver from "@/components/Blindtest/Game/ModalRoundOver.vue";
+import LinearLoadingBar from "@/components/Blindtest/Game/LinearLoadingBar.vue";
+import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
+import InputAnswer from "@/components/Blindtest/Game/MusicGuessing/InputAnswer.vue";
+import SlideSpawnAnimation from "@/components/Basics/SlideSpawnAnimation.vue";
 
+/* Variables */
 const playerStore = usePlayerStore();
-
-const currentPlayer = computed(() => playerStore.player);
+const currentPlayer = computed(() =>
+    playerStore.room.players.find(player => player.socketId === socket.id)
+)
 const room = computed(() => playerStore.room);
 const musicToGuess = computed(() => room.value.musicsToGuess[room.value.round.currentMusic]);
-
 const audioVolume = ref(0.01);
-let userAnswer = ref("");
 
-onMounted(() => {
+/* Handle Spawn Animation & element display */
+const inputAnswerVisible = ref(false)
+const playerListVisible = ref(false)
+const answerVisible = ref(false)
+const modalVisible = ref(false)
 
-})
-
-function CheckAnswer() {
-    socket.emit("checkAnswer", room.value.id, currentPlayer.value.socketId, userAnswer.value);
-    userAnswer.value = "";
-}
+/* Functions */
 
 function SongEnded() {
     socket.emit("songEnded", room.value.id, currentPlayer.value.socketId);
     // Recommencer la musique ?
 }
 
+onMounted(() => {
+
+    // Handle the start of a round
+    socket.off('roundStarted');
+    socket.on('roundStarted', (room) => {
+        playerStore.SetRoom(room)
+        modalVisible.value = false
+        inputAnswerVisible.value = true
+        playerListVisible.value = true
+
+        console.log("[Round started]", room)
+    })
+
+    socket.on('titleGuessed', (players) => {
+        playerStore.SetRoomPlayers(players)
+    })
+
+    // Handle the end of a round
+    socket.off('roundEnded');
+    socket.on('roundEnded',(room) => {
+        console.log(room)
+        playerStore.SetRoom(room)
+        inputAnswerVisible.value = false
+        playerListVisible.value = false
+        modalVisible.value = true
+        answerVisible.value = false
+
+
+        console.log("[Round ended]", room)
+
+        setTimeout(() => {
+            console.log("Test", room)
+            socket.emit("nextMusic", room.id, currentPlayer.value.socketId);
+        },5500)
+    })
+})
 
 </script>
 
@@ -35,32 +74,43 @@ function SongEnded() {
     <div class="game">
         <div class="game-container u-flex u-flex-direction-column u-justify-content-center u-align-items-center w100 h100 u-gap20">
 
-            <div class="player-list-container">
-                <PlayerList :playing="true"/>
-            </div>
+            <ScaleSpawnAnimation :rotate="false">
+                <div class="player-list-anchor" v-if="playerListVisible">
+                    <div class="player-list-content">
+                        <PlayerList :playing="true" />
+                    </div>
+                </div>
+            </ScaleSpawnAnimation>
+
 
             <div class="musicToDisplay">
-                <img v-if="room.round.roundEnded || currentPlayer.titleGuessed" :src="musicToGuess.album.cover_xl" alt="" class="album-cover">
                 <audio :src="musicToGuess.preview" controls autoplay :volume="audioVolume/2" @ended="SongEnded"></audio>
             </div>
 
-            <div v-if="!room.round.roundEnded && !currentPlayer.titleGuessed" class="input-container u-flex u-flex-direction-column u-gap10">
-                <div class="u-flex u-gap10">
-                    <input class="t-color-white t-body-text" v-model="userAnswer" type="text" placeholder="Saisir le nom de la musique..." @keydown.enter="CheckAnswer">
-                    <button class="t-body-text t-color-white" @click="CheckAnswer">Valider</button>
+            <ScaleSpawnAnimation :rotate="false">
+                <InputAnswer v-if="inputAnswerVisible"/>
+            </ScaleSpawnAnimation>
+
+            <!--
+                <div class="music-info-container" v-if="answerVisible">
+                    <img :src="musicToGuess.album.cover_xl" alt="" class="album-cover">
+                    <div class="music-info">
+                        <h2 class="t-color-white t-body-text">{{ musicToGuess.title_short }}</h2>
+                        <p class="t-color-white t-body-text">par {{ musicToGuess.artist.name }}</p>
+                    </div>
                 </div>
-                <div class="loading-bar"></div>
-            </div>
-
-            <div v-if="room.round.roundEnded || currentPlayer.titleGuessed" class="music-info">
-                <h2 class="t-color-white t-body-text">{{ musicToGuess.title_short }}</h2>
-                <p class="t-color-white t-body-text">par {{ musicToGuess.artist.name }}</p>
-            </div>
+                -->
 
 
-            <div v-if="room.round.roundEnded">
-                <ModalRoundOver/>
-            </div>
+
+            <SlideSpawnAnimation direction="bottom" transition-duration="1500ms">
+                <div class="modal-anchor" v-if="modalVisible">
+                    <div class="modal-positioner">
+                        <ModalRoundOver ref="modal" />
+                    </div>
+                </div>
+            </SlideSpawnAnimation>
+
 
 
         </div>
@@ -74,79 +124,73 @@ function SongEnded() {
     display: none !important;
 }
 
+.black-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    transition: opacity 200ms ease-in;
+    background-color: rgba(0, 0, 0, 0.5);
+}
+
 .game {
     width: 100%;
     height: 100%;
     z-index: 2;
 
+    .modal-anchor {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
     .game-container {
         position: relative;
 
         .player-list-container {
-            position: absolute;
-            right: 50%;
-            transform: translate(50%);
+            width: auto;
+            z-index: 10;
+        }
+
+        .player-list-anchor {
+            position: fixed;
+            left: 0;
+            right: 0;
             bottom: 20px;
+            display: flex;
+            justify-content: center;
         }
 
-        .input-container {
-            input {
-                padding: 10px 25px;
-                background-color: rgba(255, 255, 255, 0.1);
-                border: 1px solid  rgba(255, 255, 255, 0.2);
-                transition: all 200ms $authenticMotion;
-                border-radius: 10px;
-
-                &:focus {
-                    outline: none;
-                    border: 1px solid  rgba(255, 255, 255, 0.5);
-                }
-            }
-
-            button {
-                padding: 10px 25px;
-                background-color: $major-yellow-color;
-                border-radius: 10px;
-                transition: all 200ms $authenticMotion;
-                cursor: pointer;
-
-                &:hover {
-                    background-color: darken($major-yellow-color, 10%);
-                    transform: scale(1.1);
-                }
-            }
-
-            .loading-bar {
-                position: relative;
-                width: 100%;
-                height: 8px;
-                background-color: rgba(255, 255, 255, 0.1);
-                border-radius: 15px;
-
-                &::after {
-                    content: '';
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    height: 8px;
-                    width: var(--progress-width, 0%);
-                    background-color: rgba(255, 255, 255, 0.9);
-                    border-radius: 15px;
-                    transition: width 0.1s linear; /* Smooth animation */
-                }
-            }
+        .player-list-content {
+            transform-origin: center;
         }
 
-        .musicToDisplay {
+        .music-info-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+
+            .music-info {
+                display: flex;
+                flex-direction: column;
+                gap: 5px;
+                justify-content: center;
+                align-items: center;
+            }
+
             .album-cover {
                 width: 300px;
                 border-radius: 15px;
             }
-        }
-
-        .music-info {
-            display: flex;
-            gap: 5px;
         }
     }
 

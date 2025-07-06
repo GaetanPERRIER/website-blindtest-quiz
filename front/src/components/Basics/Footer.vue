@@ -1,26 +1,67 @@
 <script setup>
+const currentYear = new Date().getFullYear();
 
+const socialLinks = [
+    { icon: '/Footer/discord.png', alt: 'Discord', url: '#' },
+    { icon: '/Footer/X.png', alt: 'Twitter/X', url: '#' },
+    { icon: '/Footer/instagram.png', alt: 'Instagram', url: '#' }
+];
+
+const navLinks = [
+    { label: 'Accueil', url: '#' },
+    { label: 'Jouer', url: '#' },
+    { label: 'Contact', url: '#' }
+];
 </script>
 
 <template>
-    <footer class="footer u-flex u-flex-direction-column u-align-items-center u-justify-content-center">
-        <div class="w100 u-flex u-justify-content-around u-flex-direction-column--s u-gap35--s">
-            <div class="u-flex u-flex-direction-row--s u-flex-direction-column u-justify-content-center u-align-items-center u-gap15">
-                <a class="t-body-text t-color-white" href="">Accueil</a>
-                <a class="t-body-text t-color-white" href="">Jouer</a>
-                <a class="t-body-text t-color-white" href="">Contact</a>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h3 class="footer-title">Navigation</h3>
+                <nav class="footer-nav">
+                    <a
+                        v-for="(link, index) in navLinks"
+                        :key="index"
+                        :href="link.url"
+                        class="nav-link"
+                    >
+                        {{ link.label }}
+                        <span class="underline"></span>
+                    </a>
+                </nav>
             </div>
-            <div class="u-flex u-justify-content-center u-align-items-center u-flex-direction-column u-gap15">
-                <div class="u-flex u-align-items-center u-justify-content-center u-gap10">
-                    <img src="/Footer/discord.png" alt="">
-                    <img src="/Footer/X.png" alt="">
-                    <img src="/Footer/instagram.png" alt="">
+
+            <div class="footer-section">
+                <h3 class="footer-title">Réseaux sociaux</h3>
+                <div class="social-links">
+                    <a
+                        v-for="(social, index) in socialLinks"
+                        :key="index"
+                        :href="social.url"
+                        class="social-link"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                    >
+                        <img
+                            :src="social.icon"
+                            :alt="social.alt"
+                            class="social-icon"
+                        >
+                    </a>
                 </div>
-                <p class="t-body-text t-color-white">email.example@gmail.com</p>
+                <a href="mailto:email.example@gmail.com" class="email-link">
+                    email.example@gmail.com
+                    <span class="underline"></span>
+                </a>
             </div>
-            <div class="u-flex u-justify-content-center u-align-items-center t-body-text t-color-white">
-                Musiques utilisées : Deezer API
-            </div>
+        </div>
+
+        <div class="footer-bottom">
+            <p class="credits">
+                &copy; {{ currentYear }} Maestro. Tous droits réservés.
+                <span class="api-credit">Musiques fournies par Deezer API</span>
+            </p>
         </div>
     </footer>
 </template>
@@ -29,36 +70,165 @@
 @import '@/assets/styles/settings/settings.scss';
 
 .footer {
-    gap: 100px;
-    padding: 100px 55px;
-    background-color: rgba(255, 255, 255, 0.1);
-    border-top: 2px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(15px);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 60px 20px 30px;
+    color: white;
+    font-size: 1rem;
+    position: relative;
+    z-index: 10;
 
-    a {
+    .footer-content {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 40px;
+        padding-bottom: 40px;
+        margin-bottom: 30px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .footer-section {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 25px;
+    }
+
+    .footer-title {
+        color: white;
+        font-size: 1.3rem;
+        font-weight: 600;
+        margin: 0 0 15px;
+        position: relative;
+        padding-bottom: 10px;
+
+        &::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 50px;
+            height: 3px;
+            background: $major-yellow-color;
+            border-radius: 3px;
+        }
+    }
+
+    .footer-nav {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .nav-link, .email-link {
+        color: white;
         text-decoration: none;
-        transition: all 200ms $authenticMotion;
-        font-size: 16px;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        padding: 5px 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        width: fit-content;
+        position: relative;
 
         &:hover {
-            color: $major-blue-color;
+            .underline {
+                width: 100%;
+                opacity: 1;
+            }
         }
     }
 
-    div, p{
-        font-size: 16px;
+    .underline {
+        height: 2px;
+        width: 0;
+        background: $major-yellow-color;
+        margin-top: 5px;
+        border-radius: 2px;
+        opacity: 0;
+        transition: all 0.3s ease;
+    }
+
+    .social-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+    }
+
+    .social-link {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+        height: 45px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+
+        &:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-3px) scale(1.1);
+        }
+    }
+
+    .social-icon {
+        width: 24px;
+        height: 24px;
+        filter: brightness(0) invert(1) drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+    }
+
+    .footer-bottom {
+        max-width: 1200px;
+        margin: 0 auto;
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    .credits {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin: 0;
+    }
+
+    .api-credit {
+        display: block;
+        margin-top: 8px;
+        font-size: 0.8rem;
     }
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 768px) {
     .footer {
-        padding: 75px 35px;
-        gap: 50px;
+        padding: 40px 20px 20px;
 
-        div, p {
-            font-size: 14px;
+        .footer-content {
+            grid-template-columns: 1fr;
+            gap: 30px;
+            padding-bottom: 30px;
+        }
+
+        .footer-section {
+            align-items: center;
+            text-align: center;
+
+            .footer-title::after {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+
+        .footer-nav {
+            align-items: center;
+        }
+
+        .nav-link, .email-link {
+            align-items: center;
         }
     }
 }
-
-
 </style>

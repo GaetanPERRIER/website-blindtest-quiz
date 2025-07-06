@@ -224,31 +224,30 @@ class RoomService {
         player.titleGuessed = true;
         console.log(`[Fin de la chanson] : ${player.username} n'a pas trouvé le titre`);
 
-        const allPlayersGuessed = room.players.every(p => p.titleGuessed);
-        if (allPlayersGuessed) {
-            room.round.roundEnded = true;
-            console.log('[Fin de la manche] : Tous les joueurs ont trouvé le titre ou la chanson est terminée sans réponse');
-        }
         return room
     }
 
-    nextMusic(roomId) {
+    nextMusic(roomId, playerId) {
         const room = this.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
+        if(room === undefined) throw new Error('Salle introuvable');
 
-        room.players.forEach(player => {
-            player.titleGuessed = false;
-        });
+        const player = room.players.find(p => p.socketId === playerId);
+        if (!player) throw new Error('Joueur introuvable');
 
-        // Passer à la musique suivante
-        room.round.currentMusic++;
-        room.round.roundEnded = false;
+        console.log(player)
+        if (player.host) {
+            room.players.forEach(player => {
+                player.titleGuessed = false;
+            });
 
-        if (room.currentMusic >= room.musicsToGuess.length) {
-            console.log('[Fin du jeu] : Toutes les musiques ont été jouées');
-            room.gameStarted = false; // Fin du jeu
+            // Passer à la musique suivante
+            room.round.currentMusic++;
+            room.round.roundEnded = false;
+
+            if (room.currentMusic >= room.musicsToGuess.length) {
+                console.log('[Fin du jeu] : Toutes les musiques ont été jouées');
+                room.gameStarted = false; // Fin du jeu
+            }
         }
 
         return room
@@ -261,6 +260,8 @@ class RoomService {
         }
 
         const currentMusic = room.musicsToGuess[room.round.currentMusic];
+
+        // Faire une méthode pour accepter l'errreur
         const isCorrect = answer.toLowerCase() === currentMusic.title.toLowerCase();
         const player = room.players.find(p => p.socketId === playerId);
 
@@ -268,17 +269,14 @@ class RoomService {
             player.titleGuessed = true;
             player.score += 100;
             console.log(`[Bonne réponse] : ${player.username} a trouvé le titre ${currentMusic.title}`);
-
-            // Vérifier si tous les joueurs ont trouvé le titre
-            const allPlayersGuessed = room.players.every(p => p.titleGuessed);
-            if (allPlayersGuessed) {
-                room.round.roundEnded = true;
-                console.log('[Fin de la ronde] : Tous les joueurs ont trouvé le titre');
-            }
         }
         return room
     }
 
+    AllPlayerGuessed(room) {
+        const allPlayersGuessed = room.players.every(p => p.titleGuessed);
+        return !!allPlayersGuessed;
+    }
 }
 
 module.exports = new RoomService();

@@ -5,7 +5,9 @@ import {usePlayerStore} from "@/stores/playerStore.js";
 import {computed} from "vue";
 const playerStore = usePlayerStore();
 const room = computed(() => playerStore.room);
-const currentPlayer = computed(() => playerStore.player)
+const currentPlayer = computed(() =>
+    playerStore.room.players.find(player => player.socketId === socket.id)
+)
 
 const props = defineProps({
     player : Object,
@@ -13,11 +15,9 @@ const props = defineProps({
 })
 
 function EjectAPlayer() {
-    console.log(currentPlayer.value)
     if (currentPlayer.value.host){
         const roomId = room.value.id;
         const socketId = props.player.socketId; // Access socketId from player props
-
         socket.emit("ejectPlayer", roomId, socketId);
     }
 }
@@ -30,7 +30,8 @@ function EjectAPlayer() {
             <img class="player-avatar" src="/Player/panda.png" alt="">
             <span class="t-body-text t-color-white">{{ player.username }}</span>
         </div>
-        <img v-if="playerList" @click="EjectAPlayer" class="cross" src="/Player/cross.png" alt="">
+        <img v-if="playerList && !player.host" @click="EjectAPlayer" class="cross" src="/Player/cross.png" alt="">
+        <img v-if="playerList && player.host" @click="EjectAPlayer" class="cross" src="/Player/crown.png" alt="">
     </div>
 </template>
 

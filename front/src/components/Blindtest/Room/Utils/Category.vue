@@ -19,8 +19,6 @@ const { category } = defineProps({
 
 function selectCategory() {
     socket.emit("selectCategory", room.value.id, category);
-
-    console.log("Category selected:", category);
 }
 
 </script>
@@ -40,6 +38,7 @@ function selectCategory() {
     position: relative;
     cursor: pointer;
     border-radius: 10px;
+    aspect-ratio: 1/1;
     transition: all 350ms $authenticMotion;
     box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
 
