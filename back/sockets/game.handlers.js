@@ -50,4 +50,10 @@ module.exports = (io, socket) => {
         }
     });
 
+
+    socket.on('playerReady',(roomId, socketId) => {
+        const room = roomService.setPlayerReady(roomId, socketId)
+        io.to(room.id).emit('playerListUpdated', room.players)
+    })
+
 };

@@ -1,34 +1,49 @@
 <script setup>
 import {usePlayerStore} from "@/stores/playerStore.js";
-import {computed, onMounted} from "vue";
+import {computed, onMounted, ref, watch} from "vue";
 import socket from "@/utils/socket.js";
 import { useRouter, useRoute } from "vue-router";
 import InviteButton from "@/components/Blindtest/Room/InviteButton.vue";
 import Player from "@/components/Blindtest/Room/Utils/Player.vue";
 
-defineProps({
+const props = defineProps({
     playing: {
+        type: Boolean,
+        default: false
+    },
+    gameEnded: {
         type: Boolean,
         default: false
     }
 })
+
 const router = useRouter();
 const route = useRoute();
 const playerStore = usePlayerStore();
 const room = computed(() => playerStore.room);
+const finalPLayerList = ref([])
+
+// Surveillez le changement de gameEnded pour capturer la liste des joueurs
+watch(() => props.gameEnded, (newVal) => {
+    if (newVal) {
+        // Quand la partie se termine, on capture la liste actuelle des joueurs
+        finalPlayersList.value = [...room.value.players];
+    }
+});
 
 onMounted(() => {
     // Handle player join and player ejected
     socket.off("playerListUpdated")
     socket.on('playerListUpdated', (roomPlayers) => {
-        playerStore.SetRoomPlayers(roomPlayers)
-        const player = roomPlayers.find(player => player.socketId === socket.id)
-        if (player) {
-            console.log("[The player list has been updated] :", room.value.players)
+        // Ne mettez à jour que si la partie n'est pas terminée
+        if (!props.gameEnded) {
+            playerStore.SetRoomPlayers(roomPlayers)
+            const player = roomPlayers.find(player => player.socketId === socket.id)
+            if (!player) {
+                router.push("/blindtest");
+            }
         }
-        else {
-            router.push("/blindtest");
-        }
+        console.log("[The player list has been updated] :", room.value.players)
     })
 })
 
@@ -36,19 +51,29 @@ onMounted(() => {
 
 <template>
     <div :class="playing ? 'player-list-container' : 'player-list-container w100 h100'">
-        <div v-if="!playing" class="player-list u-flex u-flex-direction-column">
+        
+        <!-- Liste des joueurs pour le lobby de config -->
+        <div v-if="!playing && !gameEnded" class="player-list u-flex u-flex-direction-column">
             <div  class="top-player-list u-flex u-align-items-center u-justify-content-center u-gap20 u-p15">
                 <h2 class="t-body-text t-color-white">Liste des joueurs</h2>
                 <InviteButton/>
             </div>
             <div class="content-player-list w100 h100 u-p10 u-plr20 u-flex u-flex-direction-column u-gap10">
-                <Player v-for="player in room.players" :player="player" :player-list="true"></Player>
+                <Player v-for="player in room.players" :player="player"></Player>
             </div>
         </div>
 
+        <!-- Liste des joueurs pour l'affichage de fin de partie -->
+        <div v-if="!playing && gameEnded" class="player-list u-flex u-flex-direction-column">
+            <div class="content-player-list w100 h100 u-p10 u-plr20 u-flex u-flex-direction-column u-gap10">
+                <Player v-for="player in room.players" :player="player" :player-options="false"></Player>
+            </div>
+        </div>
+
+        <!-- Liste des joueurs pour une manche en cours -->
         <div v-if="playing" class="player-list u-flex u-flex-direction-column">
             <div class="content-player-list w100 u-p10 u-plr20 u-flex u-flex-direction-row u-gap25">
-                <Player v-for="player in room.players" :player="player" :player-list="false" :style="player.titleGuessed ? 'opacity:100%;' : 'opacity:50%;'"></Player>
+                <Player v-for="player in staticPlayerList" :player="player" :player-list="false" :player-stat="true" :style="player.titleGuessed ? 'opacity:100%;' : 'opacity:50%;'"></Player>
             </div>
         </div>
     </div>
