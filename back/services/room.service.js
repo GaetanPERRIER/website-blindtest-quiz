@@ -156,6 +156,16 @@ class RoomService {
         return room
     }
 
+    setAllPlayersUnready(roomId) {
+        const room = this.getRoom(roomId)
+
+        room.players.forEach(player => {
+            player.isReady = false
+        })
+
+        return room
+    }
+
 
 
     // === Lancement du jeu ===

@@ -77,7 +77,7 @@ onMounted(() => {
             </div>
             <div class="mixer-control u-flex u-flex-direction-column u-align-items-center">
                 <div class="track-count-display t-body-text t-color-white">{{songCount}} musiques</div>
-                <input type="range" min="5" max="20" v-model="songCount" class="track-count-slider" @change="setSongCount" :disabled="!currentPlayer.host">
+                <input type="range" min="1" max="20" v-model="songCount" class="track-count-slider" @change="setSongCount" :disabled="!currentPlayer.host">
             </div>
             <PlayerList/>
             <div class="w100 u-flex u-justify-content-center u-align-items-center">

@@ -3,6 +3,7 @@
 import socket from "@/utils/socket.js";
 import {usePlayerStore} from "@/stores/playerStore.js";
 import {computed} from "vue";
+
 const playerStore = usePlayerStore();
 const room = computed(() => playerStore.room);
 const currentPlayer = computed(() =>

@@ -1,7 +1,6 @@
 <script setup>
 import {usePlayerStore} from "@/stores/playerStore.js";
 import {computed, ref, onMounted} from "vue";
-
 import PlayerList from "@/components/Blindtest/Room/PlayerList.vue";
 import socket from "@/utils/socket";
 
@@ -12,6 +11,13 @@ const room = computed(() => playerStore.room)
 const playersReadyCount = computed(() => {
     return playerStore.room.players.filter(player => player.isReady === true).length
 })
+
+
+// Functions
+const PlayerReady = () => {
+    console.log("[Method player ready] : roomId : " + room.value.id, socket.id)
+    socket.emit('playerReady', (room.value.id, socket.id))
+}
 
 
 </script>
@@ -25,7 +31,7 @@ const playersReadyCount = computed(() => {
         </div>
         <router-link to="/" class="cta-home t-body-text t-color-white">Retourner à l'accueil</router-link>
         <div>
-            <button @click="socket.emit('playerReady', (room.id, socket.id))" class="t-body-text t-color-white"></button>
+            <button @click="PlayerReady()" class="t-body-text t-color-white"></button>
             <p class="players-ready-status">{{ playersReadyCount }}</p>
         </div>
     </div>
