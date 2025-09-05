@@ -147,6 +147,27 @@ class RoomService {
         return Math.random().toString(36).substring(2, 9);
     }
 
+    setPlayerReady(roomId, socketId) {
+        const room = this.getRoom(roomId)
+
+        const player = room.players.find(p => p.socketId === socketId)
+        player.isReady = true
+
+        return room
+    }
+
+    setAllPlayersUnready(roomId) {
+        const room = this.getRoom(roomId)
+
+        room.players.forEach(player => {
+            player.isReady = false
+        })
+
+        return room
+    }
+
+
+
     // === Lancement du jeu ===
 
     async startGame(roomId){

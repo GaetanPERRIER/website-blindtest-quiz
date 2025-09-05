@@ -4,10 +4,10 @@ import {computed, ref, onMounted} from "vue";
 import socket from "@/utils/socket.js";
 import PlayerList from "@/components/Blindtest/Room/PlayerList.vue";
 import ModalRoundOver from "@/components/Blindtest/Game/ModalRoundOver.vue";
-import LinearLoadingBar from "@/components/Blindtest/Game/LinearLoadingBar.vue";
 import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
-import InputAnswer from "@/components/Blindtest/Game/MusicGuessing/InputAnswer.vue";
+import InputAnswer from "@/components/Blindtest/Game/Playing/InputAnswer.vue";
 import SlideSpawnAnimation from "@/components/Basics/SlideSpawnAnimation.vue";
+import EndingScreen from "@/components/Blindtest/Game/Playing/EndingScreen.vue";
 
 /* Variables */
 const playerStore = usePlayerStore();
@@ -33,7 +33,6 @@ function SongEnded() {
 }
 
 onMounted(() => {
-
     // Handle the start of a round
     socket.off('roundStarted');
     socket.on('roundStarted', (room) => {
@@ -119,17 +118,7 @@ onMounted(() => {
             </SlideSpawnAnimation>
 
             <ScaleSpawnAnimation>
-                <div class="ending-screen-container" v-if="endingScreenVisible">
-                    <div class="ending-screen">
-                        <h1 class="t-color-white t-title">La partie est terminée !</h1>
-                        <h2 class="t-color-white t-subtitle">Merci d'avoir joué !</h2>
-                        <div class="u-flex u-gap20">
-                            <button class="">Rejouer</button>
-                            <router-link class="" to="/">Accueil</router-link>
-                        </div>
-                    </div>
-
-                </div>
+                <EndingScreen v-if="endingScreenVisible"/>
             </ScaleSpawnAnimation>
 
 
@@ -155,48 +144,6 @@ onMounted(() => {
     background-color: rgba(0, 0, 0, 0.5);
 }
 
-.ending-screen-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-
-    .ending-screen {
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.8);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-direction: column;
-        gap: 20px;
-
-        h1 {
-            color: white;
-            font-size: 2rem;
-            text-align: center;
-        }
-
-        button {
-            padding: 10px 20px;
-            background-color: $major-yellow-color;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 200ms ease-in;
-
-            &:hover {
-                background-color: darken($major-yellow-color, 10%);
-            }
-        }
-    }
-}
 
 .game {
     width: 100%;

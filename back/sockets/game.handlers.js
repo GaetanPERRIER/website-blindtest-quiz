@@ -23,9 +23,10 @@ module.exports = (io, socket) => {
     });
 
     socket.on('nextMusic', (roomId, socketId) => {
-        const room = roomService.nextMusic(roomId, socketId)
+        let room = roomService.nextMusic(roomId, socketId)
 
         if(room.gameEnded) {
+            room = roomService.setAllPlayersUnready(roomId)
             io.to(room.id).emit('gameEnded', room)
             console.log("[Partie terminée]")
         }
@@ -49,5 +50,12 @@ module.exports = (io, socket) => {
             socket.emit('titleGuessed', room.players)
         }
     });
+
+
+    socket.on('playerReady',(roomId, socketId) => {
+        const room = roomService.setPlayerReady(roomId, socketId)
+        console.log("[Player ready]")
+        io.to(room.id).emit('playerListUpdated', room.players)
+    })
 
 };

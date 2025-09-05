@@ -48,6 +48,7 @@ function SaveUsername() {
         roomId : route.query.roomId ? route.query.roomId : null,
         username : username.value,
         socketId : socket.id,
+        isReady : true
     }
     socket.emit("joinRoom", playerData);
     router.push("/blindtest/play");
@@ -61,6 +62,7 @@ function JoinRoom(roomId) {
         roomId: roomId,
         username: username.value,
         socketId: socket.id,
+        isReady : true
     }
     socket.emit("joinRoom", playerData);
     router.push(`/blindtest/play`);

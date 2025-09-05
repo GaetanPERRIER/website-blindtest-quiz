@@ -3,15 +3,23 @@
 import socket from "@/utils/socket.js";
 import {usePlayerStore} from "@/stores/playerStore.js";
 import {computed} from "vue";
+
 const playerStore = usePlayerStore();
 const room = computed(() => playerStore.room);
 const currentPlayer = computed(() =>
     playerStore.room.players.find(player => player.socketId === socket.id)
 )
 
-const props = defineProps({
+defineProps({
     player : Object,
-    playerList : Boolean
+    playerOptions : {
+        type : Boolean,
+        default : true
+    },
+    playerStat : {
+        type: Boolean,
+        default : false
+    }
 })
 
 function EjectAPlayer() {
@@ -30,15 +38,14 @@ function EjectAPlayer() {
             <img class="player-avatar" src="/Player/panda.png" alt="">
             <span class="t-body-text t-color-white">{{ player.username }}</span>
         </div>
-        <img v-if="playerList && !player.host" @click="EjectAPlayer" class="cross" src="/Player/cross.png" alt="">
-        <img v-if="playerList && player.host" @click="EjectAPlayer" class="cross" src="/Player/crown.png" alt="">
+        <img v-if="playerOptions && !player.host" @click="EjectAPlayer" class="cross" src="/Player/cross.png" alt="">
+        <img v-if="playerOptions && player.host" @click="EjectAPlayer" class="cross" src="/Player/crown.png" alt="">
     </div>
 </template>
 
 <style scoped lang="scss">
 
 .player {
-
     .awnser-not-guessed {
         opacity: 50%;
     }
