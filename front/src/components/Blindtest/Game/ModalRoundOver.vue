@@ -8,10 +8,8 @@ import LinearLoadingBar from "@/components/Blindtest/Game/LinearLoadingBar.vue";
 const playerStore = usePlayerStore();
 
 const room = computed(() => playerStore.room);
-const musicToGuess = computed(() => room.value.musicsToGuess[room.value.round.currentMusic]);
-const currentPlayer = computed(() =>
-    playerStore.room.players.find(player => player.socketId === socket.id)
-)
+const musicToGuess = computed(() => playerStore.room.currentMusic);
+
 
 // References
 const modal = ref(null)

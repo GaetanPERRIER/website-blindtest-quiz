@@ -12,17 +12,14 @@ export const usePlayerStore = defineStore('player', {
                 difficulty: null,
             },
 
-            musicsToGuess: [],
-            gameStarted : false,
-            gameEnded : false,
-
-            round : {
-                currentMusic : 0,
-                roundEnded  : false,
-                bestPlayers : []
-            }
+            state: "config", // config, guessing, answer, ended
+            playlist : [], // ancienement MusicsToGuess
+            round : -1,
+            currentMusic : {},
+            roundSummary : {}
         },
-        username : ""
+        username : "",
+        roomList : []
     }),
 
     actions: {
@@ -40,6 +37,10 @@ export const usePlayerStore = defineStore('player', {
 
         SetRoom(room) {
             this.room = room
+        },
+
+        SetRoomList(roomList) {
+            this.roomList = roomList
         },
 
         SetCategory(newCategory) {

@@ -1,9 +1,11 @@
 <script setup>
 import {usePlayerStore} from "@/stores/playerStore.js";
+import { useRouter } from "vue-router";
 import {computed, ref, onMounted} from "vue";
 import PlayerList from "@/components/Blindtest/Room/PlayerList.vue";
 import socket from "@/utils/socket";
 
+const router = useRouter()
 const playerStore = usePlayerStore()
 
 // Variables computed depuis le store
@@ -16,7 +18,13 @@ const playersReadyCount = computed(() => {
 // Functions
 const PlayerReady = () => {
     console.log("[Method player ready] : roomId : " + room.value.id, socket.id)
-    socket.emit('playerReady', (room.value.id, socket.id))
+    socket.emit('playerReady', room.value.id, socket.id)
+}
+
+const GoHome = () => {
+    console.log("[Go Home from ending screen button]")
+    socket.emit('goHome', room.value.id, socket.id)
+    router.push(`/`);
 }
 
 
@@ -29,7 +37,7 @@ const PlayerReady = () => {
         <div class="player-list-anchor-container">
             <PlayerList :game-ended="true"/>
         </div>
-        <router-link to="/" class="cta-home t-body-text t-color-white">Retourner à l'accueil</router-link>
+        <button @click="GoHome()" class="cta-home t-body-text t-color-white">Retourner à l'accueil</button>
         <div>
             <button @click="PlayerReady()" class="t-body-text t-color-white"></button>
             <p class="players-ready-status">{{ playersReadyCount }}</p>

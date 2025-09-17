@@ -11,7 +11,7 @@ const currentPlayer = computed(() =>
 
 function CopyLink() {
     console.log(socket.id)
-    const inviteUrl = `${window.location.origin}/blindtest?roomId=${currentPlayer.value.roomId}`;
+    const inviteUrl = `${window.location.origin}?roomId=${currentPlayer.value.roomId}`;
     navigator.clipboard.writeText(inviteUrl).then(() => {
     }).catch(err => {
         console.error('Erreur lors de la copie du lien : ', err);

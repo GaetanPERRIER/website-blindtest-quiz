@@ -7,6 +7,7 @@ class RoomService {
         this.rooms = [];
     }
 
+    // Créer une room
     createRoom (player) {
         const room = {
             id: this.generateRoomId(),
@@ -18,15 +19,11 @@ class RoomService {
                 difficulty: DEFAULT_GAME_SETTINGS.difficulty,
             },
 
-            musicsToGuess: [],
-            gameStarted : false,
-            gameEnded : false,
-
-            round : {
-                currentMusic : 0,
-                roundEnded  : false,
-                bestPlayers : []
-            }
+            state: "config", // config, guessing, answer, ended
+            playlist : [], // ancienement MusicsToGuess
+            round : -1,
+            currentMusic : {},
+            roundSummary : {}
         }
 
         player.roomId = room.id
@@ -35,6 +32,7 @@ class RoomService {
         return room;
     }
 
+    // Trouver une room en fonction de son ID dans le tableau des rooms
     getRoom(roomId) {
         const room = this.rooms.find(r => r.id === roomId);
 
@@ -45,6 +43,8 @@ class RoomService {
         return room;
     }
 
+
+    // Rejoindre une room
     joinRoom(player) {
         const room = this.getRoom(player.roomId)
         if(room === undefined) {
@@ -70,6 +70,7 @@ class RoomService {
         return room
     }
 
+    // Quand un socket se déconnecte (ferme la page) et qu'il était dans une salle, le faire quitter et passer le role host
     disconnect(socketId){
         let roomToUpdate = null;
 
@@ -95,17 +96,32 @@ class RoomService {
         return null
     }
 
+    // Faire quitter un joueur d'une salle
     ejectPlayer(roomId, playerId) {
         const room = this.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
 
         const playerIndex = room.players.findIndex(p => p.socketId === playerId);
-        if (playerIndex !== -1) {
-            const playerToEject = room.players[playerIndex];
-            room.players.splice(playerIndex, 1);
-            console.log(`[Joueur expulsé] : ${playerToEject.username} de la salle ${room.id}`);
+        if (playerIndex === -1) {
+            return room // The player is not found in the room
+        }
+
+        const playerToEject = room.players[playerIndex]
+        const wasHost = playerToEject.host
+        room.players.splice(playerIndex, 1);
+
+        console.log(`[Un joueur a quitter la room] : ${playerToEject.username} de la salle ${room.id}`);
+        
+        // S'il n'y a plus de joueur dans la salle : la supprimer
+        if (room.players.length === 0) {
+            this.deleteRoom(roomId);
+            console.log(`[Salle supprimée] : ${roomId} (vide)`);
+            return null;
+        }
+
+        // Si l'host à quitter, donner le role à un autre joueur
+        if (wasHost) {
+            room.players[0].host = true;
+            console.log(`[Nouvel hôte] : ${room.players[0].username} dans la salle ${room.id}`);
         }
 
         return room;
@@ -186,8 +202,9 @@ class RoomService {
             player.totalScore = 0;
         })
 
-        room.musicsToGuess = allTracks
-        room.gameStarted = true
+        room.playlist = allTracks
+        room.round = -1
+
         return room;
     }
 
@@ -237,46 +254,33 @@ class RoomService {
         return filteredTracks
     }
 
-    songEnded(roomId, playerId) {
+    nextRound(roomId) {
         const room = this.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
 
-        const player = room.players.find(p => p.socketId === playerId);
-        if (!player || player.titleGuessed) return room;
+        room.round++
+        room.currentMusic = room.playlist[room.round]
+        room.state = "guessing"
 
-        player.titleGuessed = true;
-        console.log(`[Fin de la chanson] : ${player.username} n'a pas trouvé le titre`);
+        room.players.forEach(player => {
+            player.titleGuessed = false;
+        });
 
         return room
     }
 
-    nextMusic(roomId, playerId) {
+    endRound(roomId){
         const room = this.getRoom(roomId)
-        if(room === undefined) throw new Error('Salle introuvable');
 
-        const player = room.players.find(p => p.socketId === playerId);
-        if (!player) throw new Error('Joueur introuvable');
+        room.state = "answer"
+        console.log("[Round terminé]")
 
-        if (player.host) {
-            room.round.currentMusic++;
-            if (room.round.currentMusic > room.setting.songCount - 1) {
-                console.log('[Fin du jeu] : Toutes les musiques ont été jouées');
-                room.gameEnded = true;
-                return room
-            }
-
-            room.players.forEach(player => {
-                player.titleGuessed = false;
-            });
-
-            // Passer à la musique suivante
-            room.round.roundEnded = false;
-        }
+        // remplir le summary du round pour l'afficher
 
         return room
     }
+
+
+
 
     checkAnswer(roomId, playerId, answer) {
         const room = this.getRoom(roomId)

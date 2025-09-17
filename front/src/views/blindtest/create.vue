@@ -17,11 +17,40 @@ const roomIdInUrl = computed(() => !!route.query.roomId);
 const errorMessage = ref("");
 const showError = ref(false);
 
+
 /* Handle Spawn Animation */
 const formVisible = ref(false)
 
+/* Variables from store */
+const room = computed(() => playerStore.room);
+const roomList = computed(() => playerStore.roomList)
+
+
 onMounted(() => {
     formVisible.value = !formVisible.value
+
+    // Get all rooms
+    socket.emit("getRooms")
+    socket.on("roomList", (NewRoomList) => {
+        playerStore.SetRoomList(NewRoomList)
+        console.log("[Updated room List] :", roomList)
+    })
+
+    // Handle room creation
+    socket.off("roomCreated")
+    socket.on('roomCreated', (newRoom) => {
+        playerStore.SetRoom(newRoom)
+        console.log("[A new room as been created] :", room.value)
+        router.push(`/play`);
+    })
+
+    // Handle roomJoined by a new player (to give him the room infos)
+    socket.off("roomJoined")
+    socket.on('roomJoined', (newRoom) => {
+        playerStore.SetRoom(newRoom)
+        console.log("[You joined a room] :", room.value)
+        router.push(`/play`);
+    })
 })
 
 /* Functions */
@@ -40,32 +69,19 @@ function validateUsername() {
     return true;
 }
 
-function SaveUsername() {
-    if (!validateUsername()) return;
-
-    const playerData = {
-        host : true,
-        roomId : route.query.roomId ? route.query.roomId : null,
-        username : username.value,
-        socketId : socket.id,
-        isReady : true
-    }
-    socket.emit("joinRoom", playerData);
-    router.push("/blindtest/play");
-}
-
 function JoinRoom(roomId) {
     if (!validateUsername()) return;
 
     const playerData = {
-        host: false,
-        roomId: roomId,
-        username: username.value,
-        socketId: socket.id,
-        isReady : true
+        host : roomId === null,
+        roomId : roomId,
+        username : username.value,
+        socketId : socket.id,
+        isReady : true,
+        score : 0
     }
+    
     socket.emit("joinRoom", playerData);
-    router.push(`/blindtest/play`);
 }
 
 // Limite la saisie à 20 caractères
@@ -81,7 +97,6 @@ function limitCharacters() {
         <main class="create-room-container">
             <ScaleSpawnAnimation>
                 <div class="form-container" v-if="formVisible">
-                    <h2 class="page-title">Rejoindre une partie</h2>
 
                     <div class="input-group">
                         <input v-model="username" @input="limitCharacters" type="text" placeholder="Nom du joueur" class="username-input t-body-text" maxlength="20"/>
@@ -90,7 +105,7 @@ function limitCharacters() {
                         </div>
                     </div>
 
-                    <button v-if="!roomIdInUrl" @click="SaveUsername" class="action-button t-body-text">
+                    <button v-if="!roomIdInUrl" @click="JoinRoom(null)" class="action-button t-body-text">
                         Créer un lobby
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                             <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2"/>
@@ -111,6 +126,10 @@ function limitCharacters() {
                     </transition>
                 </div>
             </ScaleSpawnAnimation>
+
+            <div class="room-list-container">
+                <div v-for="room in roomList">{{ room }}</div>
+            </div>
         </main>
 
         <ParticleBackground/>
@@ -130,8 +149,10 @@ function limitCharacters() {
     width: 100%;
     height: 100vh;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
+    gap: 50px;
     padding: 20px;
     position: relative;
     z-index: 2;

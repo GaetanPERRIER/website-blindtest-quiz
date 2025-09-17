@@ -3,38 +3,40 @@ const deezerService = require('../services/deezer.service');
 
 module.exports = (io, socket) => {
     socket.on('startGame', async (roomId) => {
-        const room = await roomService.startGame(roomId)
-        io.to(room.id).emit('gameStarted', room);
-        io.to(room.id).emit('roundStarted', room)
+        let room = await roomService.startGame(roomId)
+
+        for (let i = 0 ; i < room.setting.songCount ; i++) {
+
+            // Lancer un nouveau round
+            room = await roomService.nextRound(roomId)
+            io.to(room.id).emit('roomUpdated', room)
+
+            setTimeout(() => {
+                console.log("Logs Apres 5 secs")
+            }, 30000)
+
+
+            // Tant que tous les joueurs n'ons pas deviné : ne rien faire, sinon on sort du while ce qui bloquera la manche en attendant les 30 sec de délai
+        }
+
+
+
+
+
+        const playRound = async () => {
+            if (room.round >= room.setting.songCount) {
+                io.to(room.id).emit('gameFinished', room)
+                return
+            }
+
+            // Lancer un nouveau round
+            room = await roomService.nextRound(roomId)
+            io.to(room.id).emit('roomUpdated', room)
+        }
+
+        playRound()
     });
 
-    // game.handler.js
-    socket.on('songEnded', (roomId, socketId) => {
-        const room = roomService.songEnded(roomId, socketId)
-
-        if(roomService.AllPlayerGuessed(room)) {
-            room.round.roundEnded = true
-        }
-
-        if (room.round.roundEnded){
-            io.to(room.id).emit('roundEnded', room)
-            console.log("[Round terminé]")
-        }
-    });
-
-    socket.on('nextMusic', (roomId, socketId) => {
-        let room = roomService.nextMusic(roomId, socketId)
-
-        if(room.gameEnded) {
-            room = roomService.setAllPlayersUnready(roomId)
-            io.to(room.id).emit('gameEnded', room)
-            console.log("[Partie terminée]")
-        }
-        else {
-            io.to(room.id).emit('roundStarted', room)
-            console.log("[Nouveau round commencé]")
-        }
-    });
 
     socket.on('checkAnswer', (roomId, socketId, answer) => {
         const room = roomService.checkAnswer(roomId, socketId, answer)
