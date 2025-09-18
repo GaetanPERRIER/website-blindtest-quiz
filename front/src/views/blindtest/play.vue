@@ -10,6 +10,7 @@ import SlideSpawnAnimation from "@/components/Basics/SlideSpawnAnimation.vue"
 import BeforeUnload from "@/components/Basics/BeforeUnload.vue";
 import ModalRoundOver from "@/components/Blindtest/Game/ModalRoundOver.vue";
 import Guessing from "@/components/Blindtest/Game/Guessing.vue";
+import EndingScreen from "@/components/Blindtest/Game/Playing/EndingScreen.vue";
 
 
 /* Variables */
@@ -41,6 +42,12 @@ onMounted(() => {
         playerStore.SetRoom(newRoom)
         console.log("[Game over] :", room.value)
     })
+
+    socket.off("roundEnded")
+    socket.on('roundEnded', (newRoom) => {
+        playerStore.SetRoom(newRoom)
+        console.log("[Round ended] :", room.value)
+    })
 });
 
 </script>
@@ -69,24 +76,14 @@ onMounted(() => {
         </SlideSpawnAnimation>
     </div>
 
-
-    <!--
-    <div v-if="!room.gameStarted" class="blindtest-container u-flex u-justify-content-center u-align-items-center u-p50 u-gap100">
+    <div v-if="gameState === 'ended'" class="blindtest-container">
         <ScaleSpawnAnimation :rotate="false">
-            <GameConfig v-if="gameConfigVisible"/>
+            <EndingScreen/>
         </ScaleSpawnAnimation>
     </div>
 
-    <div v-else class="blindtest-container">
-        <div class="musics-container">
-            <Playing/>
-        </div>
-    </div>
-    -->
-
-
-    <ParticleBackground/>
-    <BeforeUnload/>
+        <ParticleBackground/>
+        <BeforeUnload/>
 </template>
 
 <style scoped lang="scss">

@@ -21,13 +21,13 @@ const router = useRouter();
 const route = useRoute();
 const playerStore = usePlayerStore();
 const room = computed(() => playerStore.room);
-const finalPLayerList = ref([])
+const finalPlayerList = ref([])
 
 // Surveillez le changement de gameEnded pour capturer la liste des joueurs
 watch(() => props.gameEnded, (newVal) => {
     if (newVal) {
         // Quand la partie se termine, on capture la liste actuelle des joueurs
-        finalPlayersList.value = [...room.value.players];
+        finalPlayerList.value = [...room.value.players];
     }
 });
 

@@ -10,42 +10,19 @@ const playerStore = usePlayerStore();
 const room = computed(() => playerStore.room);
 const musicToGuess = computed(() => playerStore.room.currentMusic);
 
-
 // References
 const modal = ref(null)
 
-// Static values
-const topPlayers = [
-    {
-        host : true,
-        roomId : null,
-        username : "CalerLeTriso",
-        socketId : "",
-        titleGuessed : true,
-        roundScore : 1089,
-        totalScore : 0,
-        speed : 1500, // ms
-    },
-    {
-        host : false,
-        roomId : null,
-        username : "CalerLeTriso",
-        socketId : "",
-        titleGuessed : true,
-        roundScore : 875,
-        speed : 1500, // ms
-    },
-    {
-        host : false,
-        roomId : null,
-        username : "CalerLeTriso",
-        socketId : "",
-        titleGuessed : true,
-        roundScore : 698,
-        totalScore : 0,
-        speed : 1500, // ms
-    },
-]
+// Calculer les joueurs qui ont deviné, triés par score
+const playersWhoGuessed = computed(() => {
+    return room.value.players
+        .filter(player => player.titleGuessed)
+        .sort((a, b) => b.totalScore - a.totalScore)
+        .slice(0, 3) // Prendre les 3 premiers
+});
+
+// Calculer le numéro de la manche actuelle
+const currentRound = computed(() => room.value.round + 1);
 
 
 onMounted(() => {
@@ -55,26 +32,38 @@ onMounted(() => {
 
 <template>
     <div ref="modal" class="modal-round-over u-flex u-flex-direction-column u-gap25 u-justify-content-center u-align-items-center">
-        <h2 class="t-title t-color-white">Manche 1 terminée</h2>
+        <h2 class="t-title t-color-white">Manche {{ currentRound }} terminée</h2>
         <p class="t-body-text t-color-white">Il fallait deviner : {{musicToGuess.title_short}} - {{musicToGuess.artist.name}}</p>
-        <div class="u-flex u-flex-direction-column u-gap25">
+        
+        <div v-if="playersWhoGuessed.length > 0" class="u-flex u-flex-direction-column u-gap25">
             <div class="cards-recap-container u-flex u-justify-content-center u-align-items-end u-gap10">
-                <div class="card-recap card-second">
-                    <Player :player="topPlayers[1]"/>
-                    <p class="speed t-body-text">{{topPlayers[1].speed / 1000}}s</p>
-                    <p class="score t-body-text">+ {{topPlayers[1].roundScore}} points</p>
+                <!-- Deuxième place -->
+                <div v-if="playersWhoGuessed[1]" class="card-recap card-second">
+                    <Player :player="playersWhoGuessed[1]"/>
+                    <p class="speed t-body-text">-</p>
+                    <p class="score t-body-text">+ 100 points</p>
                 </div>
-                <div class="card-recap card-first">
-                    <Player :player="topPlayers[0]"/>
-                    <p class="speed t-body-text">{{topPlayers[0].speed / 1000}}s</p>
-                    <p class="score t-body-text">+ {{topPlayers[0].roundScore}} points</p>
+                
+                <!-- Première place -->
+                <div v-if="playersWhoGuessed[0]" class="card-recap card-first">
+                    <Player :player="playersWhoGuessed[0]"/>
+                    <p class="speed t-body-text">-</p>
+                    <p class="score t-body-text">+ 100 points</p>
                 </div>
-                <div class="card-recap card-third">
-                    <Player :player="topPlayers[2]"/>
-                    <p class="speed t-body-text">{{topPlayers[2].speed / 1000}}s</p>
-                    <p class="score t-body-text">+ {{topPlayers[2].roundScore}} points</p>
+                
+                <!-- Troisième place -->
+                <div v-if="playersWhoGuessed[2]" class="card-recap card-third">
+                    <Player :player="playersWhoGuessed[2]"/>
+                    <p class="speed t-body-text">-</p>
+                    <p class="score t-body-text">+ 100 points</p>
                 </div>
             </div>
+            <LinearLoadingBar width="100%"/>
+        </div>
+        
+        <!-- Si personne n'a deviné -->
+        <div v-else class="u-flex u-flex-direction-column u-gap25 u-align-items-center">
+            <p class="t-body-text t-color-white">Personne n'a trouvé la bonne réponse !</p>
             <LinearLoadingBar width="100%"/>
         </div>
 

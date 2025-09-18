@@ -133,6 +133,7 @@ function limitCharacters() {
         </main>
 
         <ParticleBackground/>
+        
     </div>
 </template>
 
