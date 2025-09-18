@@ -58,5 +58,22 @@ export const usePlayerStore = defineStore('player', {
         StartGame(room) {
             this.room = room
         },
+
+        ResetRoom() {
+            this.room = {
+                id: null,
+                players: [],
+                setting: {
+                    category: null,
+                    songCount: null,
+                    difficulty: null,
+                },
+                state: "config",
+                playlist: [],
+                round: -1,
+                currentMusic: {},
+                roundSummary: {}
+            }
+        },
     }
 })

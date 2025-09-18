@@ -3,7 +3,7 @@ import {usePlayerStore} from "@/stores/playerStore.js";
 import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
 import Playing from "@/components/Blindtest/Game/Playing.vue";
 import socket from "@/utils/socket.js";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, onBeforeUnmount, ref} from "vue";
 import GameConfig from "@/components/Blindtest/Room/GameConfig.vue";
 import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
 import SlideSpawnAnimation from "@/components/Basics/SlideSpawnAnimation.vue"
@@ -11,11 +11,12 @@ import BeforeUnload from "@/components/Basics/BeforeUnload.vue";
 import ModalRoundOver from "@/components/Blindtest/Game/ModalRoundOver.vue";
 import Guessing from "@/components/Blindtest/Game/Guessing.vue";
 import EndingScreen from "@/components/Blindtest/Game/Playing/EndingScreen.vue";
+import { useRouter, onBeforeRouteLeave } from "vue-router";
 
 
 /* Variables */
 const playerStore = usePlayerStore()
-
+const router = useRouter()
 
 const room = computed(() => playerStore.room);
 const currentPlayer = computed(() =>
@@ -26,6 +27,24 @@ const currentPlayer = computed(() =>
 const gameState = computed(() => playerStore.room.state);
 
 
+
+/* Functions */
+const leaveRoom = () => {
+    if (room.value.id && currentPlayer.value) {
+        console.log("[Leaving room]:", room.value.id)
+        
+        // Nettoyer les listeners pour éviter les fuites mémoire
+        socket.off("roomUpdated")
+        socket.off("gameFinished")
+        socket.off("roundEnded")
+        
+        // Émettre un événement pour notifier le serveur
+        socket.emit('leaveRoom', room.value.id)
+        
+        // Réinitialiser le store localement
+        playerStore.ResetRoom()
+    }
+}
 
 onMounted(() => {
     
@@ -50,6 +69,27 @@ onMounted(() => {
     })
 });
 
+onBeforeUnmount(() => {
+    // Quitter la room quand le composant est démonté (navigation vers une autre page)
+    leaveRoom()
+});
+
+// Garde de navigation pour intercepter les changements de route
+onBeforeRouteLeave((to, from) => {
+    if (room.value.id && currentPlayer.value) {
+        const confirmation = window.confirm(
+            "Vous êtes sur le point de quitter la partie. Êtes-vous sûr de vouloir continuer ?"
+        );
+
+        if (confirmation) {
+            leaveRoom();
+            return true; // L'utilisateur a confirmé, on peut quitter la page
+        } else {
+            return false; // L'utilisateur a annulé, on reste sur la page
+        }
+    }
+    return true; // Pas dans une room, on peut quitter sans confirmation
+});
 </script>
 
 <template>

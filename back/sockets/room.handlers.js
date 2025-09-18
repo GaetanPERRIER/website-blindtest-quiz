@@ -39,6 +39,15 @@ module.exports = (io, socket) => {
         }
     })
 
+    // Handle when a player manually leaves the room
+    socket.on('leaveRoom', (roomId) => {
+        const room = roomService.disconnect(socket.id);
+        if (room !== null) {
+            socket.leave(roomId);
+            io.to(room.id).emit('playerListUpdated', room.players);
+        }
+    });
+
     // Eject a player of a room
     socket.on('ejectPlayer', (roomId, playerId) => {
         const room = roomService.ejectPlayer(roomId, playerId)
