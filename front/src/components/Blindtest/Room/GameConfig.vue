@@ -1,7 +1,7 @@
 <script setup>
 
-import BlindtestCategories from "@/components/Blindtest/Room/BlindtestCategories.vue";
-import RoomSettings from "@/components/Blindtest/Room/RoomSettings.vue";
+import BlindtestCategories from "@/components/Blindtest/Room/Utils/BlindtestCategories.vue";
+import RoomSettings from "@/components/Blindtest/Room/Utils/RoomSettings.vue";
 
 </script>
 

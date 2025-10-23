@@ -1,8 +1,6 @@
 <script setup>
-
 import { usePlayerStore } from "@/stores/playerStore.js";
-import { computed, onMounted} from "vue";
-
+import { computed } from "vue";
 import socket from "@/utils/socket.js";
 import { defineProps } from "vue";
 
@@ -17,6 +15,11 @@ const { category } = defineProps({
     }
 });
 
+// Vérifie si cette catégorie est celle sélectionnée dans la room
+const isSelected = computed(() => {
+    return room.value.setting?.category?.id === category.id;
+});
+
 function selectCategory() {
     socket.emit("selectCategory", room.value.id, category);
 }
@@ -24,8 +27,7 @@ function selectCategory() {
 </script>
 
 <template>
-    <div @click="selectCategory"
-         class="category u-flex u-flex-direction-column u-align-items-center u-justify-content-center u-gap10">
+    <div @click="selectCategory" class="category u-flex u-flex-direction-column u-align-items-center u-justify-content-center u-gap10" :class="{ selected: isSelected }">
         <div class="opacity-filter"></div>
         <img :src="category.picture_big" alt="">
     </div>
@@ -56,12 +58,19 @@ function selectCategory() {
         width: 100%;
         height: 100%;
         border-radius: 10px;
+        z-index: 1;
     }
 
     &:hover {
-        border-radius: 10px;
-        box-shadow: rgba(255, 255, 255, 0.5) 0px 5px 15px;
+        box-shadow: rgba(255, 255, 255, 0.75) 0px 5px 15px;
+    }
+
+    &.selected {
+        transform: scale(1.1);
+
+        .opacity-filter {
+        opacity: 0.2;
+        }
     }
 }
-
 </style>

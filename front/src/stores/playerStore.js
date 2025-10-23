@@ -12,21 +12,26 @@ export const usePlayerStore = defineStore('player', {
                 difficulty: null,
             },
 
-            musicsToGuess: [],
-            gameStarted : false,
-            gameEnded : false,
-
-            round : {
-                currentMusic : 0,
-                roundEnded  : false,
-                bestPlayers : []
-            }
+            state: "config", // config, guessing, answer, ended
+            playlist : [], // ancienement MusicsToGuess
+            round : -1,
+            currentMusic : {},
+            roundSummary : {}
         },
-        username : ""
+        username : "",
+        roomList : [],
+        volume : 0.7
     }),
 
-    actions: {
+    getters: {
+        exponentialVolume: (state) => Math.pow(state.volume, 2.5)
+    },
 
+    actions: {
+        setVolume(value) {
+            this.volume = value
+        },
+        
         setTitleGuessed(titleGuessed) {
             this.titleGuessed = titleGuessed
         },
@@ -40,6 +45,10 @@ export const usePlayerStore = defineStore('player', {
 
         SetRoom(room) {
             this.room = room
+        },
+
+        SetRoomList(roomList) {
+            this.roomList = roomList
         },
 
         SetCategory(newCategory) {
@@ -56,6 +65,23 @@ export const usePlayerStore = defineStore('player', {
 
         StartGame(room) {
             this.room = room
+        },
+
+        ResetRoom() {
+            this.room = {
+                id: null,
+                players: [],
+                setting: {
+                    category: null,
+                    songCount: null,
+                    difficulty: null,
+                },
+                state: "config",
+                playlist: [],
+                round: -1,
+                currentMusic: {},
+                roundSummary: {}
+            }
         },
     }
 })

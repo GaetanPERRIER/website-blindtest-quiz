@@ -3,7 +3,7 @@ import {usePlayerStore} from "@/stores/playerStore.js";
 import {computed, onMounted, ref, watch} from "vue";
 import socket from "@/utils/socket.js";
 import { useRouter, useRoute } from "vue-router";
-import InviteButton from "@/components/Blindtest/Room/InviteButton.vue";
+import InviteButton from "@/components/Blindtest/Room/Utils/InviteButton.vue";
 import Player from "@/components/Blindtest/Room/Utils/Player.vue";
 
 const props = defineProps({
@@ -21,13 +21,13 @@ const router = useRouter();
 const route = useRoute();
 const playerStore = usePlayerStore();
 const room = computed(() => playerStore.room);
-const finalPLayerList = ref([])
+const finalPlayerList = ref([])
 
 // Surveillez le changement de gameEnded pour capturer la liste des joueurs
 watch(() => props.gameEnded, (newVal) => {
     if (newVal) {
         // Quand la partie se termine, on capture la liste actuelle des joueurs
-        finalPlayersList.value = [...room.value.players];
+        finalPlayerList.value = [...room.value.players];
     }
 });
 
@@ -81,7 +81,7 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings.scss';
+@import '@/assets/styles/settings/settings';
 
 
 .player-list-container {

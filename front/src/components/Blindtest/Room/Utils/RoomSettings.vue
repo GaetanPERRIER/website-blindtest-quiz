@@ -2,7 +2,7 @@
 import socket from "@/utils/socket.js";
 import { usePlayerStore} from "@/stores/playerStore.js";
 import { computed, onMounted, ref, watch} from "vue";
-import PlayerList from "@/components/Blindtest/Room/PlayerList.vue";
+import PlayerList from "@/components/Blindtest/Room/Utils/PlayerList.vue";
 
 const playerStore = usePlayerStore()
 
@@ -89,7 +89,7 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings.scss';
+@import '@/assets/styles/settings/settings';
 
 // Créer une transition de rotation pour l'élément vinyl
 @keyframes vinyl-rotation {
@@ -120,7 +120,6 @@ onMounted(() => {
 
             &:hover {
                 background-color: rgba(0, 0, 0, 0.7);
-                transform: scale(1.05);
             }
 
             &:disabled {
@@ -134,7 +133,6 @@ onMounted(() => {
 
             &:hover {
                 background-color: darken($major-yellow-color, 10%);
-                transform: scale(1.1);
             }
         }
 

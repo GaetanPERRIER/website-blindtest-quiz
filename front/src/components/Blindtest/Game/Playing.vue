@@ -2,7 +2,7 @@
 import {usePlayerStore} from "@/stores/playerStore.js";
 import {computed, ref, onMounted} from "vue";
 import socket from "@/utils/socket.js";
-import PlayerList from "@/components/Blindtest/Room/PlayerList.vue";
+import PlayerList from "@/components/Blindtest/Room/Utils/PlayerList.vue";
 import ModalRoundOver from "@/components/Blindtest/Game/ModalRoundOver.vue";
 import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
 import InputAnswer from "@/components/Blindtest/Game/Playing/InputAnswer.vue";
@@ -27,52 +27,12 @@ const endingScreenVisible = ref(false)
 
 /* Functions */
 
-function SongEnded() {
-    socket.emit("songEnded", room.value.id, currentPlayer.value.socketId);
-    // Recommencer la musique ?
-}
+
 
 onMounted(() => {
-    // Handle the start of a round
-    socket.off('roundStarted');
-    socket.on('roundStarted', (room) => {
-        playerStore.SetRoom(room)
-        modalVisible.value = false
-        inputAnswerVisible.value = true
-        playerListVisible.value = true
-        console.log("[Round started]", room)
-    })
-
     // Handle the music to guess
     socket.on('titleGuessed', (players) => {
         playerStore.SetRoomPlayers(players)
-    })
-
-    // Handle the end of a round
-    socket.off('roundEnded');
-    socket.on('roundEnded',(room) => {
-        playerStore.SetRoom(room)
-        inputAnswerVisible.value = false
-        playerListVisible.value = false
-        modalVisible.value = true
-        answerVisible.value = false
-        console.log("[Round ended]", room)
-
-        setTimeout(() => {
-            socket.emit("nextMusic", room.id, currentPlayer.value.socketId);
-        },5500)
-    })
-
-    // Handle the end of the game
-    socket.off('gameEnded');
-    socket.on('gameEnded', (room) => {
-        inputAnswerVisible.value = false
-        playerListVisible.value = false
-        modalVisible.value = false
-        answerVisible.value = false
-        endingScreenVisible.value = true
-        console.log("[Game ended]", room)
-        playerStore.SetRoom(room)
     })
 })
 
@@ -92,7 +52,7 @@ onMounted(() => {
 
 
             <div class="musicToDisplay">
-                <audio v-if="inputAnswerVisible" :src="musicToGuess.preview" controls autoplay :volume="audioVolume/2" @ended="SongEnded"></audio>
+                <audio v-if="inputAnswerVisible" :src="musicToGuess.preview" controls autoplay :volume="audioVolume/2"></audio>
             </div>
 
             <ScaleSpawnAnimation :rotate="false">
@@ -110,7 +70,7 @@ onMounted(() => {
                 -->
             
             <SlideSpawnAnimation direction="bottom" transition-duration="1500ms">
-                <div class="modal-anchor" v-if="modalVisible">
+                <div class="modal-anchor">
                     <div class="modal-positioner">
                         <ModalRoundOver ref="modal" />
                     </div>

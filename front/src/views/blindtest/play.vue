@@ -3,60 +3,131 @@ import {usePlayerStore} from "@/stores/playerStore.js";
 import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
 import Playing from "@/components/Blindtest/Game/Playing.vue";
 import socket from "@/utils/socket.js";
-import {computed, onMounted, ref} from "vue";
+import {computed, onMounted, onBeforeUnmount, ref} from "vue";
 import GameConfig from "@/components/Blindtest/Room/GameConfig.vue";
 import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
+import SlideSpawnAnimation from "@/components/Basics/SlideSpawnAnimation.vue"
+import BeforeUnload from "@/components/Basics/BeforeUnload.vue";
+import ModalRoundOver from "@/components/Blindtest/Game/ModalRoundOver.vue";
+import Guessing from "@/components/Blindtest/Game/Guessing.vue";
+import EndingScreen from "@/components/Blindtest/Game/Playing/EndingScreen.vue";
+import { useRouter, onBeforeRouteLeave } from "vue-router";
 
 
 /* Variables */
 const playerStore = usePlayerStore()
-
+const router = useRouter()
 
 const room = computed(() => playerStore.room);
 const currentPlayer = computed(() =>
     playerStore.room.players.find(player => player.socketId === socket.id)
 )
 
+/* états de jeu depuis le store */
+const gameState = computed(() => playerStore.room.state);
 
-/* Handle Spawn Animation */
-const gameConfigVisible = ref(false)
+/* handle spawn animations */
+const handleGuessingAnimation = computed(() => {
+  return playerStore.room.state === "guessing";
+})
 
+
+
+/* Functions */
+const leaveRoom = () => {
+    if (room.value.id && currentPlayer.value) {
+        console.log("[Leaving room]:", room.value.id)
+        
+        // Nettoyer les listeners pour éviter les fuites mémoire
+        socket.off("roomUpdated")
+        socket.off("gameFinished")
+        socket.off("roundEnded")
+        
+        // Émettre un événement pour notifier le serveur
+        socket.emit('leaveRoom', room.value.id)
+        
+        // Réinitialiser le store localement
+        playerStore.ResetRoom()
+    }
+}
 
 onMounted(() => {
-    gameConfigVisible.value = !gameConfigVisible.value
-
+    
     /* Events socket */
 
-    // Handle room creation
-    socket.off("roomCreated")
-    socket.on('roomCreated', (newRoom) => {
+    socket.off("roomUpdated")
+    socket.on('roomUpdated', (newRoom) => {
         playerStore.SetRoom(newRoom)
-        console.log("[A new room as been created] :", room.value)
+        console.log("[the room is updated] :", room.value)
     })
 
-    // Handle roomJoined by a new player (to give him the room infos)
-    socket.off("roomJoined")
-    socket.on('roomJoined', (room) => {
-        playerStore.SetRoom(room)
-        console.log("[You joined a room] :", room.value)
+    socket.off("gameFinished")
+    socket.on('gameFinished', (newRoom) => {
+        playerStore.SetRoom(newRoom)
+        console.log("[Game over] :", room.value)
+    })
+
+    socket.off("roundEnded")
+    socket.on('roundEnded', (newRoom) => {
+        playerStore.SetRoom(newRoom)
+        console.log("[Round ended] :", room.value)
     })
 });
 
+onBeforeUnmount(() => {
+    // Quitter la room quand le composant est démonté (navigation vers une autre page)
+    leaveRoom()
+});
+
+// Garde de navigation pour intercepter les changements de route
+onBeforeRouteLeave((to, from) => {
+    if (room.value.id && currentPlayer.value) {
+        const confirmation = window.confirm(
+            "Vous êtes sur le point de quitter la partie. Êtes-vous sûr de vouloir continuer ?"
+        );
+
+        if (confirmation) {
+            leaveRoom();
+            return true; // L'utilisateur a confirmé, on peut quitter la page
+        } else {
+            return false; // L'utilisateur a annulé, on reste sur la page
+        }
+    }
+    return true; // Pas dans une room, on peut quitter sans confirmation
+});
 </script>
 
 <template>
-    <div v-if="!room.gameStarted" class="blindtest-container u-flex u-justify-content-center u-align-items-center u-p50 u-gap100">
+    <div v-if="gameState === 'config'" class="blindtest-container u-flex u-justify-content-center u-align-items-center u-p50 u-gap100">
         <ScaleSpawnAnimation :rotate="false">
-            <GameConfig v-if="gameConfigVisible"/>
+            <GameConfig/>
         </ScaleSpawnAnimation>
     </div>
 
-    <div v-else class="blindtest-container">
-        <div class="musics-container">
-            <Playing/>
-        </div>
+    <div v-if="gameState === 'guessing'" class="blindtest-container">
+        <ScaleSpawnAnimation :rotate="false">
+            <Guessing />
+        </ScaleSpawnAnimation>
     </div>
-    <ParticleBackground/>
+
+    <div v-if="gameState === 'answer'" class="blindtest-container">
+        <SlideSpawnAnimation direction="bottom" transition-duration="1500ms">
+            <div class="modal-anchor" v-if="gameState === 'answer'">
+                <div class="modal-positioner">
+                    <ModalRoundOver ref="modal" />
+                </div>
+            </div>
+        </SlideSpawnAnimation>
+    </div>
+
+    <div v-if="gameState === 'ended'" class="blindtest-container">
+        <ScaleSpawnAnimation :rotate="false">
+            <EndingScreen/>
+        </ScaleSpawnAnimation>
+    </div>
+
+        <ParticleBackground/>
+        <BeforeUnload/>
 </template>
 
 <style scoped lang="scss">
