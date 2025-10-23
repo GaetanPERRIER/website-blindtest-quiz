@@ -26,6 +26,11 @@ const currentPlayer = computed(() =>
 /* états de jeu depuis le store */
 const gameState = computed(() => playerStore.room.state);
 
+/* handle spawn animations */
+const handleGuessingAnimation = computed(() => {
+  return playerStore.room.state === "guessing";
+})
+
 
 
 /* Functions */
@@ -93,7 +98,6 @@ onBeforeRouteLeave((to, from) => {
 </script>
 
 <template>
-    <div>{{ gameState }}</div>
     <div v-if="gameState === 'config'" class="blindtest-container u-flex u-justify-content-center u-align-items-center u-p50 u-gap100">
         <ScaleSpawnAnimation :rotate="false">
             <GameConfig/>
@@ -102,13 +106,13 @@ onBeforeRouteLeave((to, from) => {
 
     <div v-if="gameState === 'guessing'" class="blindtest-container">
         <ScaleSpawnAnimation :rotate="false">
-            <Guessing/>
+            <Guessing />
         </ScaleSpawnAnimation>
     </div>
 
     <div v-if="gameState === 'answer'" class="blindtest-container">
         <SlideSpawnAnimation direction="bottom" transition-duration="1500ms">
-            <div class="modal-anchor">
+            <div class="modal-anchor" v-if="gameState === 'answer'">
                 <div class="modal-positioner">
                     <ModalRoundOver ref="modal" />
                 </div>

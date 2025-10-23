@@ -25,7 +25,7 @@ function CopyLink() {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings.scss';
+@import '@/assets/styles/settings/settings';
 
 .invite-button {
     display: flex;

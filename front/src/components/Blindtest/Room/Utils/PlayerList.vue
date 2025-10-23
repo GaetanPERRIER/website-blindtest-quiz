@@ -3,7 +3,7 @@ import {usePlayerStore} from "@/stores/playerStore.js";
 import {computed, onMounted, ref, watch} from "vue";
 import socket from "@/utils/socket.js";
 import { useRouter, useRoute } from "vue-router";
-import InviteButton from "@/components/Blindtest/Room/InviteButton.vue";
+import InviteButton from "@/components/Blindtest/Room/Utils/InviteButton.vue";
 import Player from "@/components/Blindtest/Room/Utils/Player.vue";
 
 const props = defineProps({
@@ -81,7 +81,7 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings.scss';
+@import '@/assets/styles/settings/settings';
 
 
 .player-list-container {

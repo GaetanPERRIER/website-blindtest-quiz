@@ -3,7 +3,6 @@ import {usePlayerStore} from "@/stores/playerStore.js";
 import {computed, onMounted, ref} from "vue";
 import socket from "@/utils/socket.js";
 import Player from "@/components/Blindtest/Room/Utils/Player.vue";
-import LinearLoadingBar from "@/components/Blindtest/Game/LinearLoadingBar.vue";
 
 const playerStore = usePlayerStore();
 
@@ -58,13 +57,11 @@ onMounted(() => {
                     <p class="score t-body-text">+ 100 points</p>
                 </div>
             </div>
-            <LinearLoadingBar width="100%"/>
         </div>
         
         <!-- Si personne n'a deviné -->
         <div v-else class="u-flex u-flex-direction-column u-gap25 u-align-items-center">
             <p class="t-body-text t-color-white">Personne n'a trouvé la bonne réponse !</p>
-            <LinearLoadingBar width="100%"/>
         </div>
 
     </div>

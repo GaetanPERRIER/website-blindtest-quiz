@@ -65,28 +65,6 @@ onMounted(async () => {
                     </div>
                 </div>
             </div>
-            <div class="u-flex u-flex-direction-column u-gap15">
-                <div class="u-flex u-justify-content-between u-align-items-center u-pr15">
-                    <h2 class="t-body-text t-color-white fs25px">Catégories test</h2>
-                    <p class="t-body-text t-color-white categories-count"> {{ blindtestCategories.length }} disponibles </p>
-                </div>
-                <div class="categories w100">
-                    <div v-for="category in blindtestCategories" class="category-container">
-                        <Category  :category="category"/>
-                    </div>
-                </div>
-            </div>
-            <div class="u-flex u-flex-direction-column u-gap15">
-                <div class="u-flex u-justify-content-between u-align-items-center u-pr15">
-                    <h2 class="t-body-text t-color-white fs25px">Catégories test</h2>
-                    <p class="t-body-text t-color-white categories-count"> {{ blindtestCategories.length }} disponibles </p>
-                </div>
-                <div class="categories w100">
-                    <div v-for="category in blindtestCategories" class="category-container">
-                        <Category  :category="category"/>
-                    </div>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -97,7 +75,7 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings.scss';
+@import '@/assets/styles/settings/settings';
 
 .blindtest-categories {
     input {

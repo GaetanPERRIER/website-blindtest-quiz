@@ -19,11 +19,19 @@ export const usePlayerStore = defineStore('player', {
             roundSummary : {}
         },
         username : "",
-        roomList : []
+        roomList : [],
+        volume : 0.7
     }),
 
-    actions: {
+    getters: {
+        exponentialVolume: (state) => Math.pow(state.volume, 2.5)
+    },
 
+    actions: {
+        setVolume(value) {
+            this.volume = value
+        },
+        
         setTitleGuessed(titleGuessed) {
             this.titleGuessed = titleGuessed
         },

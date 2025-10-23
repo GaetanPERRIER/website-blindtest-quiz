@@ -2,7 +2,7 @@
 import {usePlayerStore} from "@/stores/playerStore.js";
 import { useRouter } from "vue-router";
 import {computed, ref, onMounted} from "vue";
-import PlayerList from "@/components/Blindtest/Room/PlayerList.vue";
+import PlayerList from "@/components/Blindtest/Room/Utils/PlayerList.vue";
 import socket from "@/utils/socket";
 
 const router = useRouter()

@@ -6,6 +6,7 @@ import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
 import BackNavigationArrow from "@/components/Basics/BackNavigationArrow.vue";
 import {computed, onMounted, ref} from "vue";
 import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
+import SoundVolume from "@/components/Blindtest/Game/Utils/SoundVolume.vue";
 
 
 /* Variables */
@@ -18,17 +19,12 @@ const errorMessage = ref("");
 const showError = ref(false);
 
 
-/* Handle Spawn Animation */
-const formVisible = ref(false)
-
 /* Variables from store */
 const room = computed(() => playerStore.room);
 const roomList = computed(() => playerStore.roomList)
 
 
 onMounted(() => {
-    formVisible.value = !formVisible.value
-
     // Get all rooms
     socket.emit("getRooms")
     socket.on("roomList", (NewRoomList) => {
@@ -96,7 +92,7 @@ function limitCharacters() {
     <div class="page-container">
         <main class="create-room-container">
             <ScaleSpawnAnimation>
-                <div class="form-container" v-if="formVisible">
+                <div class="form-container">
 
                     <div class="input-group">
                         <input v-model="username" @input="limitCharacters" type="text" placeholder="Nom du joueur" class="username-input t-body-text" maxlength="20"/>
@@ -153,6 +149,7 @@ function limitCharacters() {
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    overflow: hidden;
     gap: 50px;
     padding: 20px;
     position: relative;

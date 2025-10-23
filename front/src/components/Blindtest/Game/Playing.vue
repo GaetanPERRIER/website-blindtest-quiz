@@ -2,7 +2,7 @@
 import {usePlayerStore} from "@/stores/playerStore.js";
 import {computed, ref, onMounted} from "vue";
 import socket from "@/utils/socket.js";
-import PlayerList from "@/components/Blindtest/Room/PlayerList.vue";
+import PlayerList from "@/components/Blindtest/Room/Utils/PlayerList.vue";
 import ModalRoundOver from "@/components/Blindtest/Game/ModalRoundOver.vue";
 import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
 import InputAnswer from "@/components/Blindtest/Game/Playing/InputAnswer.vue";

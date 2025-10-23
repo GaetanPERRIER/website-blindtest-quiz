@@ -1,6 +1,5 @@
 <script setup>
 
-import LinearLoadingBar from "@/components/Blindtest/Game/LinearLoadingBar.vue";
 import socket from "@/utils/socket.js";
 import {computed, ref} from "vue";
 import {usePlayerStore} from "@/stores/playerStore.js";
@@ -28,7 +27,6 @@ function CheckAnswer() {
             <input class="t-color-white t-body-text" v-model="userAnswer" type="text" placeholder="Saisir le nom de la musique..." @keydown.enter="CheckAnswer">
             <button class="t-body-text t-color-white" @click="CheckAnswer">Valider</button>
         </div>
-        <LinearLoadingBar width="100%" transition-duration="30s"/>
     </div>
 </template>
 
