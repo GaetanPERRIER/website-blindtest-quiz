@@ -1,6 +1,11 @@
-const { DEFAULT_GAME_SETTINGS } = require('../config/constants');
-const deezerController = require('../controllers/deezer.controller')
-const DeezerService = require("./deezer.service");
+const crypto = require('crypto');
+const { DEFAULT_GAME_SETTINGS, GAME_RULES, ROOM } = require('../config/constants');
+const {
+    sanitizeUsername,
+    assertAllowedDeezerUrl,
+    assertValidDifficulty,
+    assertValidSongCount
+} = require('../utils/validation');
 
 class RoomService {
     constructor() {
@@ -8,7 +13,19 @@ class RoomService {
     }
 
     // Créer une room
-    createRoom (player) {
+    createRoom({ socketId, username }) {
+        const sanitizedUsername = sanitizeUsername(username);
+
+        const player = {
+            socketId,
+            username: sanitizedUsername,
+            host: true,
+            isReady: false,
+            score: 0,
+            totalScore: 0,
+            titleGuessed: false
+        };
+
         const room = {
             id: this.generateRoomId(),
             players: [player],
@@ -23,12 +40,13 @@ class RoomService {
             playlist : [], // ancienement MusicsToGuess
             round : -1,
             currentMusic : {},
-            roundSummary : {}
-        }
+            roundSummary : {},
+            gameStarted: false
+        };
 
-        player.roomId = room.id
-        this.rooms.push(room)
+        player.roomId = room.id;
 
+        this.rooms.push(room);
         return room;
     }
 
@@ -45,27 +63,37 @@ class RoomService {
 
 
     // Rejoindre une room
-    joinRoom(player) {
-        const room = this.getRoom(player.roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
+    joinRoom(roomId, { socketId, username }) {
+        const room = this.getRoom(roomId);
 
         if(room.players.length >= DEFAULT_GAME_SETTINGS.maxPlayers) {
             throw new Error('Salle complète');
         }
 
         if(room.gameStarted) {
-            throw new Error('Partie déja commencé');
+            throw new Error('Partie déjà commencée');
         }
 
-        const existingPlayer = room.players.find(p => p.socketId === player.socketId);
+        const existingPlayer = room.players.find(p => p.socketId === socketId);
         if (existingPlayer) {
             return room;
         }
 
-        player.host = false
-        room.players.push(player)
+        const sanitizedUsername = sanitizeUsername(username);
+
+        const player = {
+            socketId,
+            username: sanitizedUsername,
+            host: false,
+            isReady: false,
+            score: 0,
+            totalScore: 0,
+            titleGuessed: false
+        };
+
+        player.roomId = room.id;
+
+        room.players.push(player);
 
         return room
     }
@@ -131,42 +159,58 @@ class RoomService {
 
     selectCategory(roomId, category) {
         const room = this.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
+
+        if (!category || typeof category !== 'object') {
+            throw new Error('Catégorie invalide');
         }
 
-        room.setting.category = category
+        if (!category.tracklist) {
+            throw new Error('Catégorie sans playlist');
+        }
+
+        const safeTracklist = assertAllowedDeezerUrl(category.tracklist, 'trackListUrl');
+
+        room.setting.category = {
+            id: category.id,
+            title: category.title,
+            picture: category.picture,
+            picture_big: category.picture_big,
+            tracklist: safeTracklist
+        };
         return room
     }
 
     selectSongCount(roomId, newSongCount) {
         const room = this.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
 
-        room.setting.songCount = newSongCount
+        const validCount = assertValidSongCount(newSongCount);
+        room.setting.songCount = validCount
         return room
     }
 
     selectDifficulty(roomId, difficulty) {
         const room = this.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
 
-        room.setting.difficulty = difficulty
+        const validDifficulty = assertValidDifficulty(difficulty);
+        room.setting.difficulty = validDifficulty
         return room
     }
 
     generateRoomId() {
-        return Math.random().toString(36).substring(2, 9);
+        if (crypto.randomUUID) {
+            return crypto.randomUUID().replace(/-/g, '').substring(0, ROOM.ID_LENGTH);
+        }
+
+        return crypto.randomBytes(ROOM.ID_LENGTH).toString('base64url').substring(0, ROOM.ID_LENGTH);
     }
 
     setPlayerReady(roomId, socketId) {
         const room = this.getRoom(roomId)
 
         const player = room.players.find(p => p.socketId === socketId)
+        if (!player) {
+            throw new Error('Joueur introuvable dans la salle');
+        }
         player.isReady = true
 
         return room
@@ -182,10 +226,21 @@ class RoomService {
         return room
     }
 
-
-
     deleteRoom(roomId) {
         this.rooms = this.rooms.filter(room => room.id !== roomId);
+    }
+
+    isHost(roomId, socketId) {
+        const room = this.getRoom(roomId);
+        return room.players.some((player) => player.socketId === socketId && player.host);
+    }
+
+    assertHost(roomId, socketId) {
+        const room = this.getRoom(roomId);
+        if (!this.isHost(roomId, socketId)) {
+            throw new Error('Action réservée à l’hôte');
+        }
+        return room;
     }
 }
 

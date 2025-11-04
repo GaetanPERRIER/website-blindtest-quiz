@@ -1,7 +1,6 @@
 <script setup>
 import {usePlayerStore} from "@/stores/playerStore.js";
 import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
-import Playing from "@/components/Blindtest/Game/Playing.vue";
 import socket from "@/utils/socket.js";
 import {computed, onMounted, onBeforeUnmount, ref} from "vue";
 import GameConfig from "@/components/Blindtest/Room/GameConfig.vue";
@@ -47,7 +46,7 @@ const leaveRoom = () => {
         socket.emit('leaveRoom', room.value.id)
         
         // Réinitialiser le store localement
-        playerStore.ResetRoom()
+        playerStore.resetRoom()
     }
 }
 
@@ -57,20 +56,29 @@ onMounted(() => {
 
     socket.off("roomUpdated")
     socket.on('roomUpdated', (newRoom) => {
-        playerStore.SetRoom(newRoom)
+        playerStore.setRoom(newRoom)
         console.log("[the room is updated] :", room.value)
     })
 
     socket.off("gameFinished")
     socket.on('gameFinished', (newRoom) => {
-        playerStore.SetRoom(newRoom)
+        playerStore.setRoom(newRoom)
         console.log("[Game over] :", room.value)
     })
 
     socket.off("roundEnded")
     socket.on('roundEnded', (newRoom) => {
-        playerStore.SetRoom(newRoom)
+        playerStore.setRoom(newRoom)
         console.log("[Round ended] :", room.value)
+    })
+
+    socket.off('room:error')
+    socket.off('game:error')
+    socket.on('room:error', (message) => {
+        console.error('[Room error]', message)
+    })
+    socket.on('game:error', (message) => {
+        console.error('[Game error]', message)
     })
 });
 

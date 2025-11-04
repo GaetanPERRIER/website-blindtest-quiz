@@ -5,12 +5,11 @@ const cors = require('cors')
 const { Server } = require('socket.io');
 
 // Configurations
-const corsConfig = require('./config/cors');
+const { corsOptions, socketCorsOptions } = require('./config/cors');
 const { PORT } = require('./config/constants');
 
 // Controllers
 const { getCategories, startBlindtest } = require('./controllers/deezer.controller');
-const {corsOptions} = require("./config/cors");
 
 // Socket.IO
 const setupSocketIO = require('./sockets/connection');
@@ -19,10 +18,7 @@ const setupSocketIO = require('./sockets/connection');
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
-    cors: {
-        origin: "http://localhost:5173", // Remplacez par votre URL frontend
-        methods: ["GET", "POST"]
-    }
+    cors: socketCorsOptions
 });
 
 setupSocketIO(io);

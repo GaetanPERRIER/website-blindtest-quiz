@@ -10,8 +10,11 @@ const currentPlayer = computed(() =>
     playerStore.room.players.find(player => player.socketId === socket.id)
 )
 
-defineProps({
-    player : Object,
+const props = defineProps({
+    player : {
+        type: Object,
+        required: true
+    },
     playerOptions : {
         type : Boolean,
         default : true
@@ -22,12 +25,12 @@ defineProps({
     }
 })
 
-function EjectAPlayer() {
-    if (currentPlayer.value.host){
-        const roomId = room.value.id;
-        const socketId = props.player.socketId; // Access socketId from player props
-        socket.emit("ejectPlayer", roomId, socketId);
+function ejectPlayer() {
+    if (!currentPlayer.value?.host || !props.player?.socketId){
+        return
     }
+    const roomId = room.value.id;
+    socket.emit("ejectPlayer", roomId, props.player.socketId);
 }
 
 </script>
@@ -38,8 +41,8 @@ function EjectAPlayer() {
             <img class="player-avatar" src="/Player/panda.png" alt="">
             <span class="t-body-text t-color-white">{{ player.username }}</span>
         </div>
-        <img v-if="playerOptions && !player.host" @click="EjectAPlayer" class="cross" src="/Player/cross.png" alt="">
-        <img v-if="playerOptions && player.host" @click="EjectAPlayer" class="cross" src="/Player/crown.png" alt="">
+        <img v-if="playerOptions && !player.host" @click="ejectPlayer" class="cross" src="/Player/cross.png" alt="">
+        <img v-if="playerOptions && player.host" class="cross" src="/Player/crown.png" alt="">
     </div>
 </template>
 

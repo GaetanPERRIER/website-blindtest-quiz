@@ -8,8 +8,8 @@ export const usePlayerStore = defineStore('player', {
 
             setting: {
                 category: null,
-                songCount: null,
-                difficulty: null,
+                songCount: 10,
+                difficulty: 'easy',
             },
 
             state: "config", // config, guessing, answer, ended
@@ -31,50 +31,44 @@ export const usePlayerStore = defineStore('player', {
         setVolume(value) {
             this.volume = value
         },
-        
-        setTitleGuessed(titleGuessed) {
-            this.titleGuessed = titleGuessed
-        },
-
-
 
         /* Events socket */
-        SetRoomPlayers(players) {
+        setRoomPlayers(players) {
             this.room.players = players
         },
 
-        SetRoom(room) {
+        setRoom(room) {
             this.room = room
         },
 
-        SetRoomList(roomList) {
+        setRoomList(roomList) {
             this.roomList = roomList
         },
 
-        SetCategory(newCategory) {
+        setCategory(newCategory) {
             this.room.setting.category = newCategory
         },
 
-        SetSoungCount(newSongCount) {
+        setSongCount(newSongCount) {
             this.room.setting.songCount = newSongCount
         },
 
-        SetDifficulty(newDifficulty) {
+        setDifficulty(newDifficulty) {
             this.room.setting.difficulty = newDifficulty
         },
 
-        StartGame(room) {
+        startGame(room) {
             this.room = room
         },
 
-        ResetRoom() {
+        resetRoom() {
             this.room = {
                 id: null,
                 players: [],
                 setting: {
                     category: null,
-                    songCount: null,
-                    difficulty: null,
+                    songCount: 10,
+                    difficulty: 'easy',
                 },
                 state: "config",
                 playlist: [],

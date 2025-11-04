@@ -1,8 +1,7 @@
 <script setup>
 import {usePlayerStore} from "@/stores/playerStore.js";
 import { useRouter } from "vue-router";
-import {computed, ref, onMounted} from "vue";
-import PlayerList from "@/components/Blindtest/Room/Utils/PlayerList.vue";
+import {computed} from "vue";
 import socket from "@/utils/socket";
 
 const router = useRouter()
@@ -10,10 +9,6 @@ const playerStore = usePlayerStore()
 
 // Variables computed depuis le store
 const room = computed(() => playerStore.room)
-const playersReadyCount = computed(() => {
-    return playerStore.room.players.filter(player => player.isReady === true).length
-})
-
 // Calculer le classement final des joueurs
 const finalRanking = computed(() => {
     return [...room.value.players]
@@ -29,26 +24,27 @@ const gameStats = computed(() => {
     const totalRounds = room.value.setting.songCount
     const totalPlayers = room.value.players.length
     const playersWhoGuessed = room.value.players.filter(p => p.totalScore > 0).length
-    
+    const ratio = totalPlayers === 0 ? 0 : Math.round((playersWhoGuessed / totalPlayers) * 100)
+
     return {
         totalRounds,
         totalPlayers,
         playersWhoGuessed,
-        successRate: Math.round((playersWhoGuessed / totalPlayers) * 100)
+        successRate: ratio
     }
 })
 
 
 // Functions
-const PlayerReady = () => {
-    console.log("[Method player ready] : roomId : " + room.value.id, socket.id)
-    socket.emit('playerReady', room.value.id, socket.id)
-}
+const leaveGame = () => {
+    if (!room.value.id) {
+        router.push(`/`)
+        return
+    }
 
-const GoHome = () => {
-    console.log("[Go Home from ending screen button]")
-    socket.emit('goHome', room.value.id, socket.id)
-    router.push(`/`);
+    socket.emit('leaveRoom', room.value.id)
+    playerStore.resetRoom()
+    router.push(`/`)
 }
 
 
@@ -97,7 +93,7 @@ const GoHome = () => {
 
         <!-- Actions -->
         <div class="actions">
-            <button @click="GoHome()" class="cta-home t-body-text t-color-white">
+            <button @click="leaveGame" class="cta-home t-body-text t-color-white">
                 🏠 Retourner à l'accueil
             </button>
         </div>

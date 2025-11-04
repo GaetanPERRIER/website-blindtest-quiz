@@ -22,9 +22,11 @@ const hostPlayer = computed(() => {
 });
 
 
+const apiBaseUrl = import.meta.env.VITE_API_URL || "http://localhost:3001";
+
 onMounted(async () => {
     try {
-        const response = await fetch('http://localhost:3001/api/deezer/get-categories', {
+        const response = await fetch(`${apiBaseUrl}/api/deezer/get-categories`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

@@ -1,33 +1,47 @@
 <script setup>
 import socket from "@/utils/socket.js";
 import { usePlayerStore} from "@/stores/playerStore.js";
-import { computed, onMounted, ref, watch} from "vue";
+import { computed, onMounted } from "vue";
 import PlayerList from "@/components/Blindtest/Room/Utils/PlayerList.vue";
 
 const playerStore = usePlayerStore()
 
 const room = computed(() => playerStore.room);
-const difficulty = computed(() => playerStore.room.setting.difficulty)
 const currentPlayer = computed(() =>
     playerStore.room.players.find(player => player.socketId === socket.id)
 )
-const songCount = computed(() => playerStore.room.setting.songCount);
+const selectedDifficulty = computed({
+    get: () => playerStore.room.setting.difficulty || 'easy',
+    set: (value) => {
+        playerStore.setDifficulty(value)
+    }
+})
 
+const songCount = computed({
+    get: () => playerStore.room.setting.songCount || 10,
+    set: (value) => {
+        const numericValue = Number(value)
+        if (Number.isNaN(numericValue)) {
+            return
+        }
+        playerStore.setSongCount(numericValue)
+    }
+})
 
-function setSongCount(event) {
-    socket.emit("selectSongCount", room.value.id, event.target.value);
+function changeDifficulty(level) {
+    if (!currentPlayer.value?.host || selectedDifficulty.value === level) {
+        return
+    }
+    selectedDifficulty.value = level
+    socket.emit("selectDifficulty", room.value.id, level)
 }
 
-function setActiveButton(event) {
-    if (event.target.id === difficulty.value)
-        return;
-
-    const buttons = document.querySelectorAll('.button-container button');
-    buttons.forEach(button => {
-        button.classList.remove('btn-active');
-    });
-    event.target.classList.add('btn-active');
-    socket.emit("selectDifficulty", room.value.id, event.target.id);
+function changeSongCount(value) {
+    if (!currentPlayer.value?.host) {
+        return
+    }
+    songCount.value = value
+    socket.emit("selectSongCount", room.value.id, Number(value))
 }
 
 
@@ -35,28 +49,28 @@ onMounted(() => {
     // Handle category selection
     socket.off("categorySelected")
     socket.on('categorySelected', (newCategory) => {
-        playerStore.SetCategory(newCategory)
+        playerStore.setCategory(newCategory)
         console.log("[A new category has been selected] :", room.value.setting.category)
     })
 
     // Handle songCount selection
     socket.off("songCountSelected")
     socket.on('songCountSelected', (newSongCount) => {
-        playerStore.SetSoungCount(newSongCount)
+        playerStore.setSongCount(newSongCount)
         console.log("[A new songCount has been selected] :", room.value.setting.songCount)
     })
 
     // Handle categorySelection
     socket.off("difficultySelected")
     socket.on('difficultySelected', (newDifficulty) => {
-        playerStore.SetDifficulty(newDifficulty)
+        playerStore.setDifficulty(newDifficulty)
         console.log("[A new difficulty has been selected] :", room.value.setting.difficulty)
     })
 
     // Handle the start of the game
     socket.off("gameStarted")
     socket.on('gameStarted', (room) => {
-        playerStore.StartGame(room)
+        playerStore.startGame(room)
     })
 })
 
@@ -70,14 +84,14 @@ onMounted(() => {
             <div class="w100">
                 <label class="t-body-text t-color-white">Difficulté</label>
                 <div class="button-container u-flex w100 u-justify-content-center  u-gap10 u-mt10">
-                    <button @click="setActiveButton" :class="difficulty === 'easy' ? 't-body-text btn-active' : 't-body-text'" id="easy" :disabled="!currentPlayer.host">Facile</button>
-                    <button @click="setActiveButton" :class="difficulty === 'medium' ? 't-body-text btn-active' : 't-body-text'" id="medium" :disabled="!currentPlayer.host">Moyen</button>
-                    <button @click="setActiveButton" :class="difficulty === 'hard' ? 't-body-text btn-active' : 't-body-text'" id="hard" :disabled="!currentPlayer.host">Difficile</button>
+                    <button @click="() => changeDifficulty('easy')" :class="selectedDifficulty === 'easy' ? 't-body-text btn-active' : 't-body-text'" :disabled="!currentPlayer.host">Facile</button>
+                    <button @click="() => changeDifficulty('normal')" :class="selectedDifficulty === 'normal' ? 't-body-text btn-active' : 't-body-text'" :disabled="!currentPlayer.host">Intermédiaire</button>
+                    <button @click="() => changeDifficulty('hard')" :class="selectedDifficulty === 'hard' ? 't-body-text btn-active' : 't-body-text'" :disabled="!currentPlayer.host">Difficile</button>
                 </div>
             </div>
             <div class="mixer-control u-flex u-flex-direction-column u-align-items-center">
                 <div class="track-count-display t-body-text t-color-white">{{songCount}} musiques</div>
-                <input type="range" min="1" max="20" v-model="songCount" class="track-count-slider" @change="setSongCount" :disabled="!currentPlayer.host">
+                <input type="range" min="1" max="20" :value="songCount" class="track-count-slider" @input="changeSongCount($event.target.value)" :disabled="!currentPlayer.host">
             </div>
             <PlayerList/>
             <div class="w100 u-flex u-justify-content-center u-align-items-center">

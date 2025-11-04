@@ -27,25 +27,29 @@ const roomList = computed(() => playerStore.roomList)
 onMounted(() => {
     // Get all rooms
     socket.emit("getRooms")
-    socket.on("roomList", (NewRoomList) => {
-        playerStore.SetRoomList(NewRoomList)
-        console.log("[Updated room List] :", roomList)
+    socket.off("roomList")
+    socket.on("roomList", (newRoomList) => {
+        playerStore.setRoomList(newRoomList)
     })
 
     // Handle room creation
     socket.off("roomCreated")
     socket.on('roomCreated', (newRoom) => {
-        playerStore.SetRoom(newRoom)
-        console.log("[A new room as been created] :", room.value)
+        playerStore.setRoom(newRoom)
         router.push(`/play`);
     })
 
     // Handle roomJoined by a new player (to give him the room infos)
     socket.off("roomJoined")
     socket.on('roomJoined', (newRoom) => {
-        playerStore.SetRoom(newRoom)
-        console.log("[You joined a room] :", room.value)
+        playerStore.setRoom(newRoom)
         router.push(`/play`);
+    })
+
+    socket.off('room:error')
+    socket.on('room:error', (message) => {
+        errorMessage.value = message
+        showError.value = true
     })
 })
 
@@ -68,16 +72,12 @@ function validateUsername() {
 function JoinRoom(roomId) {
     if (!validateUsername()) return;
 
-    const playerData = {
-        host : roomId === null,
-        roomId : roomId,
-        username : username.value,
-        socketId : socket.id,
-        isReady : true,
-        score : 0
+    const payload = {
+        username: username.value,
+        roomId: roomId || null
     }
-    
-    socket.emit("joinRoom", playerData);
+
+    socket.emit("joinRoom", payload);
 }
 
 // Limite la saisie à 20 caractères
@@ -123,8 +123,13 @@ function limitCharacters() {
                 </div>
             </ScaleSpawnAnimation>
 
-            <div class="room-list-container">
-                <div v-for="room in roomList">{{ room }}</div>
+            <div class="room-list-container" v-if="roomList.length">
+                <h2 class="t-body-text t-color-white">Salles disponibles</h2>
+                <div class="room-item" v-for="availableRoom in roomList" :key="availableRoom.id">
+                    <span class="t-body-text t-color-white">ID : {{ availableRoom.id }}</span>
+                    <span class="t-body-text t-color-white">{{ availableRoom.playerCount }} joueur(s)</span>
+                    <button class="join-room-button t-body-text" @click="JoinRoom(availableRoom.id)">Rejoindre</button>
+                </div>
             </div>
         </main>
 
@@ -168,6 +173,48 @@ function limitCharacters() {
     display: flex;
     flex-direction: column;
     gap: 15px;
+}
+
+.room-list-container {
+    width: 100%;
+    max-width: 500px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    backdrop-filter: blur(15px);
+
+    h2 {
+        margin: 0;
+    }
+
+    .room-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 15px;
+        background: rgba(0, 0, 0, 0.25);
+        border-radius: 12px;
+        padding: 12px 18px;
+
+        .join-room-button {
+            background: rgba(255, 255, 255, 0.15);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
+            padding: 8px 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: translateY(-1px);
+            }
+        }
+    }
 }
 
 .page-title {

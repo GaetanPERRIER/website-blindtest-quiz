@@ -1,51 +1,51 @@
-const { DEFAULT_GAME_SETTINGS } = require('../config/constants');
+const { DEFAULT_GAME_SETTINGS, GAME_RULES } = require('../config/constants');
+const DeezerService = require('./deezer.service');
 
 class GameService {
     constructor() {
     }
 
     async startGame(roomId, roomService) {
-        const room = roomService.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
+        const room = roomService.getRoom(roomId);
+
+        if (!room.setting.category || !room.setting.category.tracklist) {
+            throw new Error('Veuillez sélectionner une catégorie avant de démarrer la partie');
         }
 
-        const urlTracklist = room.setting.category.tracklist
-        const nbMusics = room.setting.songCount
-        const difficulty = room.setting.difficulty
+        const nbMusics = room.setting.songCount ?? DEFAULT_GAME_SETTINGS.songCount;
+        const difficulty = room.setting.difficulty ?? DEFAULT_GAME_SETTINGS.difficulty;
+        const allTracks = await this.fetchTracks(room.setting.category.tracklist, nbMusics, difficulty);
 
-        const allTracks = await this.fetchTracks(urlTracklist, nbMusics, difficulty)
-        room.players.forEach(player => {
+        room.players.forEach((player) => {
             player.titleGuessed = false;
             player.totalScore = 0;
-        })
+            player.isReady = false;
+        });
 
-        room.playlist = allTracks
-        room.round = -1
+        room.playlist = allTracks;
+        room.round = -1;
+        room.state = 'config';
+        room.gameStarted = true;
 
         return room;
     }
 
     async fetchTracks(urlTracklist, count, difficulty) {
-        let allTracks = []
-        try {
-            let nextUrl = urlTracklist
+        let allTracks = [];
+        let nextUrl = urlTracklist;
 
-            while (nextUrl) {
-                const response = await fetch(nextUrl)
-                if (!response.ok) throw new Error(`Erreur Deezer: ${response.statusText}`);
-                const data = await response.json();
+        while (nextUrl && allTracks.length < GAME_RULES.MAX_SONG_COUNT * 5) {
+            const data = await DeezerService.fetchFromDeezer(nextUrl, 'trackListUrl');
+            if (Array.isArray(data.data)) {
                 allTracks = allTracks.concat(data.data);
-                nextUrl = data.next;
             }
-        } catch (error) {
-            console.error('Erreur API Deezer:', error);
+            nextUrl = data.next || null;
         }
-        return this.chooseTracks(allTracks, count, difficulty)
+
+        return this.chooseTracks(allTracks, count, difficulty);
     }
 
     chooseTracks(allTracks, songCount, difficulty) {
-        console.log(songCount, difficulty)
         let filteredTracks;
         switch (difficulty) {
             case 'easy':
@@ -75,6 +75,12 @@ class GameService {
         const room = roomService.getRoom(roomId)
 
         room.round++
+
+        if (room.round >= room.playlist.length) {
+            room.state = 'ended';
+            return room;
+        }
+
         room.currentMusic = room.playlist[room.round]
         room.state = "guessing"
 
@@ -89,7 +95,6 @@ class GameService {
         const room = roomService.getRoom(roomId)
 
         room.state = "answer"
-        console.log("[Round terminé]")
 
         return room
     }
@@ -102,13 +107,21 @@ class GameService {
 
         const currentMusic = room.currentMusic;
 
-        const isCorrect = answer.toLowerCase() === currentMusic.title.toLowerCase();
+        if (!currentMusic || !currentMusic.title) {
+            return room;
+        }
+
+        if (typeof answer !== 'string') {
+            return room;
+        }
+
+        const normalizedAnswer = answer.trim().toLowerCase();
+        const isCorrect = normalizedAnswer === (currentMusic.title || '').toLowerCase();
         const player = room.players.find(p => p.socketId === playerId);
 
         if (isCorrect && !player.titleGuessed) {
             player.titleGuessed = true;
             player.totalScore += 100;
-            console.log(`[Bonne réponse] : ${player.username} a trouvé le titre ${currentMusic.title}`);
         }
         return room
     }
