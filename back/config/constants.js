@@ -4,12 +4,23 @@ module.exports = {
     DEFAULT_GAME_SETTINGS: {
         songCount: 10,
         difficulty: "easy",
-        maxPlayers: 6
+        maxPlayers: 6,
+        roundDurationMs: 30000
     },
     GAME_RULES: {
         MIN_SONG_COUNT: 1,
         MAX_SONG_COUNT: 20,
         DIFFICULTIES: ["easy", "normal", "hard"]
+    },
+    SCORING: {
+        MAX_POINTS_TITLE: 120,
+        MAX_POINTS_ARTIST: 80,
+        MIN_POINTS_PER_COMPONENT: 10,
+        BONUS_BOTH_COMPONENTS: 30
+    },
+    FUZZY_MATCHING: {
+        TITLE_SIMILARITY_THRESHOLD: 0.75,
+        ARTIST_SIMILARITY_THRESHOLD: 0.7
     },
     DEEZER_API: {
         BASE_URL: "https://api.deezer.com",

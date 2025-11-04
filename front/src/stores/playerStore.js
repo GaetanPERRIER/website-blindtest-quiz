@@ -10,17 +10,22 @@ export const usePlayerStore = defineStore('player', {
                 category: null,
                 songCount: 10,
                 difficulty: 'easy',
+                roundDurationMs: 30000,
             },
 
             state: "config", // config, guessing, answer, ended
             playlist : [], // ancienement MusicsToGuess
             round : -1,
             currentMusic : {},
-            roundSummary : {}
+            roundSummary : null,
+            currentRoundResults: [],
+            roundHistory: [],
+            roundStartAt: null
         },
         username : "",
         roomList : [],
-        volume : 0.7
+        volume : 0.7,
+        lastEvaluation: null
     }),
 
     getters: {
@@ -37,8 +42,26 @@ export const usePlayerStore = defineStore('player', {
             this.room.players = players
         },
 
+        setCurrentRoundResults(results = []) {
+            this.room.currentRoundResults = Array.isArray(results) ? results : []
+        },
+
+        setRoundSummary(summary) {
+            this.room.roundSummary = summary || null
+        },
+
+        setLastEvaluation(evaluation) {
+            this.lastEvaluation = evaluation
+        },
+
         setRoom(room) {
             this.room = room
+            if (!this.room.currentRoundResults) {
+                this.room.currentRoundResults = []
+            }
+            if (!this.room.roundHistory) {
+                this.room.roundHistory = []
+            }
         },
 
         setRoomList(roomList) {
@@ -69,13 +92,18 @@ export const usePlayerStore = defineStore('player', {
                     category: null,
                     songCount: 10,
                     difficulty: 'easy',
+                    roundDurationMs: 30000
                 },
                 state: "config",
                 playlist: [],
                 round: -1,
                 currentMusic: {},
-                roundSummary: {}
+                roundSummary: null,
+                currentRoundResults: [],
+                roundHistory: [],
+                roundStartAt: null
             }
+            this.lastEvaluation = null
         },
     }
 })

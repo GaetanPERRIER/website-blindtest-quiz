@@ -23,7 +23,12 @@ class RoomService {
             isReady: false,
             score: 0,
             totalScore: 0,
-            titleGuessed: false
+            titleGuessed: false,
+            artistGuessed: false,
+            currentRoundScore: 0,
+            firstCorrectAt: null,
+            completedAt: null,
+            roundHistory: []
         };
 
         const room = {
@@ -40,7 +45,9 @@ class RoomService {
             playlist : [], // ancienement MusicsToGuess
             round : -1,
             currentMusic : {},
-            roundSummary : {},
+            roundSummary : null,
+            currentRoundResults: [],
+            roundHistory: [],
             gameStarted: false
         };
 
@@ -88,7 +95,12 @@ class RoomService {
             isReady: false,
             score: 0,
             totalScore: 0,
-            titleGuessed: false
+            titleGuessed: false,
+            artistGuessed: false,
+            currentRoundScore: 0,
+            firstCorrectAt: null,
+            completedAt: null,
+            roundHistory: []
         };
 
         player.roomId = room.id;

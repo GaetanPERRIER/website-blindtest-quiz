@@ -41,6 +41,7 @@ const leaveRoom = () => {
         socket.off("roomUpdated")
         socket.off("gameFinished")
         socket.off("roundEnded")
+        socket.off('answerEvaluation')
         
         // Émettre un événement pour notifier le serveur
         socket.emit('leaveRoom', room.value.id)
@@ -72,6 +73,19 @@ onMounted(() => {
         console.log("[Round ended] :", room.value)
     })
 
+    socket.off('answerEvaluation')
+    socket.on('answerEvaluation', ({ players, currentRoundResults, evaluation }) => {
+        if (Array.isArray(players)) {
+            playerStore.setRoomPlayers(players)
+        }
+        if (Array.isArray(currentRoundResults)) {
+            playerStore.setCurrentRoundResults(currentRoundResults)
+        }
+        if (evaluation) {
+            playerStore.setLastEvaluation(evaluation)
+        }
+    })
+
     socket.off('room:error')
     socket.off('game:error')
     socket.on('room:error', (message) => {
@@ -85,6 +99,7 @@ onMounted(() => {
 onBeforeUnmount(() => {
     // Quitter la room quand le composant est démonté (navigation vers une autre page)
     leaveRoom()
+    socket.off('answerEvaluation')
 });
 
 // Garde de navigation pour intercepter les changements de route

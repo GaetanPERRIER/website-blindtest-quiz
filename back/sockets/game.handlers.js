@@ -18,20 +18,27 @@ module.exports = (io, socket) => {
 
     socket.on('checkAnswer', (roomId, socketId, answer) => {
         try {
-            const room = gameService.checkAnswer(roomId, socketId, answer, roomService)
+            const { room, evaluation } = gameService.checkAnswer(roomId, socketId, answer, roomService)
+
+            if (evaluation) {
+                io.to(room.id).emit('answerEvaluation', {
+                    roomId,
+                    playerId: socketId,
+                    evaluation,
+                    players: room.players,
+                    currentRoundResults: room.currentRoundResults
+                })
+            }
 
             if (gameService.AllPlayerGuessed(room)) {
-                // Annuler le timeout si tous les joueurs ont deviné
                 if (room.currentRoundTimeout) {
                     clearTimeout(room.currentRoundTimeout)
                     room.currentRoundTimeout = null
                 }
-                
-                // Terminer le round immédiatement
+
                 const updatedRoom = gameService.endRound(roomId, roomService)
                 io.to(room.id).emit('roundEnded', updatedRoom)
-                
-                // Afficher le modal de récap pendant 5 secondes puis passer au round suivant
+
                 setTimeout(async () => {
                     try {
                         await playNextRound(roomId, io, roomService, gameService)
@@ -39,11 +46,6 @@ module.exports = (io, socket) => {
                         io.to(roomId).emit('game:error', error.message)
                     }
                 }, 5000)
-            }
-
-            const player = room.players.find(player => player.socketId === socketId)
-            if (player && player.titleGuessed){
-                socket.emit('titleGuessed', room.players)
             }
         } catch (error) {
             socket.emit('game:error', error.message)

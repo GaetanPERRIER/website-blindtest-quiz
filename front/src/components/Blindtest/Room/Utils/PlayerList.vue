@@ -77,7 +77,14 @@ onUnmounted(() => {
         <!-- Liste des joueurs pour une manche en cours -->
         <div v-if="playing" class="player-list u-flex u-flex-direction-column">
             <div class="content-player-list w100 u-p10 u-plr20 u-flex u-flex-direction-row u-gap25">
-                <Player v-for="player in playersDuringGame" :key="player.socketId" :player="player" :player-list="false" :player-stat="true" :style="player.titleGuessed ? 'opacity:100%;' : 'opacity:50%;'"></Player>
+                <Player
+                    v-for="player in playersDuringGame"
+                    :key="player.socketId"
+                    :player="player"
+                    :player-list="false"
+                    :player-stat="true"
+                    :style="player.titleGuessed && player.artistGuessed ? 'opacity:100%;' : 'opacity:50%;'"
+                ></Player>
             </div>
         </div>
     </div>

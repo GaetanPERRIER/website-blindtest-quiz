@@ -15,7 +15,7 @@ const modal = ref(null)
 // Calculer les joueurs qui ont deviné, triés par score
 const playersWhoGuessed = computed(() => {
     return room.value.players
-        .filter(player => player.titleGuessed)
+        .filter(player => player.titleGuessed && player.artistGuessed)
         .sort((a, b) => b.totalScore - a.totalScore)
         .slice(0, 3) // Prendre les 3 premiers
 });
