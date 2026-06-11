@@ -51,7 +51,9 @@ module.exports = (io, socket) => {
     // Eject a player of a room
     socket.on('ejectPlayer', (roomId, playerId) => {
         const room = roomService.ejectPlayer(roomId, playerId)
-        io.to(room.id).emit('playerListUpdated', room.players);
+        if (room !== null) {
+            io.to(room.id).emit('playerListUpdated', room.players);
+        }
     })
 
     // Select a Blindtest category

@@ -10,7 +10,7 @@ const currentPlayer = computed(() =>
     playerStore.room.players.find(player => player.socketId === socket.id)
 )
 
-defineProps({
+const props = defineProps({
     player : Object,
     playerOptions : {
         type : Boolean,

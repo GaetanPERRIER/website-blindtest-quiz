@@ -1,3 +1,11 @@
+# Local env files
+.env
+.env.*
+!.env.example
+
+# Compiled CSS (use SCSS sources)
+src/assets/styles/styles.css
+
 # Logs
 logs
 *.log

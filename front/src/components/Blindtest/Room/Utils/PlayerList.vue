@@ -23,10 +23,8 @@ const playerStore = usePlayerStore();
 const room = computed(() => playerStore.room);
 const finalPlayerList = ref([])
 
-// Surveillez le changement de gameEnded pour capturer la liste des joueurs
 watch(() => props.gameEnded, (newVal) => {
     if (newVal) {
-        // Quand la partie se termine, on capture la liste actuelle des joueurs
         finalPlayerList.value = [...room.value.players];
     }
 });
@@ -35,15 +33,13 @@ onMounted(() => {
     // Handle player join and player ejected
     socket.off("playerListUpdated")
     socket.on('playerListUpdated', (roomPlayers) => {
-        // Ne mettez à jour que si la partie n'est pas terminée
         if (!props.gameEnded) {
-            playerStore.SetRoomPlayers(roomPlayers)
+            playerStore.room.players = roomPlayers
             const player = roomPlayers.find(player => player.socketId === socket.id)
             if (!player) {
-                router.push("/blindtest");
+                router.push("/");
             }
         }
-        console.log("[The player list has been updated] :", room.value.players)
     })
 })
 
@@ -52,28 +48,28 @@ onMounted(() => {
 <template>
     <div :class="playing ? 'player-list-container' : 'player-list-container w100 h100'">
         
-        <!-- Liste des joueurs pour le lobby de config -->
+        <!-- Lobby config player list -->
         <div v-if="!playing && !gameEnded" class="player-list u-flex u-flex-direction-column">
-            <div  class="top-player-list u-flex u-align-items-center u-justify-content-center u-gap20 u-p15">
-                <h2 class="t-body-text t-color-white">Liste des joueurs</h2>
+            <div class="top-player-list u-flex u-align-items-center u-justify-content-center u-gap20 u-p15">
+                <h2 class="t-body-text t-color-white">Players</h2>
                 <InviteButton/>
             </div>
             <div class="content-player-list w100 h100 u-p10 u-plr20 u-flex u-flex-direction-column u-gap10">
-                <Player v-for="player in room.players" :player="player"></Player>
+                <Player v-for="player in room.players" :key="player.socketId" :player="player"></Player>
             </div>
         </div>
 
-        <!-- Liste des joueurs pour l'affichage de fin de partie -->
+        <!-- End of game player list -->
         <div v-if="!playing && gameEnded" class="player-list u-flex u-flex-direction-column">
             <div class="content-player-list w100 h100 u-p10 u-plr20 u-flex u-flex-direction-column u-gap10">
-                <Player v-for="player in room.players" :player="player" :player-options="false"></Player>
+                <Player v-for="player in room.players" :key="player.socketId" :player="player" :player-options="false"></Player>
             </div>
         </div>
 
-        <!-- Liste des joueurs pour une manche en cours -->
+        <!-- In-round player list -->
         <div v-if="playing" class="player-list u-flex u-flex-direction-column">
             <div class="content-player-list w100 u-p10 u-plr20 u-flex u-flex-direction-row u-gap25">
-                <Player v-for="player in staticPlayerList" :player="player" :player-list="false" :player-stat="true" :style="player.titleGuessed ? 'opacity:100%;' : 'opacity:50%;'"></Player>
+                <Player v-for="player in room.players" :key="player.socketId" :player="player" :player-list="false" :player-stat="true" :style="player.titleGuessed ? 'opacity:100%;' : 'opacity:50%;'"></Player>
             </div>
         </div>
     </div>

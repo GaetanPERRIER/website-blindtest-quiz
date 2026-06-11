@@ -32,31 +32,24 @@ function setActiveButton(event) {
 
 
 onMounted(() => {
-    // Handle category selection
     socket.off("categorySelected")
     socket.on('categorySelected', (newCategory) => {
-        playerStore.SetCategory(newCategory)
-        console.log("[A new category has been selected] :", room.value.setting.category)
+        playerStore.setCategory(newCategory)
     })
 
-    // Handle songCount selection
     socket.off("songCountSelected")
     socket.on('songCountSelected', (newSongCount) => {
-        playerStore.SetSoungCount(newSongCount)
-        console.log("[A new songCount has been selected] :", room.value.setting.songCount)
+        playerStore.setSongCount(newSongCount)
     })
 
-    // Handle categorySelection
     socket.off("difficultySelected")
     socket.on('difficultySelected', (newDifficulty) => {
-        playerStore.SetDifficulty(newDifficulty)
-        console.log("[A new difficulty has been selected] :", room.value.setting.difficulty)
+        playerStore.setDifficulty(newDifficulty)
     })
 
-    // Handle the start of the game
     socket.off("gameStarted")
     socket.on('gameStarted', (room) => {
-        playerStore.StartGame(room)
+        playerStore.startGame(room)
     })
 })
 
@@ -66,22 +59,22 @@ onMounted(() => {
 <template>
     <div class="room-settings-container h100 w35" v-if="currentPlayer">
         <div class="room-settings u-flex u-flex-direction-column u-align-items-center u-gap35 h100 w100">
-            <h2 class="t-title t-color-white">Room Settings</h2>
+            <h2 class="t-title t-color-white">Settings</h2>
             <div class="w100">
-                <label class="t-body-text t-color-white">Difficulté</label>
-                <div class="button-container u-flex w100 u-justify-content-center  u-gap10 u-mt10">
-                    <button @click="setActiveButton" :class="difficulty === 'easy' ? 't-body-text btn-active' : 't-body-text'" id="easy" :disabled="!currentPlayer.host">Facile</button>
-                    <button @click="setActiveButton" :class="difficulty === 'medium' ? 't-body-text btn-active' : 't-body-text'" id="medium" :disabled="!currentPlayer.host">Moyen</button>
-                    <button @click="setActiveButton" :class="difficulty === 'hard' ? 't-body-text btn-active' : 't-body-text'" id="hard" :disabled="!currentPlayer.host">Difficile</button>
+                <label class="t-body-text t-color-white">Difficulty</label>
+                <div class="button-container u-flex w100 u-justify-content-center u-gap10 u-mt10">
+                    <button @click="setActiveButton" :class="difficulty === 'easy' ? 't-body-text btn-active' : 't-body-text'" id="easy" :disabled="!currentPlayer.host">Easy</button>
+                    <button @click="setActiveButton" :class="difficulty === 'medium' ? 't-body-text btn-active' : 't-body-text'" id="medium" :disabled="!currentPlayer.host">Medium</button>
+                    <button @click="setActiveButton" :class="difficulty === 'hard' ? 't-body-text btn-active' : 't-body-text'" id="hard" :disabled="!currentPlayer.host">Hard</button>
                 </div>
             </div>
             <div class="mixer-control u-flex u-flex-direction-column u-align-items-center">
-                <div class="track-count-display t-body-text t-color-white">{{songCount}} musiques</div>
+                <div class="track-count-display t-body-text t-color-white">{{ songCount }} tracks</div>
                 <input type="range" min="1" max="20" v-model="songCount" class="track-count-slider" @change="setSongCount" :disabled="!currentPlayer.host">
             </div>
             <PlayerList/>
             <div class="w100 u-flex u-justify-content-center u-align-items-center">
-                <button @click="socket.emit('startGame', room.id);" class="play-button t-body-text" :disabled="!currentPlayer.host">Lancer la partie</button>
+                <button @click="socket.emit('startGame', room.id);" class="play-button t-body-text" :disabled="!currentPlayer.host">Start game</button>
             </div>
         </div>
     </div>

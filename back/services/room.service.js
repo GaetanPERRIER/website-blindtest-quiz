@@ -1,38 +1,30 @@
 const { DEFAULT_GAME_SETTINGS } = require('../config/constants');
-const deezerController = require('../controllers/deezer.controller')
-const DeezerService = require("./deezer.service");
-
 class RoomService {
     constructor() {
         this.rooms = [];
     }
 
-    // Créer une room
-    createRoom (player) {
+    createRoom(player) {
         const room = {
             id: this.generateRoomId(),
             players: [player],
-
             setting: {
                 category: null,
                 songCount: DEFAULT_GAME_SETTINGS.songCount,
                 difficulty: DEFAULT_GAME_SETTINGS.difficulty,
             },
-
-            state: "config", // config, guessing, answer, ended
-            playlist : [], // ancienement MusicsToGuess
-            round : -1,
-            currentMusic : {},
-            roundSummary : {}
+            state: "config",
+            playlist: [],
+            round: -1,
+            currentMusic: {},
+            roundSummary: {}
         }
 
         player.roomId = room.id
         this.rooms.push(room)
-
         return room;
     }
 
-    // Trouver une room en fonction de son ID dans le tableau des rooms
     getRoom(roomId) {
         const room = this.rooms.find(r => r.id === roomId);
 
@@ -44,19 +36,15 @@ class RoomService {
     }
 
 
-    // Rejoindre une room
     joinRoom(player) {
         const room = this.getRoom(player.roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
+
+        if (room.players.length >= DEFAULT_GAME_SETTINGS.maxPlayers) {
+            throw new Error('Room is full');
         }
 
-        if(room.players.length >= DEFAULT_GAME_SETTINGS.maxPlayers) {
-            throw new Error('Salle complète');
-        }
-
-        if(room.gameStarted) {
-            throw new Error('Partie déja commencé');
+        if (room.state !== 'config') {
+            throw new Error('Game already started');
         }
 
         const existingPlayer = room.players.find(p => p.socketId === player.socketId);
@@ -70,8 +58,7 @@ class RoomService {
         return room
     }
 
-    // Quand un socket se déconnecte (ferme la page) et qu'il était dans une salle, le faire quitter et passer le role host
-    disconnect(socketId){
+    disconnect(socketId) {
         let roomToUpdate = null;
 
         this.rooms.forEach((room) => {
@@ -82,8 +69,7 @@ class RoomService {
                 room.players.splice(playerIndex, 1); // Supprimer le joueur de la salle
 
                 if (disconnectedPlayer.host && room.players.length > 0) {
-                    room.players[0].host = true; // Le premier joueur devient l'hôte
-                    console.log(`[Nouveau hôte] : ${room.players[0].username}`);
+                    room.players[0].host = true;
                 }
                 roomToUpdate = room;
             }
@@ -96,7 +82,6 @@ class RoomService {
         return null
     }
 
-    // Faire quitter un joueur d'une salle
     ejectPlayer(roomId, playerId) {
         const room = this.getRoom(roomId)
 
@@ -109,52 +94,32 @@ class RoomService {
         const wasHost = playerToEject.host
         room.players.splice(playerIndex, 1);
 
-        console.log(`[Un joueur a quitter la room] : ${playerToEject.username} de la salle ${room.id}`);
-        
-        // S'il n'y a plus de joueur dans la salle : la supprimer
         if (room.players.length === 0) {
             this.deleteRoom(roomId);
-            console.log(`[Salle supprimée] : ${roomId} (vide)`);
             return null;
         }
 
-        // Si l'host à quitter, donner le role à un autre joueur
         if (wasHost) {
             room.players[0].host = true;
-            console.log(`[Nouvel hôte] : ${room.players[0].username} dans la salle ${room.id}`);
         }
 
         return room;
     }
 
-    // === Configuration de la room ===
-
     selectCategory(roomId, category) {
         const room = this.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
-
         room.setting.category = category
         return room
     }
 
     selectSongCount(roomId, newSongCount) {
         const room = this.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
-
         room.setting.songCount = newSongCount
         return room
     }
 
     selectDifficulty(roomId, difficulty) {
         const room = this.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
-
         room.setting.difficulty = difficulty
         return room
     }
@@ -165,10 +130,8 @@ class RoomService {
 
     setPlayerReady(roomId, socketId) {
         const room = this.getRoom(roomId)
-
         const player = room.players.find(p => p.socketId === socketId)
-        player.isReady = true
-
+        if (player) player.isReady = true
         return room
     }
 

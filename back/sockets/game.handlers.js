@@ -3,9 +3,7 @@ const gameService = require('../services/game.service');
 
 module.exports = (io, socket) => {
     socket.on('startGame', async (roomId) => {
-        let room = await gameService.startGame(roomId, roomService)
-        
-        // Démarrer le premier round
+        await gameService.startGame(roomId, roomService)
         await playNextRound(roomId, io, roomService, gameService)
     });
 
@@ -20,12 +18,10 @@ module.exports = (io, socket) => {
                 room.currentRoundTimeout = null
             }
             
-            // Terminer le round immédiatement
             const updatedRoom = gameService.endRound(roomId, roomService)
             io.to(room.id).emit('roundEnded', updatedRoom)
-            console.log("[Round terminé - tous les joueurs ont deviné]")
             
-            // Afficher le modal de récap pendant 5 secondes puis passer au round suivant
+            // Show round recap for 5s then move to next round
             setTimeout(async () => {
                 await playNextRound(roomId, io, roomService, gameService)
             }, 5000)
@@ -38,43 +34,33 @@ module.exports = (io, socket) => {
     });
 
 
-    socket.on('playerReady',(roomId, socketId) => {
+    socket.on('playerReady', (roomId, socketId) => {
         const room = roomService.setPlayerReady(roomId, socketId)
-        console.log("[Player ready]")
         io.to(room.id).emit('playerListUpdated', room.players)
     })
 
-    // Fonction récursive pour gérer les rounds
     const playNextRound = async (roomId, io, roomService, gameService) => {
         let room = roomService.getRoom(roomId)
         
-        // Vérifier si on a atteint le nombre maximum de rounds
         if (room.round >= room.setting.songCount - 1) {
-            // Fin de la partie
             room.state = "ended"
             io.to(room.id).emit('gameFinished', room)
             return
         }
 
-        // Lancer un nouveau round
         room = await gameService.nextRound(roomId, roomService)
         io.to(room.id).emit('roomUpdated', room)
         
-        // Démarrer le timer de 30 secondes
         const roundTimeout = setTimeout(async () => {
-            // Timeout atteint - terminer le round
             room = gameService.endRound(roomId, roomService)
             io.to(room.id).emit('roundEnded', room)
-            console.log("[Round terminé - timeout de 30 secondes]")
             
-            // Afficher le modal de récap pendant 5 secondes
+            // Show round recap for 5s then move to next round
             setTimeout(async () => {
-                // Passer au round suivant
                 await playNextRound(roomId, io, roomService, gameService)
             }, 5000)
         }, 30000)
 
-        // Stocker le timeout pour pouvoir l'annuler si tous les joueurs devinent
         room.currentRoundTimeout = roundTimeout
     }
 

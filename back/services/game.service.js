@@ -6,10 +6,6 @@ class GameService {
 
     async startGame(roomId, roomService) {
         const room = roomService.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
-
         const urlTracklist = room.setting.category.tracklist
         const nbMusics = room.setting.songCount
         const difficulty = room.setting.difficulty
@@ -33,25 +29,24 @@ class GameService {
 
             while (nextUrl) {
                 const response = await fetch(nextUrl)
-                if (!response.ok) throw new Error(`Erreur Deezer: ${response.statusText}`);
+                if (!response.ok) throw new Error(`Deezer API error: ${response.statusText}`);
                 const data = await response.json();
                 allTracks = allTracks.concat(data.data);
                 nextUrl = data.next;
             }
         } catch (error) {
-            console.error('Erreur API Deezer:', error);
+            console.error('Deezer API error:', error);
         }
         return this.chooseTracks(allTracks, count, difficulty)
     }
 
     chooseTracks(allTracks, songCount, difficulty) {
-        console.log(songCount, difficulty)
         let filteredTracks;
         switch (difficulty) {
             case 'easy':
                 filteredTracks = allTracks.filter(track => track.rank >= 700000);
                 break;
-            case 'normal':
+            case 'medium':
                 filteredTracks = allTracks.filter(track => track.rank >= 300000 && track.rank < 700000);
                 break;
             case 'hard':
@@ -87,19 +82,12 @@ class GameService {
 
     endRound(roomId, roomService) {
         const room = roomService.getRoom(roomId)
-
         room.state = "answer"
-        console.log("[Round terminé]")
-
         return room
     }
 
     checkAnswer(roomId, playerId, answer, roomService) {
         const room = roomService.getRoom(roomId)
-        if(room === undefined) {
-            throw new Error('Salle introuvable');
-        }
-
         const currentMusic = room.currentMusic;
 
         const isCorrect = answer.toLowerCase() === currentMusic.title.toLowerCase();
@@ -108,7 +96,6 @@ class GameService {
         if (isCorrect && !player.titleGuessed) {
             player.titleGuessed = true;
             player.totalScore += 100;
-            console.log(`[Bonne réponse] : ${player.username} a trouvé le titre ${currentMusic.title}`);
         }
         return room
     }

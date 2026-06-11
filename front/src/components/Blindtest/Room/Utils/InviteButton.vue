@@ -10,18 +10,14 @@ const currentPlayer = computed(() =>
 )
 
 function CopyLink() {
-    console.log(socket.id)
     const inviteUrl = `${window.location.origin}?roomId=${currentPlayer.value.roomId}`;
-    navigator.clipboard.writeText(inviteUrl).then(() => {
-    }).catch(err => {
-        console.error('Erreur lors de la copie du lien : ', err);
-    });
+    navigator.clipboard.writeText(inviteUrl).catch(() => {});
 }
 
 </script>
 
 <template>
-    <button @click="CopyLink" class="invite-button t-body-text">Inviter</button>
+    <button @click="CopyLink" class="invite-button t-body-text">Invite</button>
 </template>
 
 <style scoped lang="scss">

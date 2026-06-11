@@ -9,7 +9,6 @@ import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
 import SoundVolume from "@/components/Blindtest/Game/Utils/SoundVolume.vue";
 
 
-/* Variables */
 const router = useRouter();
 const route = useRoute();
 const playerStore = usePlayerStore()
@@ -18,33 +17,25 @@ const roomIdInUrl = computed(() => !!route.query.roomId);
 const errorMessage = ref("");
 const showError = ref(false);
 
-
-/* Variables from store */
 const room = computed(() => playerStore.room);
 const roomList = computed(() => playerStore.roomList)
 
 
 onMounted(() => {
-    // Get all rooms
     socket.emit("getRooms")
-    socket.on("roomList", (NewRoomList) => {
-        playerStore.SetRoomList(NewRoomList)
-        console.log("[Updated room List] :", roomList)
+    socket.on("roomList", (newRoomList) => {
+        playerStore.setRoomList(newRoomList)
     })
 
-    // Handle room creation
     socket.off("roomCreated")
     socket.on('roomCreated', (newRoom) => {
-        playerStore.SetRoom(newRoom)
-        console.log("[A new room as been created] :", room.value)
+        playerStore.setRoom(newRoom)
         router.push(`/play`);
     })
 
-    // Handle roomJoined by a new player (to give him the room infos)
     socket.off("roomJoined")
     socket.on('roomJoined', (newRoom) => {
-        playerStore.SetRoom(newRoom)
-        console.log("[You joined a room] :", room.value)
+        playerStore.setRoom(newRoom)
         router.push(`/play`);
     })
 })
@@ -52,12 +43,12 @@ onMounted(() => {
 /* Functions */
 function validateUsername() {
     if (username.value.trim() === "") {
-        errorMessage.value = "Veuillez entrer un nom d'utilisateur valide.";
+        errorMessage.value = "Please enter a valid username.";
         showError.value = true;
         return false;
     }
     if (username.value.length > 20) {
-        errorMessage.value = "Le nom d'utilisateur ne doit pas dépasser 20 caractères.";
+        errorMessage.value = "Username must not exceed 20 characters.";
         showError.value = true;
         return false;
     }
@@ -95,21 +86,21 @@ function limitCharacters() {
                 <div class="form-container">
 
                     <div class="input-group">
-                        <input v-model="username" @input="limitCharacters" type="text" placeholder="Nom du joueur" class="username-input t-body-text" maxlength="20"/>
+                        <input v-model="username" @input="limitCharacters" type="text" placeholder="Your username" class="username-input t-body-text" maxlength="20"/>
                         <div class="character-counter">
                             {{ username.length }}/20
                         </div>
                     </div>
 
                     <button v-if="!roomIdInUrl" @click="JoinRoom(null)" class="action-button t-body-text">
-                        Créer un lobby
+                        Create a lobby
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                             <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2"/>
                         </svg>
                     </button>
 
                     <button v-else @click="JoinRoom(route.query.roomId)" class="action-button t-body-text">
-                        Rejoindre le lobby
+                        Join the lobby
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                             <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2"/>
                         </svg>

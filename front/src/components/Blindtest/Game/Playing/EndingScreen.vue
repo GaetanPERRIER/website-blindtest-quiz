@@ -41,12 +41,10 @@ const gameStats = computed(() => {
 
 // Functions
 const PlayerReady = () => {
-    console.log("[Method player ready] : roomId : " + room.value.id, socket.id)
     socket.emit('playerReady', room.value.id, socket.id)
 }
 
 const GoHome = () => {
-    console.log("[Go Home from ending screen button]")
     socket.emit('goHome', room.value.id, socket.id)
     router.push(`/`);
 }
@@ -57,27 +55,27 @@ const GoHome = () => {
 
 <template>
     <div class="ending-screen-container">
-        <h2 class="t-title t-color-white">🎉 Partie terminée !</h2>
+        <h2 class="t-title t-color-white">Game Over!</h2>
         
         <!-- Statistiques de la partie -->
         <div class="game-stats">
             <div class="stat-item">
                 <span class="stat-number">{{ gameStats.totalRounds }}</span>
-                <span class="stat-label">Manches jouées</span>
+                <span class="stat-label">Rounds played</span>
             </div>
             <div class="stat-item">
                 <span class="stat-number">{{ gameStats.successRate }}%</span>
-                <span class="stat-label">Taux de réussite</span>
+                <span class="stat-label">Success rate</span>
             </div>
             <div class="stat-item">
                 <span class="stat-number">{{ gameStats.playersWhoGuessed }}/{{ gameStats.totalPlayers }}</span>
-                <span class="stat-label">Joueurs actifs</span>
+                <span class="stat-label">Active players</span>
             </div>
         </div>
 
         <!-- Classement final -->
         <div class="final-ranking">
-            <h3 class="t-subtitle t-color-white">🏆 Classement final</h3>
+            <h3 class="t-subtitle t-color-white">Final Ranking</h3>
             <div class="ranking-list">
                 <div 
                     v-for="player in finalRanking" 
@@ -97,9 +95,9 @@ const GoHome = () => {
 
         <!-- Actions -->
         <div class="actions">
-            <button @click="GoHome()" class="cta-home t-body-text t-color-white">
-                🏠 Retourner à l'accueil
-            </button>
+                <button @click="GoHome()" class="cta-home t-body-text t-color-white">
+                    Back to home
+                </button>
         </div>
     </div>
 </template>

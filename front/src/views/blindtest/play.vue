@@ -1,7 +1,6 @@
 <script setup>
 import {usePlayerStore} from "@/stores/playerStore.js";
 import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
-import Playing from "@/components/Blindtest/Game/Playing.vue";
 import socket from "@/utils/socket.js";
 import {computed, onMounted, onBeforeUnmount, ref} from "vue";
 import GameConfig from "@/components/Blindtest/Room/GameConfig.vue";
@@ -14,40 +13,25 @@ import EndingScreen from "@/components/Blindtest/Game/Playing/EndingScreen.vue";
 import { useRouter, onBeforeRouteLeave } from "vue-router";
 
 
-/* Variables */
 const playerStore = usePlayerStore()
 const router = useRouter()
 
-const room = computed(() => playerStore.room);
+const room = computed(() => playerStore.room)
 const currentPlayer = computed(() =>
     playerStore.room.players.find(player => player.socketId === socket.id)
 )
-
-/* états de jeu depuis le store */
-const gameState = computed(() => playerStore.room.state);
-
-/* handle spawn animations */
-const handleGuessingAnimation = computed(() => {
-  return playerStore.room.state === "guessing";
-})
+const gameState = computed(() => playerStore.room.state)
 
 
 
 /* Functions */
 const leaveRoom = () => {
     if (room.value.id && currentPlayer.value) {
-        console.log("[Leaving room]:", room.value.id)
-        
-        // Nettoyer les listeners pour éviter les fuites mémoire
         socket.off("roomUpdated")
         socket.off("gameFinished")
         socket.off("roundEnded")
-        
-        // Émettre un événement pour notifier le serveur
         socket.emit('leaveRoom', room.value.id)
-        
-        // Réinitialiser le store localement
-        playerStore.ResetRoom()
+        playerStore.resetRoom()
     }
 }
 
@@ -57,20 +41,17 @@ onMounted(() => {
 
     socket.off("roomUpdated")
     socket.on('roomUpdated', (newRoom) => {
-        playerStore.SetRoom(newRoom)
-        console.log("[the room is updated] :", room.value)
+        playerStore.setRoom(newRoom)
     })
 
     socket.off("gameFinished")
     socket.on('gameFinished', (newRoom) => {
-        playerStore.SetRoom(newRoom)
-        console.log("[Game over] :", room.value)
+        playerStore.setRoom(newRoom)
     })
 
     socket.off("roundEnded")
     socket.on('roundEnded', (newRoom) => {
-        playerStore.SetRoom(newRoom)
-        console.log("[Round ended] :", room.value)
+        playerStore.setRoom(newRoom)
     })
 });
 

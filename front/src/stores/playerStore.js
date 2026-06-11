@@ -2,25 +2,24 @@ import { defineStore } from 'pinia'
 
 export const usePlayerStore = defineStore('player', {
     state: () => ({
+        categories: [],
         room: {
             id: null,
             players: [],
-
             setting: {
                 category: null,
                 songCount: null,
                 difficulty: null,
             },
-
-            state: "config", // config, guessing, answer, ended
-            playlist : [], // ancienement MusicsToGuess
-            round : -1,
-            currentMusic : {},
-            roundSummary : {}
+            state: "config",
+            playlist: [],
+            round: -1,
+            currentMusic: {},
+            roundSummary: {}
         },
-        username : "",
-        roomList : [],
-        volume : 0.7
+        username: "",
+        roomList: [],
+        volume: 0.7
     }),
 
     getters: {
@@ -31,43 +30,36 @@ export const usePlayerStore = defineStore('player', {
         setVolume(value) {
             this.volume = value
         },
-        
-        setTitleGuessed(titleGuessed) {
-            this.titleGuessed = titleGuessed
-        },
 
-
-
-        /* Events socket */
-        SetRoomPlayers(players) {
-            this.room.players = players
-        },
-
-        SetRoom(room) {
+        setRoom(room) {
             this.room = room
         },
 
-        SetRoomList(roomList) {
+        setRoomList(roomList) {
             this.roomList = roomList
         },
 
-        SetCategory(newCategory) {
+        setCategory(newCategory) {
             this.room.setting.category = newCategory
         },
 
-        SetSoungCount(newSongCount) {
+        setSongCount(newSongCount) {
             this.room.setting.songCount = newSongCount
         },
 
-        SetDifficulty(newDifficulty) {
+        setDifficulty(newDifficulty) {
             this.room.setting.difficulty = newDifficulty
         },
 
-        StartGame(room) {
+        startGame(room) {
             this.room = room
         },
 
-        ResetRoom() {
+        setCategories(categories) {
+            this.categories = categories
+        },
+
+        resetRoom() {
             this.room = {
                 id: null,
                 players: [],
