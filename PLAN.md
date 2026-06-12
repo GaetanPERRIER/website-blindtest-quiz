@@ -113,41 +113,87 @@ game_results    — session_id, user_id, score, rank, created_at
 
 ## Phase 1 — Identité visuelle & Design System
 
-> Durée estimée : 2-3h
+> Durée estimée : 2-3h · **EN COURS**
 
 ### Branding BeatQuiz
 
-- [ ] Logo SVG : icône casque/note + wordmark "BeatQuiz"
-- [ ] Favicon
-- [ ] Afficher le logo sur toutes les pages
+- [x] Logo SVG : icône casque + notes musicales (gradient FF6E6E → FFDF6B)
+- [x] Favicon SVG optimisé (32x32 px)
+- [x] Tagline défini : "Guess the song. Beat your friends."
+- [x] Meta tags et branding dans `index.html`
 
 ### Refonte du Design System SCSS
 
-**Tokens à définir dans `settings.scss`**
+**Tokens définis dans `settings.scss`** ✅
 
 ```scss
 // Couleurs principales
 $color-primary-gradient: linear-gradient(135deg, #FF6E6E 0%, #FFDF6B 100%);
 $color-surface: rgba(255, 255, 255, 0.1);
 $color-surface-hover: rgba(255, 255, 255, 0.15);
+$color-surface-active: rgba(255, 255, 255, 0.2);
 $color-border: rgba(255, 255, 255, 0.2);
+$color-border-hover: rgba(255, 255, 255, 0.3);
 $color-accent: #FFBB33;
 $color-text: #ffffff;
 $color-text-muted: rgba(255, 255, 255, 0.6);
+$color-text-light: rgba(255, 255, 255, 0.4);
 
 // Couleurs joueurs (6 slots)
 $player-colors: (#FF6B6B, #4ECDC4, #A29BFE, #FFEAA7, #FD79A8, #55EFC4);
+
+// Couleurs sémantiques
+$color-success: #55EFC4;
+$color-warning: #FFBB33;
+$color-danger: #FF6B6B;
+$color-info: #A29BFE;
+
+// Typographie (échelle)
+$font-size-xs: 11px;
+$font-size-sm: 13px;
+$font-size-base: 15px;
+$font-size-lg: 18px;
+$font-size-xl: 22px;
+$font-size-2xl: 28px;
+$font-size-3xl: 36px;
+
+// Espacement
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+$spacing-2xl: 32px;
+$spacing-3xl: 48px;
+
+// Ombres & blur
+$shadow-sm/md/lg/xl, $blur-sm/md/lg
+
+// Durées d'animation
+$duration-fast: 150ms;
+$duration-normal: 300ms;
+$duration-slow: 500ms;
 ```
 
-**3 variantes de boutons**
+### 3 variantes de boutons — `buttons.scss` ✅
 
 | Variante | Usage | Style |
 |---|---|---|
-| `btn-primary` | CTA principal (Start game, Create lobby) | Gradient chaud + ombre |
-| `btn-secondary` | Actions secondaires | Glassmorphism + border |
-| `btn-ghost` | Actions tertiaires | Transparent + border fine |
+| `btn-primary` | CTA principal (Start, Create) | Gradient chaud + ombre forte |
+| `btn-secondary` | Actions secondaires (Cancel, Back) | Glassmorphism + border |
+| `btn-ghost` | Actions tertiaires (Copy link) | Transparent + border fine |
 
-**Échelle typographique** : xs (11px) / sm (13px) / base (15px) / lg (18px) / xl (22px) / 2xl (28px) / 3xl (36px)
+**Fichiers créés :**
+- [x] `front/public/beatquiz-logo.svg` (48x48)
+- [x] `front/public/beatquiz-favicon.svg` (32x32)
+- [x] `front/src/assets/styles/theme/logo.scss`
+- [x] `BRANDING.md` — Documentation complète du Design System
+
+**Fichiers modifiés :**
+- [x] `front/src/assets/styles/settings/settings.scss` — Tokens BeatQuiz
+- [x] `front/src/assets/styles/theme/buttons.scss` — 3 variantes
+- [x] `front/src/assets/styles/styles.scss` — Import logo.scss
+- [x] `front/index.html` — Favicon SVG + meta tags
 
 ---
 
@@ -302,7 +348,7 @@ room.state — "config" | "guessing" | "answer" | "ended"
 
 ```
 ✅ Phase 0 — Nettoyage          ← DONE
-⬜ Phase 1 — Design System      (2-3h)   ← nom BeatQuiz + tokens SCSS
+⏳ Phase 1 — Design System      (2-3h)   ← EN COURS
 ⬜ Phase 2.1 — Join page        (1h)
 ⬜ Phase 2.2 — Lobby            (2-3h)
 ⬜ Phase 2.3 — Guessing         (2h)
@@ -314,6 +360,6 @@ room.state — "config" | "guessing" | "answer" | "ended"
 
 ---
 
----
+*Dernière mise à jour : 12 Juin 2026 — Phase 1 en cours*
 
 *Dernière mise à jour : 11 Juin 2026 — Phase 0 complétée*

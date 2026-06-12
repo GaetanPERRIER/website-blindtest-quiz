@@ -1,0 +1,30 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gradient definition -->
+  <defs>
+    <linearGradient id="faviconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FF6E6E;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#FFDF6B;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Headphone icon (simplified for favicon) -->
+  <g transform="translate(4, 4)">
+    <!-- Left ear -->
+    <path d="M 2 8 A 5 5 0 0 1 2 2" stroke="url(#faviconGradient)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Right ear -->
+    <path d="M 22 8 A 5 5 0 0 0 22 2" stroke="url(#faviconGradient)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Center band -->
+    <path d="M 7 2 Q 12 0 17 2" stroke="url(#faviconGradient)" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <!-- Left speaker -->
+    <circle cx="7" cy="11" r="3" fill="none" stroke="url(#faviconGradient)" stroke-width="1"/>
+    <circle cx="7" cy="11" r="1.5" fill="url(#faviconGradient)"/>
+
+    <!-- Right speaker -->
+    <circle cx="17" cy="11" r="3" fill="none" stroke="url(#faviconGradient)" stroke-width="1"/>
+    <circle cx="17" cy="11" r="1.5" fill="url(#faviconGradient)"/>
+  </g>
+</svg>
+
