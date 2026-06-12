@@ -49,8 +49,9 @@ function EjectAPlayer() {
 <template>
     <div class="player u-flex w100 u-align-items-center u-justify-content-between" :class="{ 'is-local': player.socketId === socket.id }">
         <div class="u-flex u-align-items-center u-gap12">
-            <div class="avatar-circle" :style="{ backgroundColor: playerColor }">
-                {{ playerInitials }}
+            <div class="avatar-circle" :style="{ backgroundColor: player.avatarUrl ? 'transparent' : playerColor }">
+                <img v-if="player.avatarUrl" :src="player.avatarUrl" :alt="player.username" class="avatar-img">
+                <span v-else>{{ playerInitials }}</span>
                 <div v-if="player.host" class="host-badge" title="Host">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor">
                         <path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5M19 19C19 19.6 18.6 20 18 20H6C5.4 20 5 19.6 5 19V18H19V19Z" />
@@ -81,8 +82,6 @@ function EjectAPlayer() {
 </template>
 
 <style scoped lang="scss">
-
-@import '@/assets/styles/settings/settings';
 
 .player {
     padding: $spacing-sm;
@@ -119,6 +118,14 @@ function EjectAPlayer() {
             align-items: center;
             justify-content: center;
             box-shadow: $shadow-sm;
+            z-index: 2;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
         }
     }
 

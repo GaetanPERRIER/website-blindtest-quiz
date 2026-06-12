@@ -28,18 +28,32 @@ Le projet suit une architecture client-serveur :
 ### Prérequis
 - Node.js (v16+)
 - npm ou yarn
+- **Un compte Supabase** (pour l'authentification et les profils)
 
 ### Installation
+
+1. **Cloner le repository**
 ```bash
-# Cloner le repository
 git clone [url-du-repo]
 cd website-blindtest-quiz
+```
 
-# Installer les dépendances backend
+2. **Configuration Supabase (Crucial)**
+   - Créez un projet sur [Supabase](https://supabase.com/).
+   - Allez dans **SQL Editor** et exécutez le contenu du fichier `DATABASE.md` (à la racine du projet). Cela créera les tables `profiles` et `friendships`.
+   - Copiez vos clés API (`URL` et `Anon Key`) depuis `Settings > API`.
+
+3. **Variables d'environnement**
+   - Dans `front/`, créez un fichier `.env` basé sur `.env.example` et remplissez vos clés Supabase.
+   - Dans `back/`, créez un fichier `.env` basé sur `.env.example`.
+
+4. **Installer les dépendances**
+```bash
+# Backend
 cd back
 npm install
 
-# Installer les dépendances frontend
+# Frontend
 cd ../front
 npm install
 ```

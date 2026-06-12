@@ -5,7 +5,7 @@ const { Server } = require('socket.io');
 
 const { PORT, CLIENT_URL } = require('./config/constants');
 const { corsOptions } = require('./config/cors');
-const deezerRoutes = require('./routes/deezer.routes');
+const musicRoutes = require('./routes/music.routes');
 const setupSocketIO = require('./sockets/connection');
 
 const app = express();
@@ -23,7 +23,7 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 // REST routes
-app.use('/api/deezer', deezerRoutes);
+app.use('/api/music', musicRoutes);
 
 httpServer.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

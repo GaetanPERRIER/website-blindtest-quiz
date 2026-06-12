@@ -1,4 +1,4 @@
-const { DEFAULT_GAME_SETTINGS } = require('../config/constants');
+const MusicService = require('./music.service');
 
 class GameService {
     constructor() {
@@ -8,11 +8,17 @@ class GameService {
         const room = roomService.getRoom(roomId)
         if (!room) return null;
 
-        const urlTracklist = room.setting.category.tracklist
-        const nbMusics = room.setting.songCount
-        const difficulty = room.setting.difficulty
+        const category = room.setting.category;
+        const nbMusics = room.setting.songCount;
 
-        const allTracks = await this.fetchTracks(urlTracklist, nbMusics, difficulty)
+        // Extract playlistId from tracklist URL (e.g., /playlists/37i9dQZF1DXcBWIGoYBM5M/tracks)
+        const playlistId = category.tracklist.split('/')[2];
+        
+        let allTracks = await MusicService.getPlaylistTracks(playlistId);
+        
+        // Shuffle and take required number
+        allTracks = allTracks.sort(() => Math.random() - 0.5).slice(0, nbMusics);
+
         room.players.forEach(player => {
             player.titleGuessed = false;
             player.totalScore = 0;
@@ -97,7 +103,16 @@ class GameService {
 
         const currentMusic = room.currentMusic;
 
-        const isCorrect = answer.toLowerCase() === currentMusic.title.toLowerCase();
+        // Simple fuzzy match: remove accents, special characters, and compare lowercase
+        const normalize = (str) => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase().trim();
+        
+        const normalizedAnswer = normalize(answer);
+        const normalizedTitle = normalize(currentMusic.title);
+        
+        // Remove text in parentheses (often contains "feat", "remaster", etc) from title for easier matching
+        const cleanTitle = normalize(currentMusic.title.split('(')[0]);
+
+        const isCorrect = normalizedAnswer === normalizedTitle || normalizedAnswer === cleanTitle;
         const player = room.players.find(p => p.socketId === playerId);
 
         if (isCorrect && !player.titleGuessed) {

@@ -77,7 +77,6 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings';
 
 
 .player-list-container {

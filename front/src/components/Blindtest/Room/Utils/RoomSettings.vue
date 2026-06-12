@@ -109,7 +109,6 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings';
 
 // Créer une transition de rotation pour l'élément vinyl
 @keyframes vinyl-rotation {

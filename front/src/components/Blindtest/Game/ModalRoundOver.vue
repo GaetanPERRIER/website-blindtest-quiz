@@ -103,7 +103,6 @@ function getRoundScore(player) {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings';
 
 .modal-round-over {
   width: min(600px, 95vw);

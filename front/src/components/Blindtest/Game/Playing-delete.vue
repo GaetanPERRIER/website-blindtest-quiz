@@ -88,7 +88,6 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings.scss';
 
 #vue-tracer-overlay {
     display: none !important;

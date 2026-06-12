@@ -34,7 +34,6 @@ function selectCategory() {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings.scss';
 
 .category {
     position: relative;

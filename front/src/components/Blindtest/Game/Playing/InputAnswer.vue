@@ -50,7 +50,6 @@ function CheckAnswer() {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings';
 
 .input-container {
   display: flex;

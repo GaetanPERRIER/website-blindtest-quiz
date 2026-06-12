@@ -156,7 +156,6 @@ function getPlayerColor(index) {
 
 
 <style lang="scss" scoped>
-@import '@/assets/styles/settings/settings.scss';
 
 .ending-screen-container {
     width: 100%;

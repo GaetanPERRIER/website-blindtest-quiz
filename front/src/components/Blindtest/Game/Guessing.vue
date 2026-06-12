@@ -164,7 +164,6 @@ function getPlayerColor(index) {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings';
 
 .guessing-screen {
   width: 100vw;

@@ -1,8 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { getCategories } = require('../controllers/deezer.controller');
+const { getCategories } = require('../controllers/music.controller');
 
-// GET /api/deezer/get-categories
+// GET /api/music/get-categories
 router.get('/get-categories', getCategories);
 
 module.exports = router;

@@ -64,7 +64,7 @@ onBeforeUnmount(() => {
 onBeforeRouteLeave((to, from) => {
     if (room.value.id && currentPlayer.value) {
         const confirmation = window.confirm(
-            "Vous êtes sur le point de quitter la partie. Êtes-vous sûr de vouloir continuer ?"
+            "You are about to leave the game. Are you sure you want to continue?"
         );
 
         if (confirmation) {

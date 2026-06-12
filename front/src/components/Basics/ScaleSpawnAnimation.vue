@@ -26,7 +26,6 @@ onMounted(() => {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings.scss'; // Assurez-vous d'importer votre easing
 
 .spawn-wrapper {
     /* État initial (comme un "enter-from") */

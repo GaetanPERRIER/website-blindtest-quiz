@@ -1,25 +1,52 @@
 <script setup>
 import {usePlayerStore} from "@/stores/playerStore.js";
 import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '@/stores/authStore';
+import { supabase } from '@/services/supabase';
+import {computed, onMounted, ref, watch} from "vue";
 import socket from "@/utils/socket.js";
+
+
+/* Components */
 import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
-import BackNavigationArrow from "@/components/Basics/BackNavigationArrow.vue";
-import {computed, onMounted, ref} from "vue";
 import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
-import SoundVolume from "@/components/Blindtest/Game/Utils/SoundVolume.vue";
+import TopNav from "@/components/Basics/TopNav.vue";
 
 
+/* Variables */
 const router = useRouter();
 const route = useRoute();
+
+/* Stores */
 const playerStore = usePlayerStore()
+const authStore = useAuthStore()
+
+
 const username = ref("");
+const avatarUrl = ref("");
 const roomIdInUrl = computed(() => !!route.query.roomId);
 const errorMessage = ref("");
 const showError = ref(false);
 
-const room = computed(() => playerStore.room);
-const roomList = computed(() => playerStore.roomList)
 
+// Update username when user logs in or profile is fetched
+onMounted(async () => {
+    if (authStore.user) {
+        const { data } = await supabase
+            .from('profiles')
+            .select('username, avatar_url')
+            .eq('id', authStore.user.id)
+            .single();
+        
+        if (data && data.username) {
+            username.value = data.username;
+            avatarUrl.value = data.avatar_url;
+        } else {
+            username.value = authStore.user.user_metadata?.full_name || authStore.user.user_metadata?.name || "";
+            avatarUrl.value = authStore.user.user_metadata?.avatar_url || "";
+        }
+    }
+});
 
 onMounted(() => {
     socket.emit("getRooms")
@@ -71,6 +98,15 @@ function JoinRoom(roomId) {
     socket.emit("joinRoom", playerData);
 }
 
+function goToDashboard() {
+    router.push('/dashboard');
+}
+
+async function logout() {
+    await authStore.signOut();
+    router.push('/login');
+}
+
 // Limite la saisie à 20 caractères
 function limitCharacters() {
     if (username.value.length > 20) {
@@ -81,15 +117,8 @@ function limitCharacters() {
 
 <template>
     <div class="page-container">
+        <TopNav :username="username" :avatarUrl="avatarUrl"/>
         <main class="create-room-container">
-            <div class="header-content u-flex-direction-column u-align-items-center u-gap10 u-mb40">
-                <div class="logo">
-                    <img src="/beatquiz-logo.svg" alt="BeatQuiz Logo" class="logo-img">
-                    <span class="logo-text">BeatQuiz</span>
-                </div>
-                <p class="tagline">Guess the song. Beat your friends.</p>
-            </div>
-            
             <ScaleSpawnAnimation>
                 <div class="form-container">
 
@@ -122,22 +151,65 @@ function limitCharacters() {
                             {{ errorMessage }}
                         </div>
                     </transition>
+
+                    <div class="divider" v-if="!authStore.isAuthenticated && authStore.loading === false">
+                        <span>OR</span>
+                    </div>
+
+                    <button v-if="!authStore.isAuthenticated && authStore.loading === false" @click="authStore.signInWithGoogle" class="google-button t-body-text">
+                        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/pjax/google.png" alt="Google" width="18" height="18">
+                        Sign in with Google
+                    </button>
                 </div>
             </ScaleSpawnAnimation>
         </main>
-
-        <ParticleBackground/>
-        
     </div>
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings.scss';
 
 .page-container {
     width: 100%;
     min-height: 100vh;
     position: relative;
+}
+
+.top-nav {
+    position: absolute;
+    top: $spacing-xl;
+    right: $spacing-xl;
+    z-index: 100;
+}
+
+.user-menu {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+    background: $color-surface;
+    backdrop-filter: blur($blur-md);
+    padding: $spacing-sm $spacing-lg;
+    border-radius: 50px;
+    border: 1px solid $color-border;
+}
+
+.user-profile-btn {
+    display: flex;
+    align-items: center;
+    gap: $spacing-sm;
+    cursor: pointer;
+    transition: opacity $duration-fast;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.nav-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid $color-accent;
+    object-fit: cover;
 }
 
 .create-room-container {
@@ -212,6 +284,78 @@ function limitCharacters() {
     font-size: 12px;
     pointer-events: none;
 }
+
+.divider {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 10px 0;
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+
+    &::before, &::after {
+        content: '';
+        flex: 1;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    span {
+        padding: 0 10px;
+    }
+}
+
+.google-button {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: white;
+    color: #333;
+    padding: 12px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 500;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+        background: #f1f1f1;
+        transform: translateY(-2px);
+    }
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px;
+    margin-top: 5px;
+}
+
+.user-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.user-name {
+    margin: 0;
+    color: white;
+    font-size: 14px;
+}
+
+
 
 .error-message {
     color: white;

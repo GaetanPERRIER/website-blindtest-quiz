@@ -25,7 +25,7 @@ onMounted(async () => {
     if (playerStore.categories.length > 0) return;
     try {
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-        const response = await fetch(`${apiUrl}/api/deezer/get-categories`);
+        const response = await fetch(`${apiUrl}/api/music/get-categories`);
         if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
         const data = await response.json();
         if (data?.playlists?.data) {
@@ -67,7 +67,6 @@ onMounted(async () => {
 </template>
 
 <style scoped lang="scss">
-@import '@/assets/styles/settings/settings';
 
 .blindtest-categories {
     input {

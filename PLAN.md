@@ -261,31 +261,23 @@ room.state — "config" | "guessing" | "answer" | "ended"
 
 ---
 
-## Phase 4 — Auth Google + Système d'amis *(futur)*
+## Phase 5 — Spotify + Amis (Suite) ✅
 
-> Hors scope immédiat — architecture anticipée
-
-### Intégration Supabase Auth
-
-- [ ] Installer `@supabase/supabase-js` côté frontend
-- [ ] Configurer Google OAuth dans le dashboard Supabase
-- [ ] Remplacer la saisie de pseudo par "Sign in with Google"
-- [ ] Stocker le token JWT dans le store Pinia
-- [ ] Transmettre le token dans les headers Socket.IO pour authentifier les connexions
-
-### Système d'amis
-
-- [ ] Page profil utilisateur (avatar, pseudo, stats)
-- [ ] Recherche d'utilisateurs par pseudo
-- [ ] Demandes d'amitié (envoi, acceptation, refus)
-- [ ] Liste d'amis en ligne / hors ligne
-- [ ] **Invitation directe en salon** depuis la liste d'amis → notification WebSocket → rejoindre en un clic
+> Complétée
 
 ### Migration API musicale
 
-- [ ] Remplacer Deezer par Spotify API (previews 30s, playlists, metadata riche)
-- [ ] Gérer l'auth Spotify côté backend (Client Credentials flow)
-- [ ] Adapter `deezer.service.js` → `music.service.js` avec interface commune
+- [x] Remplacer Deezer par Spotify API (previews 30s, playlists, metadata riche)
+- [x] Gérer l'auth Spotify côté backend (Client Credentials flow)
+- [x] Adapter `deezer.service.js` → `music.service.js` avec interface commune
+- [x] Implémenter une recherche de réponse floue (normalization, suppression des parenthèses)
+
+### Système d'amis (Suite)
+
+- [x] Créer `friend.service.js` pour l'intégration Supabase
+- [x] Implémenter la recherche d'utilisateurs et les demandes d'amitié
+- [x] Gérer le statut en ligne/hors ligne via WebSockets
+- [x] **Invitation directe en salon** depuis la liste d'amis → notification WebSocket → rejoindre en un clic
 
 ---
 
@@ -293,10 +285,11 @@ room.state — "config" | "guessing" | "answer" | "ended"
 
 ```
 ✅ Phase 0 — Nettoyage          ← DONE
-⬜ Phase 1 — Design System      (2-3h)   ← DONE ✅
-✅ Phase 2 — Refonte des écrans   (10-12h) ← DONE ✅
-✅ Phase 3 — Architecture       (1-2h)   ← DONE ✅
-⬜ Phase 4 — Auth + Amis        (futur)
+✅ Phase 1 — Design System      ← DONE
+✅ Phase 2 — Refonte des écrans   ← DONE
+✅ Phase 3 — Architecture       ← DONE
+✅ Phase 4 — Auth + Amis (Bases) ← DONE
+✅ Phase 5 — Spotify + Amis (Suite) ← DONE
 ```
 
 ---

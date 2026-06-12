@@ -12,6 +12,13 @@ module.exports = (io, socket) => {
             let room;
             player.socketId = socket.id;
 
+            // If user is authenticated, use their data
+            if (socket.user) {
+                player.userId = socket.user.sub;
+                player.username = socket.user.user_metadata?.full_name || socket.user.user_metadata?.name || player.username;
+                player.avatarUrl = socket.user.user_metadata?.avatar_url;
+            }
+
             if (!player.roomId) {
                 room = roomService.createRoom(player);
                 player.host = true;
