@@ -1,5 +1,6 @@
 # Local env files
 front/.env
+back/.env
 .env.*
 !.env.example
 
