@@ -1,7 +1,7 @@
 module.exports = {
     DEFAULT_GAME_SETTINGS: {
         songCount: 10,
-        difficulty: "easy",
+        maxSongCount: 20,
         maxPlayers: 6
     },
     DEEZER_API: {

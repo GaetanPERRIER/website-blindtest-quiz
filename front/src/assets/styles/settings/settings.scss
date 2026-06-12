@@ -12,6 +12,7 @@ $color-black: #060606;
 $color-primary-start: #FF6E6E;
 $color-primary-end: #FFDF6B;
 $color-primary-gradient: linear-gradient(135deg, $color-primary-start 0%, $color-primary-end 100%);
+$color-accent-gradient: linear-gradient(135deg, #FFBB33 0%, #FFDF6B 100%);
 
 // Surfaces & Borders
 $color-surface: rgba(255, 255, 255, 0.1);
@@ -40,6 +41,7 @@ $player-colors: (
 $color-success: #55EFC4;
 $color-warning: #FFBB33;
 $color-danger: #FF6B6B;
+$color-error: #FF6B6B;
 $color-info: #A29BFE;
 
 // Legacy colors (for backward compatibility)
@@ -209,6 +211,18 @@ $shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.3);
 $blur-sm: 4px;
 $blur-md: 8px;
 $blur-lg: 12px;
+
+/* ========
+
+   Borders & Radius
+
+   ======== */
+
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 16px;
+$radius-xl: 24px;
+$radius-full: 9999px;
 
 /* ========
 

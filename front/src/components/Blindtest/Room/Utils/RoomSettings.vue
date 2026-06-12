@@ -7,27 +7,25 @@ import PlayerList from "@/components/Blindtest/Room/Utils/PlayerList.vue";
 const playerStore = usePlayerStore()
 
 const room = computed(() => playerStore.room);
-const difficulty = computed(() => playerStore.room.setting.difficulty)
 const currentPlayer = computed(() =>
     playerStore.room.players.find(player => player.socketId === socket.id)
 )
-const songCount = computed(() => playerStore.room.setting.songCount);
+const songCount = computed({
+    get: () => playerStore.room.setting.songCount,
+    set: (value) => socket.emit("selectSongCount", room.value.id, value)
+});
 
 
 function setSongCount(event) {
     socket.emit("selectSongCount", room.value.id, event.target.value);
 }
 
-function setActiveButton(event) {
-    if (event.target.id === difficulty.value)
-        return;
-
-    const buttons = document.querySelectorAll('.button-container button');
-    buttons.forEach(button => {
-        button.classList.remove('btn-active');
-    });
-    event.target.classList.add('btn-active');
-    socket.emit("selectDifficulty", room.value.id, event.target.id);
+function leaveRoom() {
+    if (room.value.id) {
+        socket.emit('leaveRoom', room.value.id);
+        playerStore.resetRoom();
+        window.location.href = '/';
+    }
 }
 
 
@@ -42,11 +40,6 @@ onMounted(() => {
         playerStore.setSongCount(newSongCount)
     })
 
-    socket.off("difficultySelected")
-    socket.on('difficultySelected', (newDifficulty) => {
-        playerStore.setDifficulty(newDifficulty)
-    })
-
     socket.off("gameStarted")
     socket.on('gameStarted', (room) => {
         playerStore.startGame(room)
@@ -58,23 +51,57 @@ onMounted(() => {
 
 <template>
     <div class="room-settings-container h100 w35" v-if="currentPlayer">
-        <div class="room-settings u-flex u-flex-direction-column u-align-items-center u-gap35 h100 w100">
-            <h2 class="t-title t-color-white">Settings</h2>
-            <div class="w100">
-                <label class="t-body-text t-color-white">Difficulty</label>
-                <div class="button-container u-flex w100 u-justify-content-center u-gap10 u-mt10">
-                    <button @click="setActiveButton" :class="difficulty === 'easy' ? 't-body-text btn-active' : 't-body-text'" id="easy" :disabled="!currentPlayer.host">Easy</button>
-                    <button @click="setActiveButton" :class="difficulty === 'medium' ? 't-body-text btn-active' : 't-body-text'" id="medium" :disabled="!currentPlayer.host">Medium</button>
-                    <button @click="setActiveButton" :class="difficulty === 'hard' ? 't-body-text btn-active' : 't-body-text'" id="hard" :disabled="!currentPlayer.host">Hard</button>
+        <div class="room-settings u-flex u-flex-direction-column u-gap25 h100 w100">
+            <div class="settings-header u-flex u-justify-content-between u-align-items-start w100">
+                <div class="u-flex u-flex-direction-column u-gap5">
+                    <h2 class="t-title t-color-white">Lobby</h2>
+                    <p class="t-body-text-sm t-color-text-muted">Configure your session</p>
+                </div>
+                <button @click="leaveRoom" class="leave-button" title="Leave Room">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                        <polyline points="16 17 21 12 16 7"></polyline>
+                        <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <div class="players-section u-flex-grow-1 u-flex u-flex-direction-column u-gap10 w100">
+                <div class="player-list-wrapper">
+                    <PlayerList/>
                 </div>
             </div>
-            <div class="mixer-control u-flex u-flex-direction-column u-align-items-center">
-                <div class="track-count-display t-body-text t-color-white">{{ songCount }} tracks</div>
-                <input type="range" min="1" max="20" v-model="songCount" class="track-count-slider" @change="setSongCount" :disabled="!currentPlayer.host">
+
+            <div v-if="currentPlayer.host" class="mixer-control settings-card u-flex u-flex-direction-column u-gap15">
+                <div class="u-flex u-justify-content-between u-align-items-center">
+                    <span class="setting-label">Tracks count</span>
+                    <span class="track-count-badge">{{ songCount }}</span>
+                </div>
+                <div class="slider-container">
+                    <input 
+                        type="range" 
+                        min="1" 
+                        max="20" 
+                        step="1" 
+                        v-model="songCount" 
+                        class="track-count-slider"
+                    >
+                    <div class="slider-marks">
+                        <span>1</span>
+                        <span>10</span>
+                        <span>20</span>
+                    </div>
+                </div>
             </div>
-            <PlayerList/>
-            <div class="w100 u-flex u-justify-content-center u-align-items-center">
-                <button @click="socket.emit('startGame', room.id);" class="play-button t-body-text" :disabled="!currentPlayer.host">Start game</button>
+
+            <div class="w100 u-flex u-justify-content-center u-align-items-center u-pt10">
+                <button v-if="currentPlayer.host" @click="socket.emit('startGame', room.id);" class="btn-primary start-button">
+                    Start Blindtest
+                </button>
+                <div v-else class="waiting-indicator u-flex u-align-items-center u-gap10">
+                    <div class="pulse-dot"></div>
+                    <p class="waiting-message t-body-text">Waiting for host...</p>
+                </div>
             </div>
         </div>
     </div>
@@ -96,129 +123,155 @@ onMounted(() => {
 
 
 .room-settings {
-    padding: 10px;
+    padding: $spacing-xl;
+    background: rgba($color-black, 0.2);
+    border-radius: $radius-lg;
 
-    .button-container {
-        button {
-            display: flex;
-            width: 100%;
-            padding: 10px 25px;
-            border-radius: 10px;
-            font-size: 18px;
-            cursor: pointer;
-            background-color: rgba(0, 0, 0, 0.5);
-            color: #fff;
-            transition: all 200ms $authenticMotion;
-            text-align: center;
+    .setting-label {
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        font-weight: 700;
+    }
 
-            &:hover {
-                background-color: rgba(0, 0, 0, 0.7);
+    .leave-button {
+        background: rgba($color-black, 0.4);
+        border: 1px solid rgba($color-white, 0.1);
+        color: $color-white;
+        width: 40px;
+        height: 40px;
+        border-radius: $radius-md;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all $duration-fast $authenticMotion;
+        backdrop-filter: blur(4px);
+
+        &:hover {
+            background: $color-error;
+            border-color: $color-error;
+            color: $color-white;
+            transform: scale(1.05);
+            box-shadow: 0 4px 15px rgba($color-error, 0.4);
+        }
+    }
+
+    .invite-section-card, .settings-card {
+        background: $color-surface;
+        padding: $spacing-lg;
+        border-radius: $radius-md;
+        border: 1px solid $color-border;
+    }
+
+    .players-section {
+        min-height: 0; // Important for overflow
+        
+        .player-list-wrapper {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-right: 5px;
+
+            &::-webkit-scrollbar {
+                width: 4px;
             }
-
-            &:disabled {
-                cursor: not-allowed;
+            &::-webkit-scrollbar-track {
+                background: transparent;
+            }
+            &::-webkit-scrollbar-thumb {
+                background: $color-border;
+                border-radius: $radius-full;
             }
         }
-
-        .btn-active {
-            background-color: $major-yellow-color;
-            color: #fff;
-
-            &:hover {
-                background-color: darken($major-yellow-color, 10%);
-            }
-        }
-
     }
 
     .mixer-control {
-        width: 100%;
-        position: relative;
+        .track-count-badge {
+            background: $color-accent-gradient;
+            color: $color-black;
+            padding: 4px 12px;
+            border-radius: $radius-full;
+            font-size: $font-size-sm;
+            font-weight: 800;
+            box-shadow: $shadow-sm;
+        }
 
+        .slider-container {
+            position: relative;
+            padding-bottom: 5px;
+        }
 
         .track-count-slider {
             -webkit-appearance: none;
             width: 100%;
-            height: 10px;
-            background: linear-gradient(161deg,rgba(255, 223, 107, 1) 0%, rgba(255, 110, 110, 1) 48%, rgba(115, 173, 201, 1) 80%, rgba(56, 159, 255, 1) 100%);
-            border-radius: 5px;
+            height: 6px;
+            background: rgba($color-white, 0.1);
+            border-radius: $radius-full;
             outline: none;
-            margin: 15px 0;
-            box-shadow: 0 4px 15px rgba(255, 110, 110, 0.4);
+            margin: 10px 0;
 
             &::-webkit-slider-thumb {
                 -webkit-appearance: none;
-                appearance: none;
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                background: #fff;
+                width: 18px;
+                height: 18px;
+                border-radius: $radius-full;
+                background: $color-white;
                 cursor: pointer;
-                border: 3px solid $major-yellow-color;
-                box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-                transition: all 0.2s $authenticMotion;
-
-                &:hover {
-                    transform: scale(1.1);
-                    background: $major-yellow-color;
-                }
+                border: 3px solid $color-accent;
+                box-shadow: $shadow-md;
+                transition: transform $duration-fast;
             }
 
-            &::-moz-range-thumb {
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                background: #fff;
-                cursor: pointer;
-                border: 3px solid $major-yellow-color;
-                box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
-                transition: all 0.2s $authenticMotion;
-
-                &:hover {
-                    transform: scale(1.1);
-                    background: $major-yellow-color;
-                }
+            &:active::-webkit-slider-thumb {
+                transform: scale(1.2);
             }
         }
 
-        .track-count-slider:disabled::-webkit-slider-thumb {
-            cursor: not-allowed;
-        }
-
-        .track-count-slider:disabled::-moz-range-thumb {
-            cursor: not-allowed;
-        }
-
-        .track-count-display {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 10px 20px;
-            border-radius: 50px;
-            font-size: 16px;
-            white-space: nowrap;
-            width: fit-content;
+        .slider-marks {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 2px;
+            color: $color-text-muted;
+            font-size: $font-size-xs;
+            font-weight: 600;
         }
     }
 
-    .play-button {
-        display: flex;
-        padding: 10px 25px;
-        border-radius: 10px;
-        font-size: 18px;
-        cursor: pointer;
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #fff;
-        transition: all 200ms $authenticMotion;
-        text-align: center;
+    .start-button {
+        width: 100%;
+        padding: $spacing-md;
+        font-size: $font-size-base;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
 
-        &:hover {
-            background-color: rgba(0, 0, 0, 0.7);
-            transform: scale(1.05);
-        }
+    .waiting-indicator {
+        background: rgba($color-white, 0.05);
+        padding: $spacing-sm $spacing-lg;
+        border-radius: $radius-full;
+        border: 1px solid $color-border;
 
-        &:disabled {
-            cursor: not-allowed;
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: $color-accent;
+            border-radius: $radius-full;
+            animation: pulse-dot 1.5s infinite;
         }
     }
+}
+
+@keyframes pulse-dot {
+    0% { transform: scale(0.95); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.95); opacity: 0.5; }
+}
+
+@keyframes pulse {
+    0% { opacity: 0.5; }
+    50% { opacity: 1; }
+    100% { opacity: 0.5; }
 }
 
 @media (max-width: 1000px) {

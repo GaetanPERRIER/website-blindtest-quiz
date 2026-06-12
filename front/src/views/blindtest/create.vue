@@ -82,11 +82,19 @@ function limitCharacters() {
 <template>
     <div class="page-container">
         <main class="create-room-container">
+            <div class="header-content u-flex-direction-column u-align-items-center u-gap10 u-mb40">
+                <div class="logo">
+                    <img src="/beatquiz-logo.svg" alt="BeatQuiz Logo" class="logo-img">
+                    <span class="logo-text">BeatQuiz</span>
+                </div>
+                <p class="tagline">Guess the song. Beat your friends.</p>
+            </div>
+            
             <ScaleSpawnAnimation>
                 <div class="form-container">
 
                     <div class="input-group">
-                        <input v-model="username" @input="limitCharacters" type="text" placeholder="Your username" class="username-input t-body-text" maxlength="20"/>
+                        <input v-model="username" @input="limitCharacters" @keyup.enter="JoinRoom(roomIdInUrl ? route.query.roomId : null)" type="text" placeholder="Your username" class="username-input t-body-text" maxlength="20"/>
                         <div class="character-counter">
                             {{ username.length }}/20
                         </div>
@@ -99,12 +107,15 @@ function limitCharacters() {
                         </svg>
                     </button>
 
-                    <button v-else @click="JoinRoom(route.query.roomId)" class="action-button t-body-text">
-                        Join the lobby
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                            <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2"/>
-                        </svg>
-                    </button>
+                    <div v-else class="u-flex-direction-column u-gap15">
+                        <p class="invited-text t-body-text">You've been invited · Join as <strong>{{ username || '[pseudo]' }}</strong></p>
+                        <button @click="JoinRoom(route.query.roomId)" class="action-button t-body-text">
+                            Join the lobby
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2"/>
+                            </svg>
+                        </button>
+                    </div>
 
                     <transition name="fade">
                         <div v-if="showError" class="error-message">
@@ -113,10 +124,6 @@ function limitCharacters() {
                     </transition>
                 </div>
             </ScaleSpawnAnimation>
-
-            <div class="room-list-container">
-                <div v-for="room in roomList">{{ room }}</div>
-            </div>
         </main>
 
         <ParticleBackground/>

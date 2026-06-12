@@ -1,5 +1,5 @@
-const roomService = require('../services/room.service');
-const gameService = require('../services/game.service');
+const roomService = require('../../services/room.service');
+const gameService = require('../../services/game.service');
 
 module.exports = (io, socket) => {
     socket.on('startGame', async (roomId) => {
@@ -15,7 +15,7 @@ module.exports = (io, socket) => {
         if (!room) return;
 
         if (gameService.AllPlayerGuessed(room)) {
-            // Annuler le timeout si tous les joueurs ont deviné
+            // Cancel timeout if all players guessed
             if (room.currentRoundTimeout) {
                 clearTimeout(room.currentRoundTimeout)
                 room.currentRoundTimeout = null

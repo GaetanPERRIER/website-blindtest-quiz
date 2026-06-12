@@ -1,3 +1,9 @@
-body{
-    font-family: "Montserrat";
+@import '../settings/settings';
+
+body {
+    font-family: $font-base;
+    color: $color-text;
+    background-color: $color-black;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }

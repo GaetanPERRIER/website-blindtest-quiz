@@ -12,6 +12,14 @@ const currentPlayer = computed(() =>
 )
 const room = computed(() => playerStore.room);
 const hostPlayer = computed(() => room.value.players.find(player => player.host));
+const songCount = computed({
+    get: () => playerStore.room.setting.songCount,
+    set: (value) => socket.emit("selectSongCount", room.value.id, value)
+});
+
+function setSongCount(event) {
+    socket.emit("selectSongCount", room.value.id, event.target.value);
+}
 
 onMounted(async () => {
     if (playerStore.categories.length > 0) return;
@@ -36,7 +44,9 @@ onMounted(async () => {
             <div class="u-flex u-flex-direction-column u-gap15 u-pt15">
                 <div class="u-flex u-justify-content-between u-align-items-center u-pr15">
                     <h2 class="t-body-text t-color-white fs25px">Popular categories</h2>
-                    <p class="t-body-text t-color-white categories-count">{{ categories.length }} available</p>
+                    <div class="u-flex u-align-items-center u-gap15">
+                        <p class="t-body-text categories-count">{{ categories.length }} available</p>
+                    </div>
                 </div>
                 <div class="categories w100">
                     <div v-for="category in categories" :key="category.id" class="category-container">
@@ -48,8 +58,11 @@ onMounted(async () => {
     </div>
 
     <div v-else class="blindtest-categories w50 u-flex-direction-column u-flex u-justify-content-center u-align-items-center u-gap20 u-p10">
-        <h2 v-if="hostPlayer" class="t-body-text t-color-white">{{ hostPlayer.username }} is setting up the game...</h2>
-        <img v-if="room.setting.category" :src="room.setting.category.picture_big" alt="Waiting for host" class="w100 img-category">
+        <h2 v-if="hostPlayer" class="t-body-text t-color-white t-align-center">{{ hostPlayer.username }} is setting up the game...</h2>
+        <div v-if="room.setting.category" class="selected-category-preview u-flex-direction-column u-align-items-center u-gap15">
+            <img :src="room.setting.category.picture_big" alt="Waiting for host" class="img-category">
+            <p class="category-name t-body-text">{{ room.setting.category.title }}</p>
+        </div>
     </div>
 </template>
 
@@ -58,46 +71,45 @@ onMounted(async () => {
 
 .blindtest-categories {
     input {
-        background-color: rgba(0, 0, 0, 0.5);
-        padding: 10px 25px;
+        background-color: $color-surface;
+        padding: 12px 25px;
         border-radius: 50px;
-        font-size: 18px;
-        border: 2px solid transparent;
-        transition: all 200ms $authenticMotion;
+        font-size: $font-size-base;
+        border: 1px solid $color-border;
+        color: $color-text;
+        transition: all $duration-normal $authenticMotion;
 
         &:focus {
-            border: 2px solid rgba(0, 0, 0, 0.3);
+            border-color: $color-accent;
+            background-color: $color-surface-hover;
             outline: none;
         }
 
         &::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+            color: $color-text-muted;
         }
     }
 
     .global-categories-container {
         overflow-y: auto;
-        scrollbar-width: thin;
-        scrollbar-color: rgba(0, 0, 0, 0.5) transparent;
+        padding-right: 5px;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
 
         &::-webkit-scrollbar-thumb {
-            background-color: rgba(0, 0, 0, 0.5);
+            background-color: $color-border;
             border-radius: 10px;
         }
 
-        &::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        &::-webkit-scrollbar-track {
-            background-color: transparent;
-        }
-
         .categories-count {
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 10px 20px;
-            font-size: 16px;
+            background-color: $color-surface;
+            color: $color-text-muted;
+            padding: 4px 12px;
+            font-size: $font-size-xs;
             border-radius: 100px;
+            border: 1px solid $color-border;
         }
     }
 
@@ -105,12 +117,27 @@ onMounted(async () => {
         display: flex;
         flex-wrap: wrap;
 
-
         .category-container {
-            width: 20%;
-            height: fit-content;
-            padding-right: 15px;
-            padding-bottom: 15px;
+            width: 25%;
+            padding: $spacing-sm;
+        }
+    }
+
+
+    .selected-category-preview {
+        .img-category {
+            width: 240px;
+            height: 240px;
+            border-radius: 20px;
+            object-fit: cover;
+            box-shadow: $shadow-lg;
+            border: 2px solid $color-border;
+        }
+
+        .category-name {
+            font-size: $font-size-xl;
+            font-weight: 600;
+            color: $color-text;
         }
     }
 }

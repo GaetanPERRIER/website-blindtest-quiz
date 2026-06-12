@@ -197,79 +197,24 @@ $duration-slow: 500ms;
 
 ---
 
-## Phase 2 — Refonte des écrans
+## Phase 2 — Refonte & Simplification (Révision) ✅
 
-### 2.1 — Page d'accueil (`Join.vue`)
+### 2.1 — Refonte graphique majeure ✅
+- Refonte de la page d'accueil (Join.vue), du Lobby, de l'écran de jeu, de la modal de fin de manche et de l'écran de fin.
+- Internationalisation complète en anglais.
 
-> Ex `create.vue` · Durée estimée : 1h
-
-**Nouveautés :**
-- [ ] Header centré avec logo BeatQuiz
-- [ ] Tagline : *"Guess the song. Beat your friends."*
-- [ ] Affichage adapté selon contexte :
-  - Sans `?roomId=` → bouton "Create a lobby"
-  - Avec `?roomId=` → "You've been invited · Join as [pseudo]"
-- [ ] Supprimer l'affichage de la liste des rooms *(mode invite-only)*
-- [ ] Animation d'entrée soignée
-
-### 2.2 — Lobby (`Lobby.vue`)
-
-> Ex `GameConfig` + `RoomSettings` · Durée estimée : 2-3h
-
-**Nouveautés :**
-- [ ] Header du lobby : nom de la room + **bouton "Copy invite link"** avec feedback animé (✓ Copied!)
-- [ ] Grille de catégories : cards avec image Deezer, nom, état sélectionné bien visible
-- [ ] Boutons difficulté redessinés avec description :
-  - `Easy` — 30s per round
-  - `Medium` — 20s per round
-  - `Hard` — 15s per round
-- [ ] Slider morceaux avec badge de valeur
-- [ ] Liste joueurs avec **avatar coloré** (initiale + couleur unique par slot)
-- [ ] Bouton "Start Game" : `btn-primary`, grand, centré, visible uniquement pour le host
-- [ ] Joueurs non-host : message "Waiting for host to start..."
-- [ ] Badge host (couronne) sur le joueur concerné
-
-### 2.3 — Écran de jeu (`Guessing.vue`)
-
-> Durée estimée : 2h
-
-**Nouveautés :**
-- [ ] Timer agrandi (140px), **effet pulsation** dans les 5 dernières secondes
-- [ ] Indication de la catégorie jouée en header
-- [ ] Visualiseur audio : 12-15 barres, variation de hauteur plus marquée
-- [ ] Zone joueurs : **avatars colorés avec initiales** (pas juste des dots), animation check à la réponse
-- [ ] Fond légèrement plus sombre/intense pendant la phase de guessing
-- [ ] Input de réponse : plus large, feedback visuel fort
-
-### 2.4 — Modal fin de manche — Refonte majeure
-
-> Durée estimée : 3-4h · Impact visuel le plus fort
-
-**Animation séquencée :**
-
-1. **Révélation de la chanson** — pochette d'album floue → nette, titre + artiste avec slide-in
-2. **Podium animé** — cartes avec délai décalé + bounce, confettis légers sur la 1ère place
-3. **Liste complète** des joueurs avec score du round (pas seulement top 3)
-4. **Barre de progression** de la partie "Round 3 / 8"
-5. **Countdown** "Next round in 5s..." avec barre de progression
-
-### 2.5 — Écran de fin (`EndingScreen.vue`)
-
-> Durée estimée : 2h
-
-**Nouveautés :**
-- [ ] Animation confettis CSS au chargement
-- [ ] **Podium visuel** format olympique (colonnes de hauteurs différentes) avec avatars colorés
-- [ ] Liste scrollable du classement complet
-- [ ] Stats redessinées : cards glassmorphism avec icônes SVG (supprimer les émojis dans les titres)
-- [ ] Deux boutons cohérents : **"Play Again"** (`btn-primary`) + **"Back to Home"** (`btn-secondary`)
-- [ ] Ambiance visuelle or si le joueur local est 1er
+### 2.2 — Simplification & Sécurisation ✅
+- [x] **Suppression de la difficulté** : Le concept de difficulté (easy/medium/hard) a été retiré du front et du back pour simplifier l'expérience.
+- [x] **Garde-fou Backend** : Le serveur ne crash plus si une room n'est pas trouvée (gestion d'erreur `getRoom`).
+- [x] **Refonte IHM Config** : Interface de configuration du salon simplifiée, suppression des cartes de difficulté, nouveau design type "carte" pour les réglages.
+- [x] **Bouton Quitter** : Ajout d'un bouton pour quitter manuellement une room depuis le lobby.
+- [x] **Limite de musiques** : Le nombre maximum de pistes par session a été limité à 20 pour garantir des parties rapides et fluides.
 
 ---
 
-## Phase 3 — Architecture évolutive
+## Phase 3 — Architecture évolutive ✅
 
-> Durée estimée : 1-2h
+> Complétée
 
 ### Structure backend cible
 
@@ -348,18 +293,12 @@ room.state — "config" | "guessing" | "answer" | "ended"
 
 ```
 ✅ Phase 0 — Nettoyage          ← DONE
-⏳ Phase 1 — Design System      (2-3h)   ← EN COURS
-⬜ Phase 2.1 — Join page        (1h)
-⬜ Phase 2.2 — Lobby            (2-3h)
-⬜ Phase 2.3 — Guessing         (2h)
-⬜ Phase 2.4 — Modal round over (3-4h)   ← impact visuel maximum
-⬜ Phase 2.5 — Ending screen    (2h)
-⬜ Phase 3 — Architecture       (1-2h)
+⬜ Phase 1 — Design System      (2-3h)   ← DONE ✅
+✅ Phase 2 — Refonte des écrans   (10-12h) ← DONE ✅
+✅ Phase 3 — Architecture       (1-2h)   ← DONE ✅
 ⬜ Phase 4 — Auth + Amis        (futur)
 ```
 
 ---
 
-*Dernière mise à jour : 12 Juin 2026 — Phase 1 en cours*
-
-*Dernière mise à jour : 11 Juin 2026 — Phase 0 complétée*
+*Dernière mise à jour : 12 Juin 2026 — Phase 2 optimisée (Ergonomie, Volume persistence, UI fixes, Slider relocated)*

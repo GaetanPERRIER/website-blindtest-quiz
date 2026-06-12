@@ -24,7 +24,7 @@ function CheckAnswer() {
   <div v-if="hasAnswered" class="answered-state">
     <div class="answered-badge">
       <span class="checkmark">✓</span>
-      <span>Réponse envoyée — en attente des autres joueurs</span>
+      <span>Answer sent — waiting for other players</span>
     </div>
   </div>
 
@@ -34,7 +34,7 @@ function CheckAnswer() {
       class="answer-input"
       v-model="userAnswer"
       type="text"
-      placeholder="Saisir le nom de la musique..."
+      placeholder="Type the song title..."
       @keydown.enter="CheckAnswer"
       autofocus
     />
@@ -44,61 +44,65 @@ function CheckAnswer() {
       :disabled="!userAnswer.trim()"
       :class="{ disabled: !userAnswer.trim() }"
     >
-      Valider
+      Guess
     </button>
   </div>
 </template>
 
 <style scoped lang="scss">
+@import '@/assets/styles/settings/settings';
+
 .input-container {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   align-items: center;
+  width: 100%;
+  max-width: 600px;
 
   .answer-input {
-    width: 420px;
-    padding: 14px 22px;
-    background: rgba(255, 255, 255, 0.12);
-    border: 1.5px solid rgba(255, 255, 255, 0.25);
+    flex: 1;
+    padding: 16px 25px;
+    background: $color-surface;
+    border: 1px solid $color-border;
     border-radius: 50px;
-    color: #fff;
-    font-size: 16px;
-    font-family: $font-base;
-    backdrop-filter: blur(8px);
-    transition: all 250ms $authenticMotion;
+    color: $color-white;
+    font-size: $font-size-base;
+    backdrop-filter: blur(10px);
+    transition: all $duration-normal $authenticMotion;
 
     &::placeholder {
-      color: rgba(255, 255, 255, 0.45);
+      color: $color-text-muted;
     }
 
     &:focus {
       outline: none;
-      border-color: rgba(255, 255, 255, 0.6);
-      background: rgba(255, 255, 255, 0.18);
+      border-color: $color-accent;
+      background: $color-surface-hover;
+      box-shadow: 0 0 15px rgba(255, 187, 51, 0.2);
     }
   }
 
   .validate-btn {
-    padding: 14px 28px;
-    background: $major-yellow-color;
+    padding: 16px 35px;
+    background: $color-primary-gradient;
     border-radius: 50px;
-    color: #1a1a1a;
-    font-size: 15px;
-    font-weight: 600;
-    font-family: $font-base;
+    color: $color-white;
+    font-size: $font-size-base;
+    font-weight: 700;
     cursor: pointer;
-    transition: all 250ms $authenticMotion;
-    white-space: nowrap;
+    transition: all $duration-normal $authenticMotion;
+    border: none;
+    box-shadow: $shadow-md;
 
     &:hover:not(.disabled) {
-      background: darken($major-yellow-color, 8%);
-      transform: scale(1.05);
+      transform: translateY(-2px);
+      box-shadow: $shadow-lg;
     }
 
     &.disabled {
       opacity: 0.4;
       cursor: not-allowed;
-      transform: none;
+      filter: grayscale(1);
     }
   }
 }
@@ -107,19 +111,19 @@ function CheckAnswer() {
   .answered-badge {
     display: flex;
     align-items: center;
-    gap: 10px;
-    padding: 14px 28px;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    gap: 12px;
+    padding: 16px 35px;
+    background: $color-surface;
+    border: 1px solid $color-success;
     border-radius: 50px;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 15px;
-    backdrop-filter: blur(8px);
+    color: $color-success;
+    font-size: $font-size-base;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
 
     .checkmark {
-      font-size: 18px;
-      color: $major-yellow-color;
-      font-weight: 700;
+      font-size: 20px;
+      font-weight: 800;
     }
   }
 }

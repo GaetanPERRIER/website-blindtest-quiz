@@ -33,11 +33,7 @@ function onLoadedMetadata() {
 }
 
 // Timer
-const roundDuration = computed(() => {
-  if (room.value.setting?.difficulty === 'easy') return 30
-  if (room.value.setting?.difficulty === 'hard') return 15
-  return 20
-})
+const roundDuration = ref(30)
 const timeLeft = ref(roundDuration.value)
 let timerInterval = null
 
@@ -68,6 +64,16 @@ const circumference = 2 * Math.PI * radius
 const strokeDashoffset = computed(() =>
   circumference - (timerPercent.value / 100) * circumference
 )
+
+function getPlayerInitials(username) {
+    if (!username) return '?';
+    return username.substring(0, 2).toUpperCase();
+}
+
+function getPlayerColor(index) {
+    const colors = ['#FF6B6B', '#4ECDC4', '#A29BFE', '#FFEAA7', '#FD79A8', '#55EFC4'];
+    return colors[index % colors.length];
+}
 </script>
 
 <template>
@@ -88,6 +94,12 @@ const strokeDashoffset = computed(() =>
         <span class="round-label">Round</span>
         <span class="round-count">{{ currentRound }} / {{ totalRounds }}</span>
       </div>
+      
+      <div class="category-info u-flex-direction-column u-align-items-center">
+        <span class="category-label">Category</span>
+        <span class="category-name">{{ room.setting?.category?.title || 'Unknown' }}</span>
+      </div>
+
       <SoundVolume />
     </div>
 
@@ -95,19 +107,19 @@ const strokeDashoffset = computed(() =>
     <div class="guessing-center">
 
       <!-- Timer circulaire -->
-      <div class="timer-wrapper">
+      <div class="timer-wrapper" :class="{ 'pulse-critical': timeLeft <= 5 }">
         <svg class="timer-svg" viewBox="0 0 72 72">
           <circle
             cx="36" cy="36" :r="radius"
             fill="none"
-            stroke="rgba(255,255,255,0.15)"
-            stroke-width="4"
+            stroke="rgba(255,255,255,0.1)"
+            stroke-width="3"
           />
           <circle
             cx="36" cy="36" :r="radius"
             fill="none"
             :stroke="timerColor"
-            stroke-width="4"
+            stroke-width="3"
             stroke-linecap="round"
             :stroke-dasharray="circumference"
             :stroke-dashoffset="strokeDashoffset"
@@ -120,25 +132,25 @@ const strokeDashoffset = computed(() =>
 
       <!-- Visualiseur audio animé -->
       <div class="visualizer">
-        <span v-for="i in 7" :key="i" class="bar" :style="{ animationDelay: `${i * 0.1}s` }" />
-      </div>
-
-      <!-- Barre de progression audio -->
-      <div class="audio-progress-wrapper">
-        <div class="audio-progress-bar">
-          <div class="audio-progress-fill" :style="{ width: progressPercent + '%' }" />
-        </div>
+        <span v-for="i in 15" :key="i" class="bar" :style="{ animationDelay: `${i * 0.07}s` }" />
       </div>
 
       <!-- Joueurs ayant répondu -->
-      <div class="players-answered">
-        <span class="dot" v-for="player in players" :key="player.socketId"
-          :class="{ answered: player.hasAnswered }"
-          :title="player.username"
-        />
-        <span class="players-answered-label">
-          {{ playersAnswered }} / {{ players.length }} answered
-        </span>
+      <div class="players-zone">
+        <div v-for="(player, index) in players" :key="player.socketId" class="player-avatar-wrapper" :title="player.username">
+            <div class="player-avatar" :style="{ backgroundColor: getPlayerColor(index) }">
+                {{ getPlayerInitials(player.username) }}
+                <div v-if="player.hasAnswered" class="check-badge">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="4">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                </div>
+            </div>
+        </div>
+      </div>
+      
+      <div class="players-answered-label t-body-text">
+        {{ playersAnswered }} / {{ players.length }} answered
       </div>
 
     </div>
@@ -152,6 +164,8 @@ const strokeDashoffset = computed(() =>
 </template>
 
 <style scoped lang="scss">
+@import '@/assets/styles/settings/settings';
+
 .guessing-screen {
   width: 100vw;
   height: 100vh;
@@ -170,6 +184,24 @@ const strokeDashoffset = computed(() =>
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  .category-info {
+    .category-label {
+        font-size: $font-size-xs;
+        color: $color-text-muted;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 600;
+    }
+    .category-name {
+        font-size: $font-size-xl;
+        font-weight: 800;
+        color: $color-accent;
+        background: $color-primary-gradient;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+    }
+  }
 }
 
 .round-info {
@@ -178,16 +210,16 @@ const strokeDashoffset = computed(() =>
   gap: 2px;
 
   .round-label {
-    font-size: 12px;
-    color: rgba(255, 255, 255, 0.6);
+    font-size: $font-size-xs;
+    color: $color-text-muted;
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    font-weight: 500;
+    font-weight: 600;
   }
 
   .round-count {
-    font-size: 22px;
-    color: #fff;
+    font-size: $font-size-xl;
+    color: $color-white;
     font-weight: 700;
   }
 }
@@ -197,17 +229,22 @@ const strokeDashoffset = computed(() =>
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 30px;
+  gap: 40px;
 }
 
 // Timer
 .timer-wrapper {
   position: relative;
-  width: 72px;
-  height: 72px;
+  width: 140px;
+  height: 140px;
   display: flex;
   align-items: center;
   justify-content: center;
+  transition: transform $duration-normal $authenticMotion;
+
+  &.pulse-critical {
+    animation: critical-pulse 1s infinite alternate $authenticMotion;
+  }
 
   .timer-svg {
     position: absolute;
@@ -216,82 +253,99 @@ const strokeDashoffset = computed(() =>
   }
 
   .timer-number {
-    font-size: 20px;
-    font-weight: 700;
+    font-size: 48px;
+    font-weight: 800;
     position: relative;
     z-index: 1;
     transition: color 0.5s ease;
   }
 }
 
+@keyframes critical-pulse {
+    from { transform: scale(1); filter: drop-shadow(0 0 0 rgba(255, 68, 68, 0)); }
+    to { transform: scale(1.1); filter: drop-shadow(0 0 20px rgba(255, 68, 68, 0.4)); }
+}
+
 // Visualiseur
 .visualizer {
   display: flex;
   align-items: flex-end;
-  gap: 5px;
-  height: 40px;
+  gap: 4px;
+  height: 60px;
 
   .bar {
     display: block;
-    width: 5px;
-    border-radius: 3px;
-    background: rgba(255, 255, 255, 0.7);
-    animation: barBounce 1s ease-in-out infinite alternate;
-    height: 10px;
+    width: 6px;
+    border-radius: 4px;
+    background: $color-primary-gradient;
+    animation: barBounce 0.8s ease-in-out infinite alternate;
+    height: 15px;
+    box-shadow: 0 0 10px rgba(255, 110, 110, 0.3);
 
     @keyframes barBounce {
-      0%   { height: 6px; opacity: 0.4; }
-      100% { height: 38px; opacity: 1; }
-    }
-  }
-}
-
-// Barre de progression audio
-.audio-progress-wrapper {
-  width: 320px;
-
-  .audio-progress-bar {
-    width: 100%;
-    height: 4px;
-    border-radius: 2px;
-    background: rgba(255, 255, 255, 0.2);
-    overflow: hidden;
-
-    .audio-progress-fill {
-      height: 100%;
-      border-radius: 2px;
-      background: $major-yellow-color;
-      transition: width 0.5s linear;
+      0%   { height: 10px; opacity: 0.4; transform: scaleY(1); }
+      100% { height: 55px; opacity: 1; transform: scaleY(1.2); }
     }
   }
 }
 
 // Joueurs
-.players-answered {
+.players-zone {
   display: flex;
-  align-items: center;
-  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 15px;
+  max-width: 500px;
 
-  .dot {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.25);
-    border: 1.5px solid rgba(255, 255, 255, 0.4);
-    transition: all 300ms $authenticMotion;
+  .player-avatar-wrapper {
+    position: relative;
+    
+    .player-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: $font-size-sm;
+        color: $color-black;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        box-shadow: $shadow-sm;
+        transition: transform $duration-normal $authenticMotion;
 
-    &.answered {
-      background: $major-yellow-color;
-      border-color: $major-yellow-color;
-      transform: scale(1.2);
+        .check-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: $color-success;
+            color: $color-black;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: $shadow-md;
+            animation: check-pop 0.4s $authenticMotion;
+        }
     }
   }
+}
 
-  .players-answered-label {
-    font-size: 13px;
-    color: rgba(255, 255, 255, 0.6);
-    margin-left: 4px;
-  }
+@keyframes check-pop {
+    0% { transform: scale(0); }
+    70% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.players-answered-label {
+    font-size: $font-size-sm;
+    color: $color-text-muted;
+    background: $color-surface;
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid $color-border;
 }
 
 // Input zone

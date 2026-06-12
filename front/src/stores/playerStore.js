@@ -9,7 +9,6 @@ export const usePlayerStore = defineStore('player', {
             setting: {
                 category: null,
                 songCount: null,
-                difficulty: null,
             },
             state: "config",
             playlist: [],
@@ -19,7 +18,7 @@ export const usePlayerStore = defineStore('player', {
         },
         username: "",
         roomList: [],
-        volume: 0.7
+        volume: parseFloat(localStorage.getItem('volume')) || 0.7
     }),
 
     getters: {
@@ -29,6 +28,7 @@ export const usePlayerStore = defineStore('player', {
     actions: {
         setVolume(value) {
             this.volume = value
+            localStorage.setItem('volume', value)
         },
 
         setRoom(room) {
@@ -47,10 +47,6 @@ export const usePlayerStore = defineStore('player', {
             this.room.setting.songCount = newSongCount
         },
 
-        setDifficulty(newDifficulty) {
-            this.room.setting.difficulty = newDifficulty
-        },
-
         startGame(room) {
             this.room = room
         },
@@ -66,7 +62,6 @@ export const usePlayerStore = defineStore('player', {
                 setting: {
                     category: null,
                     songCount: null,
-                    difficulty: null,
                 },
                 state: "config",
                 playlist: [],

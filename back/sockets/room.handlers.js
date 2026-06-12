@@ -59,18 +59,12 @@ module.exports = (io, socket) => {
     // Select a Blindtest category
     socket.on('selectCategory', (roomId, newCategory) => {
         const room = roomService.selectCategory(roomId, newCategory)
-        io.to(room.id).emit('categorySelected', room.setting.category);
+        if (room) io.to(room.id).emit('categorySelected', room.setting.category);
     })
 
     // Select a Song Count
     socket.on('selectSongCount', (roomId, newSongCount) => {
         const room = roomService.selectSongCount(roomId, newSongCount)
-        io.to(room.id).emit('songCountSelected', room.setting.songCount);
-    })
-
-    // Select a difficulty
-    socket.on('selectDifficulty', (roomId, newDifficulty) => {
-        const room = roomService.selectDifficulty(roomId, newDifficulty)
-        io.to(room.id).emit('difficultySelected', room.setting.difficulty);
+        if (room) io.to(room.id).emit('songCountSelected', room.setting.songCount);
     })
 };

@@ -43,7 +43,7 @@ const thirdVisible  = computed(() => volume.value > 0.72)
   gap: 8px;
 
   &:hover {
-    .volume-bar { opacity: 1; width: 90px; }
+    .volume-bar { opacity: 1; }
     .img-container { transform: rotate(-10deg) scale(1.05); }
   }
 
@@ -69,8 +69,8 @@ const thirdVisible  = computed(() => volume.value > 0.72)
     appearance: none;
     height: 4px;
     border-radius: 2px;
-    width: 0;
-    opacity: 0;
+    width: 90px;
+    opacity: 0.8;
     cursor: pointer;
     transition: opacity 250ms $authenticMotion, width 300ms $authenticMotion;
     background: linear-gradient(
@@ -78,6 +78,10 @@ const thirdVisible  = computed(() => volume.value > 0.72)
       $major-yellow-color calc(var(--val) * 100%),
       rgba(255, 255, 255, 0.25) 0%
     );
+
+    &:hover {
+        opacity: 1;
+    }
 
     &::-webkit-slider-thumb {
       -webkit-appearance: none;

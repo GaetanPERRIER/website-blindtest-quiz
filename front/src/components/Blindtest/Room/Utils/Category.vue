@@ -39,37 +39,48 @@ function selectCategory() {
 .category {
     position: relative;
     cursor: pointer;
-    border-radius: 10px;
+    border-radius: $radius-md;
     aspect-ratio: 1/1;
-    transition: all 350ms $authenticMotion;
-    box-shadow: rgba(0, 0, 0, 0.5) 0px 5px 15px;
+    transition: all $duration-normal $authenticMotion;
+    box-shadow: $shadow-md;
 
     .opacity-filter {
         position: absolute;
         width: 100%;
         height: 100%;
         background-color: rgba(0, 0, 0, 0.5);
-        border-radius: 10px;
-        transition: opacity 350ms $authenticMotion;
+        border-radius: $radius-md;
+        transition: opacity $duration-normal $authenticMotion;
         opacity: 0;
     }
 
     img {
         width: 100%;
         height: 100%;
-        border-radius: 10px;
+        border-radius: $radius-md;
         z-index: 1;
+        border: 1px solid $color-border;
     }
 
     &:hover {
-        box-shadow: rgba(255, 255, 255, 0.75) 0px 5px 15px;
+        transform: translateY(-4px);
+        box-shadow: $shadow-lg;
+        
+        img {
+            border-color: $color-border-hover;
+        }
     }
 
     &.selected {
-        transform: scale(1.1);
+        transform: scale(1.05);
+        
+        img {
+            border-color: $color-accent;
+            border-width: 2px;
+        }
 
         .opacity-filter {
-        opacity: 0.2;
+            opacity: 0.2;
         }
     }
 }

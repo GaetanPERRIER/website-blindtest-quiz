@@ -91,13 +91,9 @@ onBeforeRouteLeave((to, from) => {
         </ScaleSpawnAnimation>
     </div>
 
-    <div v-if="gameState === 'answer'" class="blindtest-container">
+    <div v-if="gameState === 'answer'" class="blindtest-container u-flex u-justify-content-center u-align-items-center">
         <SlideSpawnAnimation direction="bottom" transition-duration="1500ms">
-            <div class="modal-anchor" v-if="gameState === 'answer'">
-                <div class="modal-positioner">
-                    <ModalRoundOver ref="modal" />
-                </div>
-            </div>
+            <ModalRoundOver ref="modal" />
         </SlideSpawnAnimation>
     </div>
 

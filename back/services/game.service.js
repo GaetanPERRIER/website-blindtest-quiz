@@ -6,6 +6,8 @@ class GameService {
 
     async startGame(roomId, roomService) {
         const room = roomService.getRoom(roomId)
+        if (!room) return null;
+
         const urlTracklist = room.setting.category.tracklist
         const nbMusics = room.setting.songCount
         const difficulty = room.setting.difficulty
@@ -68,6 +70,7 @@ class GameService {
 
     nextRound(roomId, roomService) {
         const room = roomService.getRoom(roomId)
+        if (!room) return null;
 
         room.round++
         room.currentMusic = room.playlist[room.round]
@@ -82,12 +85,16 @@ class GameService {
 
     endRound(roomId, roomService) {
         const room = roomService.getRoom(roomId)
-        room.state = "answer"
+        if (room) {
+            room.state = "answer"
+        }
         return room
     }
 
     checkAnswer(roomId, playerId, answer, roomService) {
         const room = roomService.getRoom(roomId)
+        if (!room) return null;
+
         const currentMusic = room.currentMusic;
 
         const isCorrect = answer.toLowerCase() === currentMusic.title.toLowerCase();

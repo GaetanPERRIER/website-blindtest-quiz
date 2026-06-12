@@ -40,13 +40,23 @@ const gameStats = computed(() => {
 
 
 // Functions
-const PlayerReady = () => {
-    socket.emit('playerReady', room.value.id, socket.id)
+const PlayAgain = () => {
+    socket.emit('playAgain', room.value.id)
 }
 
 const GoHome = () => {
-    socket.emit('goHome', room.value.id, socket.id)
+    socket.emit('leaveRoom', room.value.id)
+    playerStore.resetRoom()
     router.push(`/`);
+}
+
+function getPlayerIndex(socketId) {
+    return room.value.players.findIndex(p => p.socketId === socketId);
+}
+
+function getPlayerColor(index) {
+    const colors = ['#FF6B6B', '#4ECDC4', '#A29BFE', '#FFEAA7', '#FD79A8', '#55EFC4'];
+    return colors[index % colors.length];
 }
 
 
@@ -54,49 +64,91 @@ const GoHome = () => {
 
 
 <template>
-    <div class="ending-screen-container">
-        <h2 class="t-title t-color-white">Game Over!</h2>
+    <div class="ending-screen-container" :class="{ 'is-winner': finalRanking[0]?.socketId === socket.id }">
+        <div class="confetti-container"></div>
         
-        <!-- Statistiques de la partie -->
-        <div class="game-stats">
-            <div class="stat-item">
-                <span class="stat-number">{{ gameStats.totalRounds }}</span>
-                <span class="stat-label">Rounds played</span>
+        <header class="ending-header">
+            <h2 class="t-title">Game Over!</h2>
+            <p class="winner-announcement" v-if="finalRanking[0]">
+                {{ finalRanking[0].username }} won the match!
+            </p>
+        </header>
+        
+        <!-- Podium visuel -->
+        <div class="podium-visual">
+            <!-- 2nd -->
+            <div v-if="finalRanking[1]" class="podium-col podium-2nd">
+                <div class="player-avatar-podium" :style="{ backgroundColor: getPlayerColor(getPlayerIndex(finalRanking[1].socketId)) }">
+                    {{ finalRanking[1].username.substring(0, 2).toUpperCase() }}
+                </div>
+                <div class="podium-bar">
+                    <span class="rank-num">2</span>
+                </div>
+                <span class="player-name">{{ finalRanking[1].username }}</span>
             </div>
-            <div class="stat-item">
-                <span class="stat-number">{{ gameStats.successRate }}%</span>
-                <span class="stat-label">Success rate</span>
+            
+            <!-- 1st -->
+            <div v-if="finalRanking[0]" class="podium-col podium-1st">
+                <div class="crown-icon">👑</div>
+                <div class="player-avatar-podium" :style="{ backgroundColor: getPlayerColor(getPlayerIndex(finalRanking[0].socketId)) }">
+                    {{ finalRanking[0].username.substring(0, 2).toUpperCase() }}
+                </div>
+                <div class="podium-bar">
+                    <span class="rank-num">1</span>
+                </div>
+                <span class="player-name">{{ finalRanking[0].username }}</span>
             </div>
-            <div class="stat-item">
-                <span class="stat-number">{{ gameStats.playersWhoGuessed }}/{{ gameStats.totalPlayers }}</span>
-                <span class="stat-label">Active players</span>
+            
+            <!-- 3rd -->
+            <div v-if="finalRanking[2]" class="podium-col podium-3rd">
+                <div class="player-avatar-podium" :style="{ backgroundColor: getPlayerColor(getPlayerIndex(finalRanking[2].socketId)) }">
+                    {{ finalRanking[2].username.substring(0, 2).toUpperCase() }}
+                </div>
+                <div class="podium-bar">
+                    <span class="rank-num">3</span>
+                </div>
+                <span class="player-name">{{ finalRanking[2].username }}</span>
             </div>
         </div>
 
-        <!-- Classement final -->
-        <div class="final-ranking">
-            <h3 class="t-subtitle t-color-white">Final Ranking</h3>
-            <div class="ranking-list">
-                <div 
-                    v-for="player in finalRanking" 
-                    :key="player.socketId"
-                    class="ranking-item"
-                    :class="`position-${player.position}`"
-                >
-                    <div class="position">{{ player.position }}</div>
-                    <div class="player-info">
-                        <span class="username">{{ player.username }}</span>
-                        <span class="score">{{ player.totalScore }} points</span>
-                    </div>
-                    <div v-if="player.host" class="host-badge">👑</div>
+        <!-- Statistiques -->
+        <div class="game-stats">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value">{{ gameStats.totalRounds }}</span>
+                    <span class="stat-label">Tracks played</span>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"></polyline><polyline points="16 7 22 7 22 13"></polyline></svg>
+                </div>
+                <div class="stat-content">
+                    <span class="stat-value">{{ gameStats.successRate }}%</span>
+                    <span class="stat-label">Success rate</span>
                 </div>
             </div>
         </div>
 
+        <!-- Liste complète -->
+        <div class="full-ranking-list">
+            <div v-for="player in finalRanking" :key="player.socketId" class="ranking-row">
+                <span class="rank">#{{ player.position }}</span>
+                <span class="name">{{ player.username }}</span>
+                <span class="score">{{ player.totalScore }} pts</span>
+            </div>
+        </div>
+
         <!-- Actions -->
-        <div class="actions">
-                <button @click="GoHome()" class="cta-home t-body-text t-color-white">
-                    Back to home
+        <div class="actions-group">
+                <button v-if="room.players.find(p => p.socketId === socket.id)?.host" @click="PlayAgain" class="btn-primary">
+                    Play Again
+                </button>
+                <button @click="GoHome" class="btn-secondary">
+                    Back to Home
                 </button>
         </div>
     </div>
@@ -107,166 +159,208 @@ const GoHome = () => {
 @import '@/assets/styles/settings/settings.scss';
 
 .ending-screen-container {
-    position: absolute;
-    top: 0;
-    left: 0;
     width: 100%;
-    height: 100%;
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    gap: 30px;
-    padding: 20px;
+    justify-content: flex-start;
+    padding: 60px 20px;
+    gap: 40px;
     overflow-y: auto;
-
-    h2 {
-        font-size: 2.5rem;
-        margin-bottom: 10px;
-        text-align: center;
+    z-index: 2;
+    position: relative;
+    
+    &.is-winner {
+        background: radial-gradient(circle at center, rgba(255, 187, 51, 0.15) 0%, transparent 70%);
     }
+}
 
-    .game-stats {
+.ending-header {
+    text-align: center;
+    
+    .t-title {
+        font-size: $font-size-3xl;
+        margin-bottom: $spacing-sm;
+        background: $color-primary-gradient;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .winner-announcement {
+        font-size: $font-size-xl;
+        color: $color-text-muted;
+        font-weight: 500;
+    }
+}
+
+// Podium
+.podium-visual {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 20px;
+    height: 300px;
+    width: 100%;
+    max-width: 600px;
+    margin-top: 40px;
+
+    .podium-col {
         display: flex;
-        gap: 40px;
-        margin-bottom: 20px;
-
-        .stat-item {
+        flex-direction: column;
+        align-items: center;
+        width: 120px;
+        
+        .player-avatar-podium {
+            width: 60px;
+            height: 60px;
+            border-radius: $radius-full;
             display: flex;
-            flex-direction: column;
             align-items: center;
-            gap: 5px;
-            padding: 15px 20px;
-            background-color: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            border: 2px solid rgba(255, 255, 255, 0.2);
+            justify-content: center;
+            font-weight: 800;
+            font-size: $font-size-lg;
+            color: $color-black;
+            border: 3px solid rgba(255, 255, 255, 0.2);
+            box-shadow: $shadow-lg;
+            margin-bottom: 15px;
+            z-index: 2;
+        }
 
-            .stat-number {
-                font-size: 1.8rem;
-                font-weight: bold;
-                color: $major-yellow-color;
+        .podium-bar {
+            width: 100%;
+            border-radius: $radius-md $radius-md 0 0;
+            display: flex;
+            justify-content: center;
+            padding-top: 20px;
+            position: relative;
+            background: $color-primary-gradient;
+            box-shadow: $shadow-lg;
+            
+            .rank-num {
+                font-size: $font-size-2xl;
+                font-weight: 900;
+                color: rgba(255, 255, 255, 0.3);
             }
-
-            .stat-label {
-                font-size: 0.9rem;
-                color: rgba(255, 255, 255, 0.8);
-                text-align: center;
-            }
+        }
+        
+        .player-name {
+            margin-top: 15px;
+            font-weight: 600;
+            color: $color-text;
+            text-align: center;
+            width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
     }
 
-    .final-ranking {
-        width: 100%;
-        max-width: 600px;
-        background-color: rgba(255, 255, 255, 0.1);
-        border-radius: 20px;
-        padding: 25px;
-        border: 2px solid rgba(255, 255, 255, 0.2);
+    .podium-1st {
+        .crown-icon { font-size: 32px; margin-bottom: -10px; z-index: 3; }
+        .player-avatar-podium { width: 80px; height: 80px; font-size: $font-size-xl; border-color: $color-accent; }
+        .podium-bar { height: 160px; background: linear-gradient(to bottom, $color-accent, rgba(255, 187, 51, 0.3)); .rank-num { color: $color-black; opacity: 0.5; } }
+        animation: podium-rise-1 1s $authenticMotion both;
+    }
+    
+    .podium-2nd {
+        .podium-bar { height: 110px; background: linear-gradient(to bottom, #E2E2E2, rgba(226, 226, 226, 0.2)); }
+        animation: podium-rise-2 1s $authenticMotion 0.2s both;
+    }
+    
+    .podium-3rd {
+        .podium-bar { height: 70px; background: linear-gradient(to bottom, #CD7F32, rgba(205, 127, 50, 0.2)); }
+        animation: podium-rise-3 1s $authenticMotion 0.4s both;
+    }
+}
 
-        h3 {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 1.5rem;
+// Stats
+.game-stats {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 600px;
+    
+    .stat-card {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: $color-surface;
+        border-radius: $radius-lg;
+        border: 1px solid $color-border;
+        backdrop-filter: blur(10px);
+        transition: all $duration-normal $authenticMotion;
+
+        &:hover {
+            background: $color-surface-hover;
+            transform: translateY(-5px);
+            border-color: $color-border-hover;
         }
-
-        .ranking-list {
+        
+        .stat-icon {
+            background: rgba(255, 255, 255, 0.1);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: $color-accent;
+        }
+        
+        .stat-content {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-
-            .ranking-item {
-                display: flex;
-                align-items: center;
-                gap: 15px;
-                padding: 12px 15px;
-                border-radius: 10px;
-                transition: all 200ms ease;
-
-                &.position-1 {
-                    background: linear-gradient(135deg, #FFD700, #FFA500);
-                    color: #000;
-                    font-weight: bold;
-                }
-
-                &.position-2 {
-                    background: linear-gradient(135deg, #C0C0C0, #A0A0A0);
-                    color: #000;
-                }
-
-                &.position-3 {
-                    background: linear-gradient(135deg, #CD7F32, #B8860B);
-                    color: #fff;
-                }
-
-                &:not(.position-1):not(.position-2):not(.position-3) {
-                    background-color: rgba(255, 255, 255, 0.1);
-                    color: #fff;
-                }
-
-                .position {
-                    font-size: 1.2rem;
-                    font-weight: bold;
-                    min-width: 30px;
-                    text-align: center;
-                }
-
-                .player-info {
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 2px;
-
-                    .username {
-                        font-weight: 500;
-                    }
-
-                    .score {
-                        font-size: 0.9rem;
-                        opacity: 0.8;
-                    }
-                }
-
-                .host-badge {
-                    font-size: 1.2rem;
-                }
-            }
-        }
-    }
-
-    .actions {
-        margin-top: 20px;
-
-        .cta-home {
-            padding: 15px 30px;
-            background-color: $major-yellow-color;
-            border: none;
-            border-radius: 15px;
-            font-size: 1.1rem;
-            font-weight: 500;
-            color: #000;
-            transition: all 200ms $authenticMotion;
-            cursor: pointer;
-
-            &:hover {
-                background-color: darken($major-yellow-color, 10%);
-                transform: scale(1.05);
-            }
+            
+            .stat-value { font-size: $font-size-xl; font-weight: 800; color: $color-white; }
+            .stat-label { font-size: $font-size-xs; color: $color-text-muted; text-transform: uppercase; letter-spacing: 1px; }
         }
     }
 }
 
-@media (max-width: 768px) {
-    .ending-screen-container {
-        .game-stats {
-            flex-direction: column;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .final-ranking {
-            width: 100%;
-        }
+// Full list
+.full-ranking-list {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    
+    .ranking-row {
+        display: flex;
+        align-items: center;
+        padding: 12px 25px;
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        
+        .rank { width: 40px; font-weight: 700; color: $color-text-light; }
+        .name { flex: 1; font-weight: 500; color: $color-text; }
+        .score { font-weight: 700; color: $color-accent; }
     }
 }
 
+// Actions
+.actions-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 20px;
+    
+    button {
+        min-width: 200px;
+    }
+}
+
+@keyframes podium-rise-1 { from { transform: translateY(100px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes podium-rise-2 { from { transform: translateY(80px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes podium-rise-3 { from { transform: translateY(60px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+@media (max-width: 600px) {
+    .podium-visual { gap: 10px; height: 250px; }
+    .podium-col { width: 100px; }
+    .game-stats { flex-direction: column; }
+    .actions-group { flex-direction: column; width: 100%; button { width: 100%; } }
+}
 </style>

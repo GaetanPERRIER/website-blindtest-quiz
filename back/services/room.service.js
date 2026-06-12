@@ -11,7 +11,6 @@ class RoomService {
             setting: {
                 category: null,
                 songCount: DEFAULT_GAME_SETTINGS.songCount,
-                difficulty: DEFAULT_GAME_SETTINGS.difficulty,
             },
             state: "config",
             playlist: [],
@@ -29,7 +28,8 @@ class RoomService {
         const room = this.rooms.find(r => r.id === roomId);
 
         if (!room) {
-            throw new Error('Room not found');
+            console.warn(`Room ${roomId} not found`);
+            return null;
         }
 
         return room;
@@ -38,6 +38,7 @@ class RoomService {
 
     joinRoom(player) {
         const room = this.getRoom(player.roomId)
+        if (!room) throw new Error('Room not found');
 
         if (room.players.length >= DEFAULT_GAME_SETTINGS.maxPlayers) {
             throw new Error('Room is full');
@@ -84,6 +85,7 @@ class RoomService {
 
     ejectPlayer(roomId, playerId) {
         const room = this.getRoom(roomId)
+        if (!room) return null;
 
         const playerIndex = room.players.findIndex(p => p.socketId === playerId);
         if (playerIndex === -1) {
@@ -108,19 +110,16 @@ class RoomService {
 
     selectCategory(roomId, category) {
         const room = this.getRoom(roomId)
-        room.setting.category = category
+        if (room) room.setting.category = category
         return room
     }
 
     selectSongCount(roomId, newSongCount) {
         const room = this.getRoom(roomId)
-        room.setting.songCount = newSongCount
-        return room
-    }
-
-    selectDifficulty(roomId, difficulty) {
-        const room = this.getRoom(roomId)
-        room.setting.difficulty = difficulty
+        if (room) {
+            const count = Math.min(Math.max(1, parseInt(newSongCount)), DEFAULT_GAME_SETTINGS.maxSongCount);
+            room.setting.songCount = count;
+        }
         return room
     }
 
@@ -130,6 +129,7 @@ class RoomService {
 
     setPlayerReady(roomId, socketId) {
         const room = this.getRoom(roomId)
+        if (!room) return null;
         const player = room.players.find(p => p.socketId === socketId)
         if (player) player.isReady = true
         return room
@@ -137,6 +137,7 @@ class RoomService {
 
     setAllPlayersUnready(roomId) {
         const room = this.getRoom(roomId)
+        if (!room) return null;
 
         room.players.forEach(player => {
             player.isReady = false
