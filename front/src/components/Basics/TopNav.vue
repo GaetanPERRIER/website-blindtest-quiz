@@ -196,7 +196,7 @@ onUnmounted(() => {
             <button @click="logout" class="btn-ghost btn-sm">Logout</button>
         </div>
 
-        <div v-if="!authStore.user && route.fullPath !== '/login'"  >
+        <div v-if="!authStore.user && route.fullPath !== '/login'" class="user-menu-logged-out">
             <button @click="loginWithGoogle" class="btn-ghost btn-sm">Sign In / Log In</button>
         </div>
     </div>
@@ -219,6 +219,15 @@ onUnmounted(() => {
     padding: $spacing-sm $spacing-lg;
     border-radius: 50px;
     border: 1px solid $color-border;
+}
+
+.user-menu-logged-out {
+    display: flex;
+    align-items: center;
+    gap: $spacing-lg;
+    backdrop-filter: blur($blur-md);
+    padding: $spacing-sm $spacing-lg;
+    border-radius: 50px;
 }
 
 /* ── Friend requests ── */
