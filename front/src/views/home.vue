@@ -8,7 +8,7 @@ const gameModes = [
         icon: "headphones",
         badge: "🔥 Popular",
         players: "1–8 joueurs",
-        link: "/blindtest"
+        link: "/create"
     },
     {
         name: "Quiz",

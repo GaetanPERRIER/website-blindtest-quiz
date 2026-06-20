@@ -2,6 +2,7 @@ const express = require('express');
 const { createServer } = require('http');
 const cors = require('cors');
 const { Server } = require('socket.io');
+require('dotenv').config()
 
 const { PORT, CLIENT_URL } = require('./config/constants');
 const { corsOptions } = require('./config/cors');
@@ -18,6 +19,10 @@ const io = new Server(httpServer, {
 });
 
 setupSocketIO(io);
+
+// Refresh token
+const authRoutes = require('./routes/auth.routes');
+app.use('/auth', authRoutes);
 
 app.use(cors(corsOptions));
 app.use(express.json());
