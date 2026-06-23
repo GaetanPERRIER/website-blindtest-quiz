@@ -18,32 +18,50 @@ class SpotifyService {
                 'Authorization': `Basic ${authString}`,
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: 'grant_type=client_credentials'
+            body: new URLSearchParams({
+                grant_type: 'refresh_token',
+                refresh_token: process.env.SPOTIFY_REFRESH_TOKEN
+            })
         });
 
         if (!response.ok) {
-            throw new Error('Failed to get Spotify access token');
+            const errorBody = await response.text();
+            console.error('Spotify refresh token error:', response.status, errorBody);
+            throw new Error('Failed to refresh Spotify access token');
         }
 
         const data = await response.json();
         this.accessToken = data.access_token;
-        this.tokenExpiresAt = Date.now() + (data.expires_in * 1000) - 60000; // 1 minute buffer
+        this.tokenExpiresAt = Date.now() + (data.expires_in * 1000) - 60000;
         return this.accessToken;
     }
 
-    async fetchFromSpotify(endpoint) {
+    async fetchFromSpotify(endpoint, retries = 3) {
         const token = await this.getAccessToken();
         const response = await fetch(`https://api.spotify.com/v1${endpoint}`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
+        console.log(`Spotify response: ${response.status} for ${endpoint}`);
+
         if (!response.ok) {
-            if (response.status === 401) {
-                this.accessToken = null; // Token expired
-                return this.fetchFromSpotify(endpoint);
+            if (retries <= 0) {
+                throw new Error(`Spotify API error: ${response.statusText} (retries exhausted)`);
             }
+
+            if (response.status === 429) {
+                const retryAfter = parseInt(response.headers.get('Retry-After') || '1', 10);
+                console.warn(`Rate limited, retrying in ${retryAfter}s...`);
+                await new Promise(resolve => setTimeout(resolve, retryAfter * 1000));
+                return this.fetchFromSpotify(endpoint, retries - 1);
+            }
+
+            if (response.status === 401) {
+                console.warn('Token rejected, refreshing and retrying...');
+                this.accessToken = null;
+                return this.fetchFromSpotify(endpoint, retries - 1); // décrémenté !
+            }
+
             throw new Error(`Spotify API error: ${response.statusText}`);
         }
 
@@ -51,33 +69,63 @@ class SpotifyService {
     }
 
     async getCategories() {
-        // En Spotify, on peut récupérer des playlists de catégories ou des playlists "featured"
-        // Pour correspondre à l'ancienne logique Deezer (charts), on va chercher des playlists populaires
-        const data = await this.fetchFromSpotify('/browse/featured-playlists?limit=20');
-        return {
-            playlists: {
-                data: data.playlists.items.map(item => ({
-                    id: item.id,
-                    title: item.name,
-                    picture_big: item.images[0]?.url,
-                    tracklist: `/playlists/${item.id}/tracks`
-                }))
-            }
-        };
+        const curatedPlaylists = require('../config/curatedPlaylists');
+
+        const playlists = await Promise.all(
+            curatedPlaylists.map(async ({ category, spotifyId }) => {
+                const data = await this.fetchFromSpotify(`/playlists/${spotifyId}?fields=id,name,images`);
+                return {
+                    id: data.id,
+                    title: data.name,
+                    category,
+                    picture_big: data.images[0]?.url,
+                    tracklist: `/playlists/${data.id}/tracks`
+                };
+            })
+        );
+        return { playlists: { data: playlists } };
+    }
+
+    async getPreviewFromItunes(title, artist) {
+        try {
+            const query = encodeURIComponent(`${artist} ${title}`);
+            const response = await fetch(
+                `https://itunes.apple.com/search?term=${query}&media=music&entity=song&limit=1&country=FR`
+            );
+            if (!response.ok) return null;
+
+            const data = await response.json();
+            return data.results[0]?.previewUrl || null;
+        } catch (error) {
+            console.error(`iTunes search failed for "${artist} - ${title}":`, error.message);
+            return null;
+        }
     }
 
     async getPlaylistTracks(playlistId) {
-        const data = await this.fetchFromSpotify(`/playlists/${playlistId}/tracks?limit=100`);
-        return data.items
-            .filter(item => item.track && item.track.preview_url) // Important: Spotify n'a pas toujours de preview_url
-            .map(item => ({
-                id: item.track.id,
-                title: item.track.name,
-                artist: item.track.artists.map(a => a.name).join(', '),
-                preview: item.track.preview_url,
-                album_cover: item.track.album.images[0]?.url,
-                rank: item.track.popularity // Popularity 0-100
-            }));
+        const data = await this.fetchFromSpotify(`/playlists/${playlistId}/items?limit=100`);
+        const validItems = data.items.filter(item => item.item);
+
+        const tracksWithPreviews = await Promise.all(
+            validItems.map(async (item) => {
+                const track = item.item;
+                const artistName = track.artists.map(a => a.name).join(', ');
+                const preview = await this.getPreviewFromItunes(track.name, track.artists[0]?.name);
+
+                if (!preview) return null;
+
+                return {
+                    id: track.id,
+                    title: track.name,
+                    artist: artistName,
+                    preview,
+                    album_cover: track.album.images[0]?.url,
+                    rank: track.popularity
+                };
+            })
+        );
+
+        return tracksWithPreviews.filter(Boolean);
     }
 }
 
