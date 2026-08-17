@@ -1,128 +1,81 @@
-# 🎵 Website Blindtest Quiz
+# 🎵 BeatQuiz
 
-Un jeu de blindtest multijoueur en temps réel utilisant l'API Deezer pour proposer des quiz musicaux interactifs.
+Jeu de blindtest musical multijoueur en temps réel. Les joueurs rejoignent un salon sur invitation, devinent des extraits musicaux, et s'affrontent sur un classement.
 
-## 🎯 Présentation
+## ✨ Fonctionnalités
 
-Ce projet est une application web de blindtest permettant à plusieurs joueurs de deviner des titres et artistes de musiques en temps réel. L'application utilise l'API Deezer pour récupérer les musiques et propose différentes catégories musicales.
-
-## ✨ Fonctionnalités principales
-
-- **Multijoueur en temps réel** : Jusqu'à 6 joueurs par partie via WebSockets
-- **Intégration Deezer** : Accès à un large catalogue musical via l'API Deezer
-- **Catégories variées** : Différents genres musicaux disponibles
-- **Système de scoring** : Points attribués selon la rapidité de réponse
-- **Interface moderne** : Design responsive avec animations fluides
-- **Salles privées** : Création de parties avec code d'accès
+- **Multijoueur en temps réel** via WebSockets (Socket.IO), jusqu'à 6 joueurs par salon
+- **Salons sur invitation** — lien de partage, pas de room publique
+- **Comptes utilisateurs** via Google OAuth (Supabase Auth) + système d'amis
+- **Backoffice admin** pour gérer les playlists jouables (sync Spotify + preview audio iTunes en fallback, stockées en base)
+- **Scoring** basé sur la rapidité de réponse
 
 ## 🏗️ Architecture
 
-Le projet suit une architecture client-serveur :
+- **Frontend** : Vue 3 (Composition API) + Vite + Pinia + SCSS
+- **Backend** : Node.js + Express 5 + Socket.IO
+- **Base de données** : Supabase (PostgreSQL managé)
+- **Musique** : Spotify API pour les playlists/métadonnées, iTunes en fallback pour les extraits audio — tout est synchronisé en base, le jeu ne dépend pas d'appels Spotify en temps réel
 
-- **Frontend** : Application Vue.js 3 avec Vite
-- **Backend** : Serveur Node.js/Express avec Socket.IO
-- **API externe** : Intégration avec l'API Deezer
+Détails : voir `PLAN.md` (vision produit, décisions d'architecture) et `DATABASE.md` (schéma Supabase).
 
-## 🚀 Démarrage rapide
+## 🚀 Démarrage
 
 ### Prérequis
-- Node.js (v16+)
-- npm ou yarn
-- **Un compte Supabase** (pour l'authentification et les profils)
+- Node.js (v18+)
+- Un projet [Supabase](https://supabase.com/)
+- Des credentials Spotify (Client ID/Secret) pour le backoffice
 
 ### Installation
 
-1. **Cloner le repository**
 ```bash
-git clone [url-du-repo]
+git clone https://github.com/GaetanPERRIER/website-blindtest-quiz.git
 cd website-blindtest-quiz
-```
 
-2. **Configuration Supabase (Crucial)**
-   - Créez un projet sur [Supabase](https://supabase.com/).
-   - Allez dans **SQL Editor** et exécutez le contenu du fichier `DATABASE.md` (à la racine du projet). Cela créera les tables `profiles` et `friendships`.
-   - Copiez vos clés API (`URL` et `Anon Key`) depuis `Settings > API`.
-
-3. **Variables d'environnement**
-   - Dans `front/`, créez un fichier `.env` basé sur `.env.example` et remplissez vos clés Supabase.
-   - Dans `back/`, créez un fichier `.env` basé sur `.env.example`.
-
-4. **Installer les dépendances**
-```bash
 # Backend
-cd back
-npm install
+cd back && npm install
 
 # Frontend
-cd ../front
-npm install
+cd ../front && npm install
 ```
 
+### Configuration Supabase
+
+1. Créez un projet sur [Supabase](https://supabase.com/)
+2. Dans **SQL Editor**, exécutez les requêtes du fichier `DATABASE.md` (tables `roles`, `profiles`, `friendships`, `playlists`, `songs`, `playlist_songs` + policies RLS)
+3. Configurez Google OAuth (**Auth > Providers**) — voir la section dédiée dans `DATABASE.md`
+4. Récupérez vos clés API depuis **Settings > API**
+
+### Variables d'environnement
+
+Copiez `.env.example` → `.env` dans `back/` et dans `front/`, puis remplissez les valeurs (Supabase, Spotify, URLs).
+
 ### Lancement
+
 ```bash
-# Terminal 1 - Backend
+# Terminal 1 — Backend
 cd back
 node server.js
 
-# Terminal 2 - Frontend
+# Terminal 2 — Frontend
 cd front
 npm run dev
 ```
 
-L'application sera accessible sur `http://localhost:5173`
+L'application est accessible sur `http://localhost:5173`.
 
 ## 📁 Structure du projet
 
 ```
 website-blindtest-quiz/
-├── back/           # Serveur Node.js
-├── front/          # Application Vue.js
-├── README.md       # Ce fichier
-└── docs/           # Documentation détaillée
+├── back/            # API REST + WebSockets (Node/Express/Socket.IO)
+├── front/           # Application Vue 3
+├── PLAN.md          # Vision produit & décisions d'architecture
+├── DATABASE.md      # Schéma Supabase (DDL + RLS)
+└── BRANDING.md      # Design system (tokens, composants UI)
 ```
 
-## 🎮 Comment jouer
+## 🛠️ Stack
 
-1. **Créer une partie** : Sélectionnez une catégorie musicale et configurez les paramètres
-2. **Inviter des joueurs** : Partagez le code de la salle
-3. **Lancer le blindtest** : Écoutez les extraits et devinez titre/artiste
-4. **Scorer des points** : Plus vous répondez vite, plus vous gagnez de points !
-
-## 📚 Documentation
-
-Pour plus de détails, consultez la documentation complète :
-
-- [🏗️ Architecture](ARCHITECTURE.md) - Structure technique détaillée
-- [⚙️ Installation](INSTALLATION.md) - Guide d'installation complet
-- [🔌 API](API.md) - Documentation des endpoints et WebSockets
-- [🎯 Flux de jeu](GAME_FLOW.md) - Déroulement d'une partie
-- [🎨 Frontend](FRONTEND.md) - Architecture Vue.js et composants
-
-## 🛠️ Technologies utilisées
-
-### Backend
-- Node.js & Express
-- Socket.IO (WebSockets)
-- API Deezer
-
-### Frontend
-- Vue.js 3 (Composition API)
-- Vite
-- Pinia (state management)
-- SCSS
-- Socket.IO Client
-
-## 🤝 Contribution
-
-Les contributions sont les bienvenues ! N'hésitez pas à :
-- Signaler des bugs
-- Proposer de nouvelles fonctionnalités
-- Améliorer la documentation
-
-## 📄 Licence
-
-Ce projet est sous licence [à définir].
-
----
-
-*Développé avec ❤️ pour les amateurs de musique*
+**Backend** : Node.js, Express 5, Socket.IO, Supabase JS, Spotify Web API
+**Frontend** : Vue 3, Vite, Pinia, Vue Router, SCSS, Socket.IO Client

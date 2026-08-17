@@ -1,6 +1,6 @@
 # Schéma de Base de Données (Supabase)
 
-Pour faire fonctionner le système d'authentification et d'amis, vous devez créer les tables suivantes dans votre instance Supabase.
+Pour faire fonctionner le système d'authentification, d'amis et le backoffice musique, vous devez créer les tables suivantes dans votre instance Supabase.
 
 ## Table `roles`
 
@@ -65,11 +65,26 @@ create table public.friendships (
   unique(user_id, friend_id)
 );
 
+-- Activer Row Level Security
+alter table public.friendships enable row level security;
+
+-- Politiques de sécurité
+create policy "Users can see their own friendships." on public.friendships
+  for select using (auth.uid() = user_id or auth.uid() = friend_id);
+
+create policy "Users can insert friend requests." on public.friendships
+  for insert with check (auth.uid() = user_id);
+
+create policy "Users can update their received requests." on public.friendships
+  for update using (auth.uid() = friend_id);
+
+create policy "Users can delete their own friendships." on public.friendships
+  for delete using (auth.uid() = user_id or auth.uid() = friend_id);
 ```
 
-## Table `playlist`
+## Table `playlists`
 
-Cette table stocke les playlists jouables dans le blindtest.
+Cette table stocke les playlists jouables dans le blindtest (synchronisées depuis Spotify via le backoffice).
 
 ```sql
 create table public.playlists (
@@ -96,7 +111,7 @@ create policy "Playlists are viewable by everyone." on public.playlists
 
 ## Table `songs`
 
-Cette table stocke les morceaux importés depuis Spotify et enrichis avec les données iTunes.
+Cette table stocke les morceaux importés depuis Spotify et enrichis avec les données iTunes (fallback pour `preview_url` quand Spotify n'en fournit pas).
 
 ```sql
 create table public.songs (
@@ -123,7 +138,7 @@ create policy "Songs are viewable by everyone." on public.songs
 
 ## Table `playlist_songs`
 
-Table de liaison entre les playlists et les morceaux.
+Table de liaison entre les playlists et les morceaux, avec position pour l'ordre de lecture.
 
 ```sql
 create table public.playlist_songs (
@@ -135,28 +150,6 @@ create table public.playlist_songs (
    primary key (playlist_id, song_id)
 );
 ```
-
-
-```sql
--- Activer Row Level Security
-alter table public.friendships enable row level security;
-
--- Politiques de sécurité
-create policy "Users can see their own friendships." on public.friendships
-  for select using (auth.uid() = user_id or auth.uid() = friend_id);
-
-create policy "Users can insert friend requests." on public.friendships
-  for insert with check (auth.uid() = user_id);
-
-create policy "Users can update their received requests." on public.friendships
-  for update using (auth.uid() = friend_id);
-```
-
-
-
-
-
-
 
 ## Trigger pour la création automatique de profil
 
@@ -193,14 +186,6 @@ on conflict (role) do nothing;
 
 alter table public.profiles
   add column if not exists id_role bigint references public.roles(id) default 1 not null;
-```
-
-
-
-# Policies
-
-create policy "Users can delete their own friendships." on public.friendships
-for delete using (auth.uid() = user_id or auth.uid() = friend_id);
 ```
 
 ## Configuration Auth (Google OAuth)

@@ -1,6 +1,6 @@
 # BeatQuiz — Design System & Branding
 
-> Phase 1 — Identité visuelle complétée
+> Référence des tokens visuels (couleurs, typographie, boutons) utilisés dans `front/src/assets/styles/`
 
 ---
 
@@ -269,26 +269,5 @@ $player-colors: (
 
 ---
 
-## Implementation Checklist
-
-✅ Design System SCSS tokens créés  
-✅ 3 variantes de boutons implémentées  
-✅ Logo SVG créé (48x48 px)  
-✅ Favicon SVG créé (32x32 px)  
-✅ Meta tags & branding dans `index.html`  
-✅ Documentation complète du Design System  
-
----
-
-## Prochaines étapes (Phase 2)
-
-- [ ] Intégrer le logo sur la page d'accueil (Join.vue)
-- [ ] Refondre page d'accueil avec Header + Logo
-- [ ] Afficher les boutons avec les nouvelles classes
-- [ ] Tester les animations & states
-- [ ] Adapter responsive (mobile breakpoints)
-
----
-
-*Complété : 12 Juin 2026*
+*Les tokens et composants ci-dessus sont en place et utilisés dans le front. Pour le suivi des tâches restantes, voir le Notion du projet plutôt que ce fichier.*
 
