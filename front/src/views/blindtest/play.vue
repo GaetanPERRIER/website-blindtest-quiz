@@ -1,0 +1,162 @@
+<script setup>
+import {usePlayerStore} from "@/stores/playerStore.js";
+import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
+import socket from "@/utils/socket.js";
+import {computed, onMounted, onBeforeUnmount, ref} from "vue";
+import GameConfig from "@/components/Blindtest/Room/GameConfig.vue";
+import ScaleSpawnAnimation from "@/components/Basics/ScaleSpawnAnimation.vue";
+import SlideSpawnAnimation from "@/components/Basics/SlideSpawnAnimation.vue"
+import BeforeUnload from "@/components/Basics/BeforeUnload.vue";
+import ModalRoundOver from "@/components/Blindtest/Game/ModalRoundOver.vue";
+import Guessing from "@/components/Blindtest/Game/Guessing.vue";
+import EndingScreen from "@/components/Blindtest/Game/Playing/EndingScreen.vue";
+import { useRouter, onBeforeRouteLeave } from "vue-router";
+
+
+const playerStore = usePlayerStore()
+const router = useRouter()
+
+const room = computed(() => playerStore.room)
+const currentPlayer = computed(() =>
+    playerStore.room.players.find(player => player.socketId === socket.id)
+)
+const gameState = computed(() => playerStore.room.state)
+
+
+
+/* Functions */
+const leaveRoom = () => {
+    if (room.value.id && currentPlayer.value) {
+        socket.off("roomUpdated")
+        socket.off("gameFinished")
+        socket.off("roundEnded")
+        socket.emit('leaveRoom', room.value.id)
+        playerStore.resetRoom()
+    }
+}
+
+onMounted(() => {
+    
+    /* Events socket */
+
+    socket.off("roomUpdated")
+    socket.on('roomUpdated', (newRoom) => {
+        playerStore.setRoom(newRoom)
+    })
+
+    socket.off("gameFinished")
+    socket.on('gameFinished', (newRoom) => {
+        playerStore.setRoom(newRoom)
+    })
+
+    socket.off("roundEnded")
+    socket.on('roundEnded', (newRoom) => {
+        playerStore.setRoom(newRoom)
+    })
+});
+
+onBeforeUnmount(() => {
+    // Quitter la room quand le composant est démonté (navigation vers une autre page)
+    leaveRoom()
+});
+
+// Garde de navigation pour intercepter les changements de route
+onBeforeRouteLeave((to, from) => {
+    if (room.value.id && currentPlayer.value) {
+        const confirmation = window.confirm(
+            "You are about to leave the game. Are you sure you want to continue?"
+        );
+
+        if (confirmation) {
+            leaveRoom();
+            return true; // L'utilisateur a confirmé, on peut quitter la page
+        } else {
+            return false; // L'utilisateur a annulé, on reste sur la page
+        }
+    }
+    return true; // Pas dans une room, on peut quitter sans confirmation
+});
+</script>
+
+<template>
+    <div v-if="gameState === 'config'" class="blindtest-container u-flex u-justify-content-center u-align-items-center u-plr20 u-pt125 u-pb50 u-gap100">
+        <ScaleSpawnAnimation :rotate="false">
+            <GameConfig/>
+        </ScaleSpawnAnimation>
+    </div>
+
+    <div v-if="gameState === 'guessing'" class="blindtest-container">
+        <ScaleSpawnAnimation :rotate="false">
+            <Guessing />
+        </ScaleSpawnAnimation>
+    </div>
+
+    <div v-if="gameState === 'answer'" class="blindtest-container u-flex u-justify-content-center u-align-items-center">
+        <SlideSpawnAnimation direction="bottom" transition-duration="1500ms">
+            <ModalRoundOver ref="modal" />
+        </SlideSpawnAnimation>
+    </div>
+
+    <div v-if="gameState === 'ended'" class="blindtest-container">
+        <ScaleSpawnAnimation :rotate="false">
+            <EndingScreen/>
+        </ScaleSpawnAnimation>
+    </div>
+
+        <BeforeUnload/>
+</template>
+
+<style scoped lang="scss">
+
+.blindtest-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+
+    h1 {
+        font-size: 30px;
+        color: #fff;
+        text-align: center;
+        margin-top: 20px;
+        width: 100%;
+        height: 35px;
+        overflow: hidden;
+    }
+
+    .musics-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+
+    input, button  {
+        width: 450px;
+        padding: 12px 15px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border-radius: 25px;
+        outline: none;
+        font-size: 16px;
+        backdrop-filter: blur(5px);
+        text-align: center;
+    }
+
+    button {
+        width: 300px;
+        cursor: pointer;
+    }
+
+    input {
+        cursor: text;
+    }
+
+    &::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+    }
+}
+</style>

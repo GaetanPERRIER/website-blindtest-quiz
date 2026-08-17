@@ -1,0 +1,235 @@
+@use "sass:math";
+$font-path: '/fonts/';
+
+$font-base: 'Poppins', sans-serif;
+
+$color-white: #ffffff;
+$color-black: #060606;
+
+// ========== BEATQUIZ DESIGN SYSTEM ==========
+
+// Primary colors
+$color-primary-start: #FF6E6E;
+$color-primary-end: #FFDF6B;
+$color-primary-gradient: linear-gradient(135deg, $color-primary-start 0%, $color-primary-end 100%);
+$color-accent-gradient: linear-gradient(135deg, #FFBB33 0%, #FFDF6B 100%);
+
+// Surfaces & Borders
+$color-surface: rgba(255, 255, 255, 0.1);
+$color-surface-hover: rgba(255, 255, 255, 0.15);
+$color-surface-active: rgba(255, 255, 255, 0.2);
+$color-border: rgba(255, 255, 255, 0.2);
+$color-border-hover: rgba(255, 255, 255, 0.3);
+
+// Accents & Text
+$color-accent: #FFBB33;
+$color-text: #ffffff;
+$color-text-muted: rgba(255, 255, 255, 0.6);
+$color-text-light: rgba(255, 255, 255, 0.4);
+
+// Player colors (6 slots)
+$player-colors: (
+  #FF6B6B,   // Red
+  #4ECDC4,   // Teal
+  #A29BFE,   // Purple
+  #FFEAA7,   // Yellow
+  #FD79A8,   // Pink
+  #55EFC4    // Mint
+);
+
+// Semantic colors
+$color-success: #55EFC4;
+$color-warning: #FFBB33;
+$color-danger: #FF6B6B;
+$color-error: #FF6B6B;
+$color-info: #A29BFE;
+
+// Legacy colors (for backward compatibility)
+$major-blue-color: #8095FF;
+$major-yellow-color: #FFBB33;
+
+//
+
+
+$screen-breakpoints : (
+    xxxs    : 320px,
+    xxs     : 375px,
+    xs     : 450px,
+    s      : 768px,
+    m      : 1000px,
+    l      : 1200px,
+    xl     : 1400px,
+    xxl    : 1600px
+);
+
+/* ========
+
+   Mixins
+
+ ======== */
+
+@mixin min-width($breakpoint-name, $extra : null) {
+    @if (map-has-key($screen-breakpoints, $breakpoint-name)) {
+
+        @if ($extra) {
+
+            @media screen and (min-width: map-get($screen-breakpoints, $breakpoint-name)) and (#{$extra}) {
+                @content;
+            }
+
+        } @else {
+
+            @media screen and (min-width: map-get($screen-breakpoints, $breakpoint-name)) {
+                @content;
+            }
+        }
+    }
+}
+
+@mixin max-width($breakpoint-name, $extra: null) {
+    @if (map-has-key($screen-breakpoints, $breakpoint-name)) { // Check breakpoint exists
+
+        @if ($extra) {
+            @media screen and (max-width: map-get($screen-breakpoints, $breakpoint-name)) and (#{$extra}) {
+                @content;
+            }
+        } @else {
+            @media screen and (max-width: map-get($screen-breakpoints, $breakpoint-name)) {
+                @content;
+            }
+        }
+    }
+}
+
+@mixin aspect-ratio($ratio-or-width, $height: null) {
+    $padding: if($height, percentage(math.div($height, $ratio-or-width)), percentage(math.div(1, $ratio-or-width)));
+    &:before {
+        content: '';
+        display: block;
+        float: left;
+        padding-bottom: $padding;
+    }
+    &:after {
+        content: '';
+        display: table;
+        clear: both;
+    }
+}
+
+
+/* ========
+
+   Easing
+
+ ======== */
+
+
+$easeInSine: cubic-bezier(0.47, 0, 0.745, 0.715);
+$easeOutSine: cubic-bezier(0.39, 0.575, 0.565, 1);
+$easeInOutSine: cubic-bezier(0.39, 0.575, 0.565, 1);
+
+$easeInQuad: cubic-bezier(0.55, 0.085, 0.68, 0.53);
+$easeOutQuad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+$easeInOutQuad: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+$easeInCubic: cubic-bezier(0.55, 0.055, 0.675, 0.19);
+$easeOutCubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+$easeInOutCubic: cubic-bezier(0.215, 0.61, 0.355, 1);
+
+$easeInQuart: cubic-bezier(0.895, 0.03, 0.685, 0.22);
+$easeOutQuart: cubic-bezier(0.165, 0.84, 0.44, 1);
+$easeInOutQuart: cubic-bezier(0.165, 0.84, 0.44, 1);
+
+$easeInQuint: cubic-bezier(0.755, 0.05, 0.855, 0.06);
+$easeOutQuint: cubic-bezier(0.23, 1, 0.32, 1);
+$easeInOutQuint: cubic-bezier(0.23, 1, 0.32, 1);
+
+$easeInExpo: cubic-bezier(0.95, 0.05, 0.795, 0.035);
+$easeOutExpo: cubic-bezier(0.19, 1, 0.22, 1);
+$easeInOutExpo: cubic-bezier(0.19, 1, 0.22, 1);
+
+$easeInCirc: cubic-bezier(0.6, 0.04, 0.98, 0.335);
+$easeOutCirc: cubic-bezier(0.075, 0.82, 0.165, 1);
+$easeInOutCirc: cubic-bezier(0.075, 0.82, 0.165, 1);
+
+$easeInBack: cubic-bezier(0.6, -0.28, 0.735, 0.045);
+$easeOutBack: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+$easeInOutBack: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+$easeOutBackPlus: cubic-bezier(0.18, 0.89, 0.4, 1.55);
+
+$easeInOutFast: cubic-bezier(1,0,0,1);
+$authenticMotion: cubic-bezier(.4,0,.2,1);
+$magikMotion: cubic-bezier(0.645,.045,.355,1);
+
+/* ========
+
+   Typography Scale
+
+ ======== */
+
+$font-size-xs: 11px;
+$font-size-sm: 13px;
+$font-size-base: 15px;
+$font-size-lg: 18px;
+$font-size-xl: 22px;
+$font-size-2xl: 28px;
+$font-size-3xl: 36px;
+
+$line-height-tight: 1.2;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.75;
+
+$letter-spacing-tight: -0.02em;
+$letter-spacing-normal: 0;
+$letter-spacing-wide: 0.05em;
+
+/* ========
+
+   Spacing
+
+ ======== */
+
+$spacing-xs: 4px;
+$spacing-sm: 8px;
+$spacing-md: 12px;
+$spacing-lg: 16px;
+$spacing-xl: 24px;
+$spacing-2xl: 32px;
+$spacing-3xl: 48px;
+
+/* ========
+
+   Shadows & Effects
+
+ ======== */
+
+$shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+$shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+$shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.2);
+$shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.3);
+
+$blur-sm: 4px;
+$blur-md: 8px;
+$blur-lg: 12px;
+
+/* ========
+
+   Borders & Radius
+
+   ======== */
+
+$radius-sm: 4px;
+$radius-md: 8px;
+$radius-lg: 16px;
+$radius-xl: 24px;
+$radius-full: 9999px;
+
+/* ========
+
+   Animation Durations
+
+ ======== */
+
+$duration-fast: 150ms;
+$duration-normal: 300ms;
+$duration-slow: 500ms;
