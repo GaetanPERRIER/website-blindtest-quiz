@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const MusicController = require('../controllers/music.controller');
+const { requireAuth } = require('../middleware/auth');
+const requireAdmin = require('../middleware/admin');
 
 // GET /api/music/get-categories (maybe deprecated)
 router.get('/get-categories', MusicController.getCategories);
@@ -14,9 +16,9 @@ router.get('/list-playlists', MusicController.ListPlaylist)
 router.get('/get-playlist-details/:id', MusicController.GetPlaylistDetails)
 
 // POST  /api/music/create-playlist
-router.post('/create-playlist', MusicController.createPlaylist)
+router.post('/create-playlist', requireAuth, requireAdmin, MusicController.createPlaylist)
 
 // GET /api/music/sync-playlists
-router.get('/sync-playlists', MusicController.SyncPlaylists)
+router.get('/sync-playlists', requireAuth, requireAdmin, MusicController.SyncPlaylists)
 
 module.exports = router;
