@@ -11,13 +11,10 @@ class GameService {
         const category = room.setting.category;
         const nbMusics = room.setting.songCount;
 
-        // Extract playlistId from tracklist URL (e.g., /playlists/37i9dQZF1DXcBWIGoYBM5M/tracks)
-        const playlistId = category.tracklist.split('/')[2];
-        
-        let allTracks = await MusicService.getPlaylistTracks(playlistId);
-        
+        const playlistDetails = await MusicService.GetPlaylistDetails(category.id);
+
         // Shuffle and take required number
-        allTracks = allTracks.sort(() => Math.random() - 0.5).slice(0, nbMusics);
+        let allTracks = (playlistDetails.songs || []).sort(() => Math.random() - 0.5).slice(0, nbMusics);
 
         room.players.forEach(player => {
             player.titleGuessed = false;
