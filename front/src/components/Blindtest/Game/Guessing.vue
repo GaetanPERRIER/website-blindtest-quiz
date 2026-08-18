@@ -1,6 +1,6 @@
 <script setup>
 import { usePlayerStore } from '@/stores/playerStore.js'
-import { computed, ref, watch, watchEffect, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
 import InputAnswer from '@/components/Blindtest/Game/Playing/InputAnswer.vue'
 import SoundVolume from './Utils/SoundVolume.vue'
 
@@ -25,23 +25,32 @@ const progressPercent = computed(() =>
 // fadeMultiplier passe de 0 a 1 au demarrage de l'extrait puis de 1 a 0 en fin de round.
 const FADE_IN_MS = 600
 const FADE_OUT_MS = 1500
-const fadeMultiplier = ref(0)
+// Cap le delta pris en compte a chaque frame : si l'onglet est mis en
+// arriere-plan, requestAnimationFrame se met en pause et le prochain
+// callback voit un delta enorme, ce qui ferait sauter le volume a sa
+// valeur finale au lieu de terminer le fondu en douceur au retour.
+const MAX_FRAME_DELTA_MS = 100
+let fadeMultiplier = 0
 let fadeFrame = null
 
 function applyVolume() {
-  if (audioEl.value) audioEl.value.volume = audioVolume.value * fadeMultiplier.value
+  if (audioEl.value) audioEl.value.volume = audioVolume.value * fadeMultiplier
 }
 
-watchEffect(applyVolume)
+watch(audioVolume, applyVolume, { immediate: true })
 
 function fadeTo(target, durationMs) {
   if (fadeFrame) cancelAnimationFrame(fadeFrame)
-  const start = fadeMultiplier.value
-  const startTime = performance.now()
+  const start = fadeMultiplier
+  let elapsed = 0
+  let lastTime = performance.now()
 
   function step(now) {
-    const progress = Math.min((now - startTime) / durationMs, 1)
-    fadeMultiplier.value = start + (target - start) * progress
+    elapsed += Math.min(now - lastTime, MAX_FRAME_DELTA_MS)
+    lastTime = now
+    const progress = Math.min(elapsed / durationMs, 1)
+    fadeMultiplier = start + (target - start) * progress
+    applyVolume()
     if (progress < 1) fadeFrame = requestAnimationFrame(step)
   }
   fadeFrame = requestAnimationFrame(step)
