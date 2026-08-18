@@ -11,6 +11,7 @@ const { corsOptions } = require('./config/cors');
 const musicRoutes = require('./routes/music.routes');
 const authRoutes = require('./routes/auth.routes');
 const friendRoutes = require('./routes/friend.routes');
+const profileRoutes = require('./routes/profile.routes');
 const setupSocketIO = require('./sockets/connection');
 
 const app = express();
@@ -31,6 +32,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/music', musicRoutes);
 app.use('/api/friends', friendRoutes);
+app.use('/api/profile', profileRoutes);
 
 
 

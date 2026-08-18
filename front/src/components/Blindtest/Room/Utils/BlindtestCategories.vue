@@ -25,11 +25,11 @@ onMounted(async () => {
     if (playerStore.categories.length > 0) return;
     try {
         const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3001';
-        const response = await fetch(`${apiUrl}/api/music/get-categories`);
+        const response = await fetch(`${apiUrl}/api/music/list-playlists`);
         if (!response.ok) throw new Error(`HTTP error: ${response.status}`);
         const data = await response.json();
-        if (data?.playlists?.data) {
-            playerStore.setCategories(data.playlists.data);
+        if (Array.isArray(data)) {
+            playerStore.setCategories(data);
         }
     } catch (error) {
         console.error('Failed to fetch categories:', error.message);
@@ -60,8 +60,8 @@ onMounted(async () => {
     <div v-else class="blindtest-categories w50 u-flex-direction-column u-flex u-justify-content-center u-align-items-center u-gap20 u-p10">
         <h2 v-if="hostPlayer" class="t-body-text t-color-white t-align-center">{{ hostPlayer.username }} is setting up the game...</h2>
         <div v-if="room.setting.category" class="selected-category-preview u-flex-direction-column u-align-items-center u-gap15">
-            <img :src="room.setting.category.picture_big" alt="Waiting for host" class="img-category">
-            <p class="category-name t-body-text">{{ room.setting.category.title }}</p>
+            <img :src="room.setting.category.cover_url" alt="Waiting for host" class="img-category">
+            <p class="category-name t-body-text">{{ room.setting.category.name }}</p>
         </div>
     </div>
 </template>
