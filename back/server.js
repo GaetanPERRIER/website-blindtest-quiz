@@ -10,6 +10,7 @@ const { PORT, CLIENT_URL } = require('./config/constants');
 const { corsOptions } = require('./config/cors');
 const musicRoutes = require('./routes/music.routes');
 const authRoutes = require('./routes/auth.routes');
+const profileRoutes = require('./routes/profile.routes');
 const setupSocketIO = require('./sockets/connection');
 
 const app = express();
@@ -29,6 +30,7 @@ app.use(express.json());
 // REST routes
 app.use('/api/auth', authRoutes);
 app.use('/api/music', musicRoutes);
+app.use('/api/profile', profileRoutes);
 
 
 
