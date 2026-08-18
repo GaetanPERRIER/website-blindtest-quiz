@@ -1,6 +1,6 @@
 <script setup>
 import { usePlayerStore } from '@/stores/playerStore.js'
-import { computed, ref, watchEffect, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, watch, watchEffect, onMounted, onBeforeUnmount } from 'vue'
 import InputAnswer from '@/components/Blindtest/Game/Playing/InputAnswer.vue'
 import SoundVolume from './Utils/SoundVolume.vue'
 
@@ -21,9 +21,35 @@ const progressPercent = computed(() =>
   duration.value ? (currentTime.value / duration.value) * 100 : 0
 )
 
-watchEffect(() => {
-  if (audioEl.value) audioEl.value.volume = audioVolume.value
-})
+// Fondu d'entree/sortie : le volume applique est audioVolume * fadeMultiplier,
+// fadeMultiplier passe de 0 a 1 au demarrage de l'extrait puis de 1 a 0 en fin de round.
+const FADE_IN_MS = 600
+const FADE_OUT_MS = 1500
+const fadeMultiplier = ref(0)
+let fadeFrame = null
+
+function applyVolume() {
+  if (audioEl.value) audioEl.value.volume = audioVolume.value * fadeMultiplier.value
+}
+
+watchEffect(applyVolume)
+
+function fadeTo(target, durationMs) {
+  if (fadeFrame) cancelAnimationFrame(fadeFrame)
+  const start = fadeMultiplier.value
+  const startTime = performance.now()
+
+  function step(now) {
+    const progress = Math.min((now - startTime) / durationMs, 1)
+    fadeMultiplier.value = start + (target - start) * progress
+    if (progress < 1) fadeFrame = requestAnimationFrame(step)
+  }
+  fadeFrame = requestAnimationFrame(step)
+}
+
+function onPlay() {
+  fadeTo(1, FADE_IN_MS)
+}
 
 function onTimeUpdate() {
   currentTime.value = audioEl.value?.currentTime ?? 0
@@ -47,6 +73,12 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   clearInterval(timerInterval)
+  if (fadeFrame) cancelAnimationFrame(fadeFrame)
+})
+
+// Fondu de sortie : demarre quand il reste peu de temps avant la fin du round
+watch(timeLeft, (value) => {
+  if (value === 2) fadeTo(0, FADE_OUT_MS)
 })
 
 const timerPercent = computed(() =>
@@ -84,6 +116,7 @@ function getPlayerColor(index) {
       ref="audioEl"
       :src="musicToGuess.preview"
       autoplay
+      @play="onPlay"
       @timeupdate="onTimeUpdate"
       @loadedmetadata="onLoadedMetadata"
     />
