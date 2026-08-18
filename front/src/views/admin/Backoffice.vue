@@ -3,8 +3,10 @@ import SoundVolume from '@/components/Blindtest/Game/Utils/SoundVolume.vue'
 import PlaylistListPanel from '@/components/Admin/PlaylistListPanel.vue'
 import PlaylistDetailPanel from '@/components/Admin/PlaylistDetailPanel.vue'
 import { ref, onMounted, watch } from 'vue'
+import { useAuthStore } from '@/stores/authStore'
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const authStore = useAuthStore()
 
 const playlists = ref([])
 const selectedPlaylist = ref(null)
@@ -66,7 +68,9 @@ async function syncPlaylists() {
     syncMessage.value = null
 
     try {
-        const response = await fetch(`${API_URL}/api/music/sync-playlists`)
+        const response = await fetch(`${API_URL}/api/music/sync-playlists`, {
+            headers: { Authorization: `Bearer ${authStore.token}` }
+        })
         if (!response.ok) {
             throw new Error(`Statut de réponse : ${response.status}`)
         }
