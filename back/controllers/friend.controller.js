@@ -1,65 +1,46 @@
 const FriendService = require('../services/friend.service');
 
+function asyncHandler(label, handler) {
+    return async (req, res) => {
+        try {
+            await handler(req, res);
+        } catch (error) {
+            console.error(`${label}:`, error.message);
+            res.status(error.status || 500).json({ error: error.message });
+        }
+    };
+}
+
 class FriendController {
-    async search(req, res) {
-        try {
-            const users = await FriendService.searchUsers(req.query.q, req.user.id);
-            res.json(users);
-        } catch (error) {
-            console.error('Failed to search users:', error.message);
-            res.status(error.status || 500).json({ error: error.message });
-        }
-    }
+    search = asyncHandler('Failed to search users', async (req, res) => {
+        const users = await FriendService.searchUsers(req.query.q, req.user.id);
+        res.json(users);
+    });
 
-    async listFriends(req, res) {
-        try {
-            const friends = await FriendService.getFriends(req.user.id);
-            res.json(friends);
-        } catch (error) {
-            console.error('Failed to list friends:', error.message);
-            res.status(error.status || 500).json({ error: error.message });
-        }
-    }
+    listFriends = asyncHandler('Failed to list friends', async (req, res) => {
+        const friends = await FriendService.getFriends(req.user.id);
+        res.json(friends);
+    });
 
-    async listPendingRequests(req, res) {
-        try {
-            const requests = await FriendService.getPendingRequests(req.user.id);
-            res.json(requests);
-        } catch (error) {
-            console.error('Failed to list pending requests:', error.message);
-            res.status(error.status || 500).json({ error: error.message });
-        }
-    }
+    listPendingRequests = asyncHandler('Failed to list pending requests', async (req, res) => {
+        const requests = await FriendService.getPendingRequests(req.user.id);
+        res.json(requests);
+    });
 
-    async sendRequest(req, res) {
-        try {
-            await FriendService.sendFriendRequest(req.user.id, req.body.friendId);
-            res.json({ success: true });
-        } catch (error) {
-            console.error('Failed to send friend request:', error.message);
-            res.status(error.status || 500).json({ error: error.message });
-        }
-    }
+    sendRequest = asyncHandler('Failed to send friend request', async (req, res) => {
+        await FriendService.sendFriendRequest(req.user.id, req.body.friendId);
+        res.json({ success: true });
+    });
 
-    async acceptRequest(req, res) {
-        try {
-            await FriendService.acceptRequest(req.params.requestId, req.user.id);
-            res.json({ success: true });
-        } catch (error) {
-            console.error('Failed to accept friend request:', error.message);
-            res.status(error.status || 500).json({ error: error.message });
-        }
-    }
+    acceptRequest = asyncHandler('Failed to accept friend request', async (req, res) => {
+        await FriendService.acceptRequest(req.params.requestId, req.user.id);
+        res.json({ success: true });
+    });
 
-    async removeFriend(req, res) {
-        try {
-            await FriendService.removeFriend(req.user.id, req.params.friendId);
-            res.json({ success: true });
-        } catch (error) {
-            console.error('Failed to remove friend:', error.message);
-            res.status(error.status || 500).json({ error: error.message });
-        }
-    }
+    removeFriend = asyncHandler('Failed to remove friend', async (req, res) => {
+        await FriendService.removeFriend(req.user.id, req.params.friendId);
+        res.json({ success: true });
+    });
 }
 
 module.exports = new FriendController();

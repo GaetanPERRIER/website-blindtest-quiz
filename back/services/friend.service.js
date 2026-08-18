@@ -1,5 +1,7 @@
 const friendRepository = require('../repositories/friend.repository');
 
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 class FriendService {
     async searchUsers(query, currentUserId) {
         const trimmed = (query ?? '').trim();
@@ -17,7 +19,7 @@ class FriendService {
     }
 
     async sendFriendRequest(userId, friendId) {
-        if (!friendId || friendId === userId) {
+        if (!friendId || friendId === userId || !UUID_REGEX.test(friendId)) {
             const error = new Error('Destinataire invalide.');
             error.status = 400;
             throw error;
@@ -60,6 +62,12 @@ class FriendService {
     }
 
     async removeFriend(userId, friendId) {
+        if (!friendId || !UUID_REGEX.test(friendId)) {
+            const error = new Error('Ami invalide.');
+            error.status = 400;
+            throw error;
+        }
+
         await friendRepository.deleteFriendship(userId, friendId);
     }
 }
