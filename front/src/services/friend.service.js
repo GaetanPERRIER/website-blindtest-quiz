@@ -1,119 +1,65 @@
-import { supabase } from './supabase'
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+
+async function request(path, token, options = {}) {
+    const response = await fetch(`${API_URL}/api/friends${path}`, {
+        ...options,
+        headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+            ...(options.headers || {})
+        }
+    })
+
+    const data = await response.json().catch(() => null)
+    if (!response.ok) {
+        throw new Error(data?.error || `HTTP error: ${response.status}`)
+    }
+    return data
+}
 
 export const friendService = {
-  /**
-   * Search for users by username
-   */
-  async searchUsers(query) {
-      const { data, error } = await supabase
-          .from('profiles')
-          .select('id, username, avatar_url')
-          .ilike('username', `%${query}%`)
-          .limit(10)
+    /**
+     * Search for users by username
+     */
+    async searchUsers(query, token) {
+        return await request(`/search?q=${encodeURIComponent(query)}`, token)
+    },
 
-      if (error) throw error
-      return data
-  },
+    /**
+     * Get current user's friends
+     */
+    async getFriends(token) {
+        return await request('/', token)
+    },
 
-  /**
-   * Get current user's friends
-   */
-  async getFriends(userId) {
-      const { data: friendships, error } = await supabase
-          .from('friendships')
-          .select('user_id, friend_id')
-          .or(`user_id.eq.${userId},friend_id.eq.${userId}`)
-          .eq('status', 'accepted')
+    /**
+     * Send a friend request
+     */
+    async sendFriendRequest(friendId, token) {
+        return await request('/requests', token, {
+            method: 'POST',
+            body: JSON.stringify({ friendId })
+        })
+    },
 
-      if (error) throw error
-      if (!friendships.length) return []
+    /**
+     * Get pending friend requests
+     */
+    async getPendingRequests(token) {
+        return await request('/requests/pending', token)
+    },
 
-      const friendIds = friendships.map(f =>
-          f.user_id === userId ? f.friend_id : f.user_id
-      )
-
-      const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, username, avatar_url')
-          .in('id', friendIds)
-
-      if (profilesError) throw profilesError
-      console.log('friends:', profiles)
-      return profiles
-  },
-
-  /**
-   * Send a friend request
-   */
-  async sendFriendRequest(userId, friendId) {
-      // Vérifie qu'il n'existe pas déjà une demande dans l'un ou l'autre sens
-      const { data: existing } = await supabase
-          .from('friendships')
-          .select('id')
-          .or(
-              `and(user_id.eq.${userId},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${userId})`
-          )
-          .limit(1)
-
-      if (existing?.length > 0) return // déjà existant, on ne recrée pas
-
-      const { error } = await supabase
-          .from('friendships')
-          .insert({ user_id: userId, friend_id: friendId, status: 'pending' })
-
-      if (error) throw error
-  },
-
-  /**
-   * Get pending friend requests
-   */
-  async getPendingRequests(userId) {
-      const { data: requests, error } = await supabase
-          .from('friendships')
-          .select('id, user_id')
-          .eq('friend_id', userId)
-          .eq('status', 'pending')
-
-      if (error) throw error
-      if (!requests.length) return []
-
-      const userIds = requests.map(r => r.user_id)
-      const { data: profiles, error: profilesError } = await supabase
-          .from('profiles')
-          .select('id, username, avatar_url')
-          .in('id', userIds)
-
-      if (profilesError) throw profilesError
-
-      return requests.map(r => ({
-          id: r.id,
-          user: profiles.find(p => p.id === r.user_id)
-      }))
-  },
-
-  /**
-   * Accept friend request
-   */
-  async acceptRequest(requestId) {
-    const { error } = await supabase
-      .from('friendships')
-      .update({ status: 'accepted' })
-      .eq('id', requestId)
-    
-    if (error) throw error
-  },
+    /**
+     * Accept friend request
+     */
+    async acceptRequest(requestId, token) {
+        return await request(`/requests/${requestId}/accept`, token, { method: 'POST' })
+    },
 
     /**
      * Remove friendship
      */
-    async removeFriend(userId, friendId) {
-        const { data, error } = await supabase
-            .from('friendships')
-            .delete()
-            .or(`and(user_id.eq.${userId},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${userId})`)
-            .select()
-
-        console.log('deleted:', data, error)
-        if (error) throw error
+    async removeFriend(friendId, token) {
+        return await request(`/${friendId}`, token, { method: 'DELETE' })
     },
 }
