@@ -2,11 +2,6 @@ const express = require('express');
 const router = express.Router();
 const MusicController = require('../controllers/music.controller');
 
-// GET /api/music/get-categories (maybe deprecated)
-router.get('/get-categories', MusicController.getCategories);
-
-
-
 // GET /api/music/list-playlists
 router.get('/list-playlists', MusicController.ListPlaylist)
 

@@ -273,22 +273,6 @@ class SpotifyService {
 
         return response.json();
     }
-
-    async getCategories() {
-        // En Spotify, on peut récupérer des playlists de catégories ou des playlists "featured"
-        // Pour correspondre à l'ancienne logique Deezer (charts), on va chercher des playlists populaires
-        const data = await this.fetchFromSpotify('/browse/featured-playlists?limit=20');
-        return {
-            playlists: {
-                data: data.playlists.items.map(item => ({
-                    id: item.id,
-                    title: item.name,
-                    picture_big: item.images[0]?.url,
-                    tracklist: `/playlists/${item.id}/tracks`
-                }))
-            }
-        };
-    }
 }
 
 module.exports = new SpotifyService();
