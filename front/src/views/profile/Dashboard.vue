@@ -2,11 +2,11 @@
 import { useAuthStore } from '@/stores/authStore';
 import { useToastStore } from '@/stores/toastStore';
 import { friendService } from '@/services/friend.service';
+import { profileService } from '@/services/profile.service';
 import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
 import { ref, onMounted, computed } from 'vue';
 import { supabase } from '@/services/supabase';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
 const authStore = useAuthStore();
 const toastStore = useToastStore();
 const user = computed(() => authStore.user);
@@ -59,12 +59,6 @@ async function fetchProfile() {
     }
 }
 
-function limitUsernameLength() {
-    if (profile.value.username.length > 20) {
-        profile.value.username = profile.value.username.substring(0, 20);
-    }
-}
-
 async function updateProfile() {
     // Validation cote client pour le confort de saisie uniquement :
     // le serveur (PATCH /api/profile/me) revalide et fait foi.
@@ -80,20 +74,10 @@ async function updateProfile() {
 
     saving.value = true;
     try {
-        const response = await fetch(`${API_URL}/api/profile/me`, {
-            method: 'PATCH',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${authStore.token}`
-            },
-            body: JSON.stringify({
-                username,
-                avatar_url: profile.value.avatar_url
-            })
+        const data = await profileService.updateProfile(authStore.token, {
+            username,
+            avatar_url: profile.value.avatar_url
         });
-
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || 'Échec de la mise à jour du profil.');
 
         profile.value = data;
         toastStore.addToast('Profil mis à jour avec succès !');
@@ -197,7 +181,7 @@ async function logout() {
                         
                         <div class="form-group">
                             <label class="t-body-text">Nom d'utilisateur</label>
-                            <input v-model="profile.username" @input="limitUsernameLength" type="text" class="input-field" placeholder="Choisis un pseudo" maxlength="20">
+                            <input v-model="profile.username" type="text" class="input-field" placeholder="Choisis un pseudo" maxlength="20">
                             <p class="t-body-text-xs color-text-light u-mt10">{{ profile.username.length }}/20</p>
                         </div>
 
