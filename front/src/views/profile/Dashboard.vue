@@ -34,7 +34,7 @@ onMounted(async () => {
 
 async function removeFriend() {
     try {
-        await friendService.removeFriend(authStore.user.id, friendToRemove.value.id)
+        await friendService.removeFriend(friendToRemove.value.id, authStore.token)
         friends.value = friends.value.filter(f => f.id !== friendToRemove.value.id)
         toastStore.addToast('Ami supprimé.')
     } catch (err) {
@@ -91,13 +91,11 @@ async function updateProfile() {
 
 async function fetchFriendsData() {
     try {
-        friends.value = await friendService.getFriends(user.value.id);
-        pendingRequests.value = await friendService.getPendingRequests(user.value.id);
+        friends.value = await friendService.getFriends(authStore.token);
+        pendingRequests.value = await friendService.getPendingRequests(authStore.token);
     } catch (err) {
         console.error('Error fetching friends:', err);
-        if (err.code === 'PGRST205') {
-            toastStore.addToast('Tables de base de données introuvables.', 'error');
-        }
+        toastStore.addToast('Impossible de charger les données d\'amis.', 'error');
     }
 }
 
@@ -108,9 +106,7 @@ async function searchUsers() {
     }
     loading.value = true;
     try {
-        searchResults.value = await friendService.searchUsers(searchQuery.value);
-        // Exclude self and current friends/pending
-        searchResults.value = searchResults.value.filter(u => u.id !== user.value.id);
+        searchResults.value = await friendService.searchUsers(searchQuery.value, authStore.token);
     } catch (err) {
         console.error('Error searching users:', err);
     } finally {
@@ -120,7 +116,7 @@ async function searchUsers() {
 
 async function sendRequest(friendId) {
     try {
-        await friendService.sendFriendRequest(user.value.id, friendId);
+        await friendService.sendFriendRequest(friendId, authStore.token);
         toastStore.addToast('Demande d\'ami envoyée !');
         searchQuery.value = '';
         searchResults.value = [];
@@ -132,7 +128,7 @@ async function sendRequest(friendId) {
 
 async function acceptRequest(requestId) {
     try {
-        await friendService.acceptRequest(requestId);
+        await friendService.acceptRequest(requestId, authStore.token);
         await fetchFriendsData();
     } catch (err) {
         console.error('Error accepting request:', err);
