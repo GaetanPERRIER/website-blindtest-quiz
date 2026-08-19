@@ -2,12 +2,15 @@
 import socket from "@/utils/socket.js";
 import { useRouter } from "vue-router";
 import { usePlayerStore} from "@/stores/playerStore.js";
+import { useToastStore } from "@/stores/toastStore.js";
 import { computed, onMounted, ref, watch} from "vue";
 import PlayerList from "@/components/Blindtest/Room/Utils/PlayerList.vue";
 
 const playerStore = usePlayerStore()
+const toastStore = useToastStore()
 const router = useRouter()
 const room = computed(() => playerStore.room);
+const canStartGame = computed(() => !!playerStore.room.setting?.category);
 const currentPlayer = computed(() =>
     playerStore.room.players.find(player => player.socketId === socket.id)
 )
@@ -44,6 +47,11 @@ onMounted(() => {
     socket.off("gameStarted")
     socket.on('gameStarted', (room) => {
         playerStore.startGame(room)
+    })
+
+    socket.off("error")
+    socket.on('error', (message) => {
+        toastStore.addToast(message, 'error')
     })
 })
 
@@ -96,7 +104,13 @@ onMounted(() => {
             </div>
 
             <div class="w100 u-flex u-justify-content-center u-align-items-center u-pt10">
-                <button v-if="currentPlayer.host" @click="socket.emit('startGame', room.id);" class="btn-primary start-button">
+                <button
+                    v-if="currentPlayer.host"
+                    @click="socket.emit('startGame', room.id);"
+                    :disabled="!canStartGame"
+                    :title="canStartGame ? '' : 'Select a category first'"
+                    class="btn-primary start-button"
+                >
                     Start Blindtest
                 </button>
                 <div v-else class="waiting-indicator u-flex u-align-items-center u-gap10">
