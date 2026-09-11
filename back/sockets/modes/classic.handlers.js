@@ -3,9 +3,13 @@ const gameService = require('../../services/game.service');
 
 module.exports = (io, socket) => {
     socket.on('startGame', async (roomId) => {
-        const room = await gameService.startGame(roomId, roomService)
-        if (room) {
-            await playNextRound(roomId, io, roomService, gameService)
+        try {
+            const room = await gameService.startGame(roomId, roomService)
+            if (room) {
+                await playNextRound(roomId, io, roomService, gameService)
+            }
+        } catch (error) {
+            socket.emit('error', error.message);
         }
     });
 

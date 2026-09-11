@@ -11,6 +11,10 @@ class GameService {
         const category = room.setting.category;
         const nbMusics = room.setting.songCount;
 
+        if (!category) {
+            throw new Error('Aucune catégorie sélectionnée.');
+        }
+
         const playlistDetails = await MusicService.GetPlaylistDetails(category.id);
 
         // Shuffle and take required number
