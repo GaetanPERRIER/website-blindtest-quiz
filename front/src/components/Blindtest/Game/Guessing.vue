@@ -34,7 +34,7 @@ let fadeMultiplier = 0
 let fadeFrame = null
 
 function applyVolume() {
-  if (audioEl.value) audioEl.value.volume = audioVolume.value * fadeMultiplier
+  if (audioEl.value) audioEl.value.volume = Math.min(1, Math.max(0, audioVolume.value * fadeMultiplier))
 }
 
 watch(audioVolume, applyVolume, { immediate: true })
@@ -139,7 +139,7 @@ function getPlayerColor(index) {
       
       <div class="category-info u-flex-direction-column u-align-items-center">
         <span class="category-label">Category</span>
-        <span class="category-name">{{ room.setting?.category?.title || 'Unknown' }}</span>
+        <span class="category-name">{{ room.setting?.category?.name || 'Unknown' }}</span>
       </div>
 
       <SoundVolume />
