@@ -1,15 +1,17 @@
 <script setup>
 import { ref, computed, watch, watchEffect } from 'vue'
-import { Play, Pause } from 'lucide-vue-next'
+import { Play, Pause, Trash2 } from 'lucide-vue-next'
 import { usePlayerStore } from '@/stores/playerStore'
 
 const props = defineProps({
     song: { type: Object, required: true },
     index: { type: Number, required: true },
-    isPlaying: { type: Boolean, default: false }
+    isPlaying: { type: Boolean, default: false },
+    removable: { type: Boolean, default: false },
+    isRemoving: { type: Boolean, default: false }
 })
 
-const emit = defineEmits(['play', 'pause', 'ended'])
+const emit = defineEmits(['play', 'pause', 'ended', 'remove'])
 
 const playerStore = usePlayerStore()
 const audioEl = ref(null)
@@ -96,6 +98,15 @@ function onEnded() {
             >
                 <Pause v-if="isPlaying" :size="16" />
                 <Play v-else :size="16" />
+            </button>
+            <button
+                v-if="removable"
+                class="remove-btn"
+                :disabled="isRemoving"
+                :aria-label="`Retirer ${song.title} de la playlist`"
+                @click="$emit('remove', song)"
+            >
+                <Trash2 :size="16" />
             </button>
         </div>
 
@@ -231,6 +242,31 @@ function onEnded() {
         border-color: $color-accent;
         background: rgba(255, 187, 51, 0.15);
         color: $color-accent;
+    }
+
+    &:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+    }
+}
+
+.remove-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 1px solid $color-border;
+    color: $color-text-muted;
+    cursor: pointer;
+    transition: all $duration-normal $authenticMotion;
+    flex-shrink: 0;
+
+    &:hover:not(:disabled) {
+        border-color: $color-danger;
+        color: $color-danger;
+        background: rgba(255, 107, 107, 0.15);
     }
 
     &:disabled {
