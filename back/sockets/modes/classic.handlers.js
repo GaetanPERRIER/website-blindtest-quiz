@@ -13,6 +13,17 @@ module.exports = (io, socket) => {
         }
     });
 
+    socket.on('playAgain', async (roomId) => {
+        try {
+            const room = await gameService.startGame(roomId, roomService)
+            if (room) {
+                await playNextRound(roomId, io, roomService, gameService)
+            }
+        } catch (error) {
+            socket.emit('error', error.message);
+        }
+    });
+
 
     socket.on('checkAnswer', (roomId, socketId, answer) => {
         const room = gameService.checkAnswer(roomId, socketId, answer, roomService)
