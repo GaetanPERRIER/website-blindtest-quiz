@@ -123,7 +123,7 @@ function getPlayerColor(index) {
     <!-- Audio caché -->
     <audio
       ref="audioEl"
-      :src="musicToGuess.preview"
+      :src="musicToGuess.preview_url"
       autoplay
       @play="onPlay"
       @timeupdate="onTimeUpdate"
