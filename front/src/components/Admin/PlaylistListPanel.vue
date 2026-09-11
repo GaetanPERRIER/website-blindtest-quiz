@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { RefreshCw } from 'lucide-vue-next'
+import { RefreshCw, Plus } from 'lucide-vue-next'
 import PlaylistRow from './PlaylistRow.vue'
 
 const props = defineProps({
@@ -12,7 +12,7 @@ const props = defineProps({
     syncMessage: { type: String, default: null }
 })
 
-defineEmits(['select', 'update:searchQuery', 'sync'])
+defineEmits(['select', 'update:searchQuery', 'sync', 'create'])
 
 const filteredPlaylists = computed(() => {
     const query = props.searchQuery.trim().toLowerCase()
@@ -33,12 +33,16 @@ const filteredPlaylists = computed(() => {
             <div class="header-actions u-flex u-align-items-center u-gap8">
                 <span v-if="syncMessage" class="sync-message">{{ syncMessage }}</span>
                 <button
-                    class="btn-secondary sync-btn"
+                    class="btn-secondary action-btn"
                     :disabled="isSyncing"
                     @click="$emit('sync')"
                 >
                     <RefreshCw :size="16" :class="{ spinning: isSyncing }" />
                     {{ isSyncing ? 'Sync…' : 'Sync Spotify' }}
+                </button>
+                <button class="btn-secondary action-btn" @click="$emit('create')">
+                    <Plus :size="16" />
+                    Nouvelle playlist
                 </button>
             </div>
             <input
@@ -110,7 +114,7 @@ const filteredPlaylists = computed(() => {
     color: $color-accent;
 }
 
-.sync-btn {
+.action-btn {
     padding: $spacing-xs $spacing-md;
     font-size: $font-size-xs;
 
