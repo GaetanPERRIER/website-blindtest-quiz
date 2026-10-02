@@ -59,6 +59,42 @@ class SpotifyService {
         return this.accessToken;
     }
 
+    // Appel générique à l'API Spotify, avec le token admin et la gestion d'erreur
+    async spotifyFetch(endpoint, options = {}) {
+        const token = await this.getAccessToken()
+
+        const response = await fetch(`${this.spotifyUrl}${endpoint}`, {
+            ...options,
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json',
+                ...(options.headers || {})
+            }
+        })
+
+        if (!response.ok) {
+            const error = await response.json().catch(() => null)
+            throw new Error(`Erreur API Spotify (${endpoint}): ${error?.error?.message || response.statusText}`)
+        }
+
+        // Spotify renvoie un corps vide sur certaines opérations (unfollow par ex.)
+        const body = await response.text()
+        return body ? JSON.parse(body) : null
+    }
+
+    // Charge une playlist en base ou lève une 404 exploitable par le controller
+    async getPlaylistOrThrow(playlistId) {
+        const playlist = await MusicRepository.GetPlaylistById(playlistId)
+
+        if (!playlist) {
+            const error = new Error('Playlist introuvable.')
+            error.status = 404
+            throw error
+        }
+
+        return playlist
+    }
+
     //  Get all playlists available
     async ListPlaylists(){
         return await MusicRepository.ListPlaylists()
@@ -66,49 +102,129 @@ class SpotifyService {
 
     // Create a spotify playlist
     async CreatePlaylist(playlistName) {
-        const token = await this.getAccessToken();
-        console.log(token);
-        
-        // Call l'api spotify pour créer une playlist
-        const url = `${this.spotifyUrl}/me/playlists`
-        const response = await fetch(url, {
-            method: "POST",
-            headers: {
-                'Authorization': `Bearer ${token}`,
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                name: playlistName,
-                public: false
-            })
-        })
+        const name = (playlistName ?? '').trim()
 
-        if (!response.ok) {
-            const error = await response.json()
-            throw new Error(`Spotify error: ${error.error?.message || response.statusText}`)
+        if (!name) {
+            const error = new Error('Le nom de la playlist est obligatoire.')
+            error.status = 400
+            throw error
         }
-    
-        const data = await response.json()
+
+        // Call l'api spotify pour créer une playlist
+        const data = await this.spotifyFetch('/me/playlists', {
+            method: 'POST',
+            body: JSON.stringify({ name, public: false })
+        })
 
         // Enboyer le retour de l'api (playliste id etc... ) dans le repo pour ajout en base
         return await MusicRepository.AddPlaylist(data)
     }
 
-    
+    // Delete a playlist : unfollow côté Spotify (l'API n'expose pas de suppression)
+    // puis retrait de la base, sinon le prochain SyncPlaylists la réimporterait
+    async DeletePlaylist(playlistId) {
+        const playlist = await this.getPlaylistOrThrow(playlistId)
+
+        await this.spotifyFetch(`/playlists/${playlist.spotify_playlist_id}/followers`, {
+            method: 'DELETE'
+        })
+
+        await MusicRepository.DeletePlaylist(playlist.id)
+
+        return { id: playlist.id, name: playlist.name }
+    }
+
+
     async GetPlaylistDetails(idPlaylist){
         return await MusicRepository.GetPlaylistDetails(idPlaylist)
     }
 
-    // TODO : Add a song to a playlist 
-    async AddSong(playlistId, song){
-        // If the song doesnt exist in "songs" add it, the add the relation in "playlist_song"
+    // Search tracks on Spotify, pour alimenter l'ajout de morceaux depuis le backoffice.
+    // limit est plafonné à 10 : au-delà, /search répond "Invalid limit" sur une app
+    // Spotify en mode développement.
+    async SearchTracks(query, limit = 10) {
+        const trimmed = (query ?? '').trim()
+        if (trimmed.length < 2) return []
 
-        // Else, find it in "songs" then add the relation
+        const data = await this.spotifyFetch(
+            `/search?q=${encodeURIComponent(trimmed)}&type=track&limit=${limit}`
+        )
+
+        return (data?.tracks?.items ?? [])
+            .filter(track => track?.id)
+            .map(track => ({
+                spotify_track_id: track.id,
+                title: track.name,
+                artist: track.artists?.map(a => a.name).join(', ') ?? 'Unknown',
+                cover_url: track.album?.images?.[0]?.url ?? null,
+                album: track.album?.name ?? null,
+            }))
     }
 
-    // TODO :Delete a song from a playlist
-    async RemoveSong(playlistId, songId){
+    // Add a song to a playlist (Spotify + base, pour rester cohérent avec SyncPlaylists)
+    async AddSong(playlistId, spotifyTrackId) {
+        const playlist = await this.getPlaylistOrThrow(playlistId)
+
+        if (!spotifyTrackId) {
+            const error = new Error('Identifiant du morceau manquant.')
+            error.status = 400
+            throw error
+        }
+
+        const track = await this.spotifyFetch(`/tracks/${spotifyTrackId}`)
+        const artist = track.artists?.map(a => a.name).join(', ') ?? 'Unknown'
+
+        // Fallback iTunes si Spotify ne fournit pas de preview, comme pour le sync
+        const previewUrl = track.preview_url ?? await this.getItunesPreviewUrl(track.name, artist)
+
+        // If the song doesnt exist in "songs" add it, then add the relation in "playlist_songs"
+        const song = await MusicRepository.UpsertSong({
+            spotify_track_id: track.id,
+            title: track.name,
+            artist,
+            cover_url: track.album?.images?.[0]?.url ?? null,
+            preview_url: previewUrl,
+        })
+
+        if (await MusicRepository.IsSongInPlaylist(playlist.id, song.id)) {
+            const error = new Error('Ce morceau est déjà dans la playlist.')
+            error.status = 409
+            throw error
+        }
+
+        // /items et non /tracks : comme pour la lecture dans getPlaylistTracks,
+        // l'endpoint /tracks répond 403 sur cette application Spotify
+        await this.spotifyFetch(`/playlists/${playlist.spotify_playlist_id}/items`, {
+            method: 'POST',
+            body: JSON.stringify({ uris: [`spotify:track:${track.id}`] })
+        })
+
+        await MusicRepository.AddSongToPlaylist(playlist.id, song.id)
+
+        return song
+    }
+
+    // Delete a song from a playlist (le morceau reste dans la table songs)
+    async RemoveSong(playlistId, songId) {
+        const playlist = await this.getPlaylistOrThrow(playlistId)
+        const song = await MusicRepository.GetSongById(songId)
+
+        if (!song) {
+            const error = new Error('Morceau introuvable.')
+            error.status = 404
+            throw error
+        }
+
+        // Le retrait attend items: [{ uri }] là où l'ajout attend uris: [...]
+        await this.spotifyFetch(`/playlists/${playlist.spotify_playlist_id}/items`, {
+            method: 'DELETE',
+            body: JSON.stringify({ items: [{ uri: `spotify:track:${song.spotify_track_id}` }] })
+        })
+
         // remove the link "playlist_songs"
+        await MusicRepository.RemoveSongFromPlaylist(playlist.id, song.id)
+
+        return { id: song.id, title: song.title }
     }
 
 

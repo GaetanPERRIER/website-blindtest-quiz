@@ -7,7 +7,7 @@ Jeu de blindtest musical multijoueur en temps réel. Les joueurs rejoignent un s
 - **Multijoueur en temps réel** via WebSockets (Socket.IO), jusqu'à 6 joueurs par salon
 - **Salons sur invitation** — lien de partage, pas de room publique
 - **Comptes utilisateurs** via Google OAuth (Supabase Auth) + système d'amis
-- **Backoffice admin** pour gérer les playlists jouables (sync Spotify + preview audio iTunes en fallback, stockées en base)
+- **Backoffice admin** pour gérer les playlists jouables de bout en bout — création/suppression d'une playlist, ajout/retrait de morceaux via une recherche Spotify intégrée, sync Spotify + preview audio iTunes en fallback, le tout stocké en base
 - **Scoring** basé sur la rapidité de réponse
 
 ## 🏗️ Architecture

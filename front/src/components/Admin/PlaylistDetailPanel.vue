@@ -1,16 +1,17 @@
 <script setup>
 import { computed } from 'vue'
-import { Music2 } from 'lucide-vue-next'
+import { Music2, Plus, Trash2 } from 'lucide-vue-next'
 import SongPreviewRow from './SongPreviewRow.vue'
 
 const props = defineProps({
     playlist: { type: Object, default: null },
     isLoading: { type: Boolean, default: false },
     error: { type: String, default: null },
-    currentlyPlayingId: { type: [Number, String, null], default: null }
+    currentlyPlayingId: { type: [Number, String, null], default: null },
+    removingSongId: { type: [Number, String, null], default: null }
 })
 
-defineEmits(['play', 'pause', 'ended'])
+defineEmits(['play', 'pause', 'ended', 'add-song', 'remove-song', 'delete-playlist'])
 
 const songs = computed(() => props.playlist?.songs ?? [])
 const previewCount = computed(() => songs.value.filter(s => s.preview_url).length)
@@ -65,6 +66,20 @@ const previewCount = computed(() => songs.value.filter(s => s.preview_url).lengt
                         <span class="stat-badge">{{ previewCount }} preview{{ previewCount !== 1 ? 's' : '' }} disponible{{ previewCount !== 1 ? 's' : '' }}</span>
                     </div>
                 </div>
+
+                <div class="detail-actions u-flex u-align-items-center u-gap8">
+                    <button class="btn-ghost btn-sm" @click="$emit('add-song')">
+                        <Plus :size="16" />
+                        Ajouter un morceau
+                    </button>
+                    <button
+                        class="delete-playlist-btn"
+                        aria-label="Supprimer la playlist"
+                        @click="$emit('delete-playlist')"
+                    >
+                        <Trash2 :size="16" />
+                    </button>
+                </div>
             </div>
 
             <div v-if="songs.length === 0" class="empty-songs">
@@ -78,9 +93,12 @@ const previewCount = computed(() => songs.value.filter(s => s.preview_url).lengt
                     :song="song"
                     :index="index"
                     :is-playing="currentlyPlayingId === song.id"
+                    :removable="true"
+                    :is-removing="removingSongId === song.id"
                     @play="$emit('play', $event)"
                     @pause="$emit('pause')"
                     @ended="$emit('ended')"
+                    @remove="$emit('remove-song', $event)"
                 />
             </div>
         </template>
@@ -158,6 +176,31 @@ const previewCount = computed(() => songs.value.filter(s => s.preview_url).lengt
 
 .detail-stats {
     flex-wrap: wrap;
+}
+
+.detail-actions {
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+.delete-playlist-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 1px solid $color-border;
+    color: $color-text-muted;
+    cursor: pointer;
+    transition: all $duration-fast $authenticMotion;
+
+    &:hover {
+        border-color: $color-danger;
+        color: $color-danger;
+        background: rgba(255, 107, 107, 0.15);
+    }
 }
 
 .stat-badge {
