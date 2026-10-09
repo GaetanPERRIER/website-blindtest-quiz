@@ -1,4 +1,4 @@
-const supabase = require('../config/db');
+const supabase = require('../config/supabaseAuth');
 const profileRepository = require('../repositories/profile.repository');
 const { BACKEND_URL } = require('../config/constants');
 

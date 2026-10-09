@@ -51,12 +51,12 @@ function getRoundScore(player) {
     <!-- Révélation de la chanson -->
     <div class="song-reveal-container">
         <div class="album-art-wrapper">
-            <img :src="musicToGuess.album?.cover_xl" class="album-art-bg" />
-            <img :src="musicToGuess.album?.cover_medium" class="album-art" />
+            <img :src="musicToGuess.cover_url" class="album-art-bg" />
+            <img :src="musicToGuess.cover_url" class="album-art" />
         </div>
         <div class="song-info-reveal">
-            <h2 class="song-title">{{ musicToGuess.title_short }}</h2>
-            <p class="song-artist">{{ musicToGuess.artist?.name }}</p>
+            <h2 class="song-title">{{ musicToGuess.title }}</h2>
+            <p class="song-artist">{{ musicToGuess.artist }}</p>
         </div>
     </div>
 

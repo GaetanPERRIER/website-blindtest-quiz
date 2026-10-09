@@ -29,7 +29,7 @@ function selectCategory() {
 <template>
     <div @click="selectCategory" class="category u-flex u-flex-direction-column u-align-items-center u-justify-content-center u-gap10" :class="{ selected: isSelected }">
         <div class="opacity-filter"></div>
-        <img :src="category.picture_big" alt="">
+        <img :src="category.cover_url" :alt="category.name">
     </div>
 </template>
 

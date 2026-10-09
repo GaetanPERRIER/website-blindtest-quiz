@@ -1,16 +1,17 @@
 <script setup>
 import { computed } from 'vue'
-import { Music2 } from 'lucide-vue-next'
+import { Music2, Plus, Trash2 } from 'lucide-vue-next'
 import SongPreviewRow from './SongPreviewRow.vue'
 
 const props = defineProps({
     playlist: { type: Object, default: null },
     isLoading: { type: Boolean, default: false },
     error: { type: String, default: null },
-    currentlyPlayingId: { type: [Number, String, null], default: null }
+    currentlyPlayingId: { type: [Number, String, null], default: null },
+    removingSongId: { type: [Number, String, null], default: null }
 })
 
-defineEmits(['play', 'pause', 'ended'])
+defineEmits(['play', 'pause', 'ended', 'add-song', 'remove-song', 'delete-playlist'])
 
 const songs = computed(() => props.playlist?.songs ?? [])
 const previewCount = computed(() => songs.value.filter(s => s.preview_url).length)
@@ -61,9 +62,24 @@ const previewCount = computed(() => songs.value.filter(s => s.preview_url).lengt
                 <div class="detail-meta">
                     <h2 class="detail-title">{{ playlist.name }}</h2>
                     <div class="detail-stats u-flex u-gap8 u-align-items-center">
-                        <span class="stat-badge">{{ songs.length }} morceau{{ songs.length !== 1 ? 'x' : '' }}</span>
+                        <span class="stat-badge stat-badge--highlight">{{ songs.length }} morceau{{ songs.length !== 1 ? 'x' : '' }}</span>
                         <span class="stat-badge">{{ previewCount }} preview{{ previewCount !== 1 ? 's' : '' }} disponible{{ previewCount !== 1 ? 's' : '' }}</span>
                     </div>
+                </div>
+
+                <div class="detail-actions u-flex u-align-items-center u-gap8">
+                    <button class="btn-primary btn-sm" @click="$emit('add-song')">
+                        <Plus :size="16" />
+                        Ajouter un morceau
+                    </button>
+                    <button
+                        class="delete-playlist-btn"
+                        aria-label="Supprimer la playlist"
+                        title="Supprimer la playlist"
+                        @click="$emit('delete-playlist')"
+                    >
+                        <Trash2 :size="18" />
+                    </button>
                 </div>
             </div>
 
@@ -78,9 +94,12 @@ const previewCount = computed(() => songs.value.filter(s => s.preview_url).lengt
                     :song="song"
                     :index="index"
                     :is-playing="currentlyPlayingId === song.id"
+                    :removable="true"
+                    :is-removing="removingSongId === song.id"
                     @play="$emit('play', $event)"
                     @pause="$emit('pause')"
                     @ended="$emit('ended')"
+                    @remove="$emit('remove-song', $event)"
                 />
             </div>
         </template>
@@ -149,8 +168,8 @@ const previewCount = computed(() => songs.value.filter(s => s.preview_url).lengt
 }
 
 .detail-title {
-    font-size: $font-size-xl;
-    font-weight: 600;
+    font-size: $font-size-2xl;
+    font-weight: 700;
     color: $color-text;
     margin-bottom: $spacing-sm;
     word-break: break-word;
@@ -160,6 +179,35 @@ const previewCount = computed(() => songs.value.filter(s => s.preview_url).lengt
     flex-wrap: wrap;
 }
 
+.detail-actions {
+    flex-shrink: 0;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+
+// Même bouton que "Leave Room" dans le lobby
+.delete-playlist-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-md;
+    background: rgba($color-black, 0.4);
+    border: 1px solid rgba($color-white, 0.1);
+    color: $color-white;
+    cursor: pointer;
+    backdrop-filter: blur($blur-sm);
+    transition: all $duration-fast $authenticMotion;
+
+    &:hover {
+        background: $color-error;
+        border-color: $color-error;
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba($color-error, 0.4);
+    }
+}
+
 .stat-badge {
     font-size: $font-size-xs;
     color: $color-text-muted;
@@ -167,6 +215,14 @@ const previewCount = computed(() => songs.value.filter(s => s.preview_url).lengt
     border-radius: $radius-full;
     border: 1px solid $color-border;
     background: $color-surface;
+
+    // Compteur mis en avant comme le "Tracks count" du lobby
+    &--highlight {
+        background: $color-accent-gradient;
+        border-color: transparent;
+        color: $color-black;
+        font-weight: 800;
+    }
 }
 
 .songs-list {

@@ -164,6 +164,129 @@ class MusicRepository {
         }
     }
 
+    // Get a single playlist, without its songs
+    async GetPlaylistById(idPlaylist) {
+        const { data, error } = await supabase
+            .from('playlists')
+            .select('*')
+            .eq('id', idPlaylist)
+            .maybeSingle()
+
+        if (error) {
+            throw new Error(`Erreur récupération playlist: ${error.message}`)
+        }
+
+        return data
+    }
+
+    // Delete a playlist (playlist_songs est nettoyée par le ON DELETE CASCADE)
+    async DeletePlaylist(idPlaylist) {
+        const { error } = await supabase
+            .from('playlists')
+            .delete()
+            .eq('id', idPlaylist)
+
+        if (error) {
+            throw new Error(`Erreur suppression playlist: ${error.message}`)
+        }
+    }
+
+    // Get a single song
+    async GetSongById(idSong) {
+        const { data, error } = await supabase
+            .from('songs')
+            .select('*')
+            .eq('id', idSong)
+            .maybeSingle()
+
+        if (error) {
+            throw new Error(`Erreur récupération morceau: ${error.message}`)
+        }
+
+        return data
+    }
+
+    // Insert the song if unknown, refresh it otherwise
+    async UpsertSong(song) {
+        const { data, error } = await supabase
+            .from('songs')
+            .upsert(
+                {
+                    spotify_track_id: song.spotify_track_id,
+                    title: song.title,
+                    artist: song.artist,
+                    cover_url: song.cover_url,
+                    preview_url: song.preview_url,
+                    updated_at: new Date().toISOString(),
+                },
+                { onConflict: 'spotify_track_id' }
+            )
+            .select()
+            .single()
+
+        if (error) {
+            throw new Error(`Erreur upsert song: ${error.message}`)
+        }
+
+        return data
+    }
+
+    // Link a song to a playlist, appended at the end of the tracklist
+    async AddSongToPlaylist(playlistId, songId) {
+        const { data: lastEntry, error: positionError } = await supabase
+            .from('playlist_songs')
+            .select('position')
+            .eq('playlist_id', playlistId)
+            .order('position', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+        if (positionError) {
+            throw new Error(`Erreur lecture des positions: ${positionError.message}`)
+        }
+
+        const { error } = await supabase
+            .from('playlist_songs')
+            .insert({
+                playlist_id: playlistId,
+                song_id: songId,
+                position: (lastEntry?.position ?? -1) + 1,
+            })
+
+        if (error) {
+            throw new Error(`Erreur ajout du morceau à la playlist: ${error.message}`)
+        }
+    }
+
+    // Check whether a song is already linked to a playlist
+    async IsSongInPlaylist(playlistId, songId) {
+        const { data, error } = await supabase
+            .from('playlist_songs')
+            .select('song_id')
+            .eq('playlist_id', playlistId)
+            .eq('song_id', songId)
+            .maybeSingle()
+
+        if (error) {
+            throw new Error(`Erreur vérification du morceau: ${error.message}`)
+        }
+
+        return !!data
+    }
+
+    // Unlink a song from a playlist (le morceau reste dans la table songs)
+    async RemoveSongFromPlaylist(playlistId, songId) {
+        const { error } = await supabase
+            .from('playlist_songs')
+            .delete()
+            .eq('playlist_id', playlistId)
+            .eq('song_id', songId)
+
+        if (error) {
+            throw new Error(`Erreur suppression du morceau: ${error.message}`)
+        }
+    }
+
     // Get playlist details
     async GetPlaylistDetails(idPlaylist) {
         const { data, error } = await supabase

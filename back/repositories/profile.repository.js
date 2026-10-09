@@ -18,6 +18,22 @@ class ProfileRepository {
         if (error) throw error;
         return data;
     }
+
+    async updateProfile(userId, { username, avatar_url }) {
+        const { data, error } = await supabase
+            .from('profiles')
+            .upsert({
+                id: userId,
+                username,
+                avatar_url,
+                updated_at: new Date().toISOString()
+            })
+            .select('username, avatar_url')
+            .single();
+
+        if (error) throw error;
+        return data;
+    }
 }
 
 module.exports = new ProfileRepository();
