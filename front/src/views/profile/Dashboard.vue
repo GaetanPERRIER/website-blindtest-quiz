@@ -2,7 +2,6 @@
 import { useAuthStore } from '@/stores/authStore';
 import { useToastStore } from '@/stores/toastStore';
 import { friendService } from '@/services/friend.service';
-import { profileService } from '@/services/profile.service';
 import ParticleBackground from "@/components/Basics/ParticleBackground.vue";
 import { ref, onMounted, computed } from 'vue';
 import { supabase } from '@/services/supabase';
@@ -34,7 +33,7 @@ onMounted(async () => {
 
 async function removeFriend() {
     try {
-        await friendService.removeFriend(friendToRemove.value.id, authStore.token)
+        await friendService.removeFriend(authStore.user.id, friendToRemove.value.id)
         friends.value = friends.value.filter(f => f.id !== friendToRemove.value.id)
         toastStore.addToast('Ami supprimé.')
     } catch (err) {
@@ -60,30 +59,26 @@ async function fetchProfile() {
 }
 
 async function updateProfile() {
-    // Validation cote client pour le confort de saisie uniquement :
-    // le serveur (PATCH /api/profile/me) revalide et fait foi.
-    const username = profile.value.username.trim();
-    if (username === '') {
-        toastStore.addToast('Le pseudo ne peut pas être vide.', 'error');
-        return;
-    }
-    if (username.length > 20) {
-        toastStore.addToast('Le pseudo ne doit pas dépasser 20 caractères.', 'error');
-        return;
-    }
-
     saving.value = true;
     try {
-        const data = await profileService.updateProfile(authStore.token, {
-            username,
-            avatar_url: profile.value.avatar_url
-        });
-
-        profile.value = data;
+        const { error } = await supabase
+            .from('profiles')
+            .upsert({
+                id: user.value.id,
+                username: profile.value.username,
+                avatar_url: profile.value.avatar_url,
+                updated_at: new Date()
+            });
+        
+        if (error) throw error;
         toastStore.addToast('Profil mis à jour avec succès !');
     } catch (err) {
         console.error('Error updating profile:', err);
-        toastStore.addToast(err.message || 'Échec de la mise à jour du profil.', 'error');
+        if (err.code === 'PGRST205') {
+            toastStore.addToast('Table "profiles" introuvable. Veuillez exécuter les scripts SQL.', 'error');
+        } else {
+            toastStore.addToast('Échec de la mise à jour du profil.', 'error');
+        }
     } finally {
         saving.value = false;
     }
@@ -91,11 +86,13 @@ async function updateProfile() {
 
 async function fetchFriendsData() {
     try {
-        friends.value = await friendService.getFriends(authStore.token);
-        pendingRequests.value = await friendService.getPendingRequests(authStore.token);
+        friends.value = await friendService.getFriends(user.value.id);
+        pendingRequests.value = await friendService.getPendingRequests(user.value.id);
     } catch (err) {
         console.error('Error fetching friends:', err);
-        toastStore.addToast('Impossible de charger les données d\'amis.', 'error');
+        if (err.code === 'PGRST205') {
+            toastStore.addToast('Tables de base de données introuvables.', 'error');
+        }
     }
 }
 
@@ -106,7 +103,9 @@ async function searchUsers() {
     }
     loading.value = true;
     try {
-        searchResults.value = await friendService.searchUsers(searchQuery.value, authStore.token);
+        searchResults.value = await friendService.searchUsers(searchQuery.value);
+        // Exclude self and current friends/pending
+        searchResults.value = searchResults.value.filter(u => u.id !== user.value.id);
     } catch (err) {
         console.error('Error searching users:', err);
     } finally {
@@ -116,7 +115,7 @@ async function searchUsers() {
 
 async function sendRequest(friendId) {
     try {
-        await friendService.sendFriendRequest(friendId, authStore.token);
+        await friendService.sendFriendRequest(user.value.id, friendId);
         toastStore.addToast('Demande d\'ami envoyée !');
         searchQuery.value = '';
         searchResults.value = [];
@@ -128,7 +127,7 @@ async function sendRequest(friendId) {
 
 async function acceptRequest(requestId) {
     try {
-        await friendService.acceptRequest(requestId, authStore.token);
+        await friendService.acceptRequest(requestId);
         await fetchFriendsData();
     } catch (err) {
         console.error('Error accepting request:', err);
@@ -177,8 +176,7 @@ async function logout() {
                         
                         <div class="form-group">
                             <label class="t-body-text">Nom d'utilisateur</label>
-                            <input v-model="profile.username" type="text" class="input-field" placeholder="Choisis un pseudo" maxlength="20">
-                            <p class="t-body-text-xs color-text-light u-mt10">{{ profile.username.length }}/20</p>
+                            <input v-model="profile.username" type="text" class="input-field" placeholder="Choisis un pseudo">
                         </div>
 
                         <div class="form-group">

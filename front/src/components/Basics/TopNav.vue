@@ -35,7 +35,7 @@ async function fetchPendingRequests() {
 
     try {
         pendingRequests.value =
-            await friendService.getPendingRequests(authStore.token)
+            await friendService.getPendingRequests(authStore.user.id)
     } catch (e) {
         console.error(e)
     }
@@ -43,7 +43,7 @@ async function fetchPendingRequests() {
 
 async function acceptRequest(requestId) {
     try {
-        await friendService.acceptRequest(requestId, authStore.token)
+        await friendService.acceptRequest(requestId)
 
         pendingRequests.value = pendingRequests.value.filter(
             r => r.id !== requestId
