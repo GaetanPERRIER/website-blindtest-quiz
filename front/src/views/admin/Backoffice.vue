@@ -238,7 +238,8 @@ function onEnded() {
 <template>
     <div class="page-container">
         <header class="backoffice-header">
-            <h1 class="page-title">Administration</h1>
+            <h1 class="t-title t-color-white">Administration</h1>
+            <p class="page-subtitle">Gérez les playlists jouables et leurs morceaux</p>
         </header>
 
         <main class="backoffice">
@@ -294,7 +295,10 @@ function onEnded() {
         <transition name="fade">
             <div v-if="isCreateModalOpen" class="modal-overlay" @click.self="isCreateModalOpen = false">
                 <div class="modal">
-                    <h2 class="modal-title">Nouvelle playlist</h2>
+                    <div class="modal-heading">
+                        <h2 class="t-title modal-title">Nouvelle playlist</h2>
+                        <p class="modal-subtitle">Elle sera aussi créée sur Spotify</p>
+                    </div>
                     <input
                         v-model="newPlaylistName"
                         class="modal-input"
@@ -312,7 +316,7 @@ function onEnded() {
                             Annuler
                         </button>
                         <button
-                            class="btn-secondary btn-sm"
+                            class="btn-primary btn-sm"
                             :disabled="isCreatingPlaylist"
                             @click="createPlaylist"
                         >
@@ -352,14 +356,16 @@ function onEnded() {
 
 .backoffice-header {
     flex-shrink: 0;
-    margin-bottom: $spacing-lg;
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
+    margin-bottom: $spacing-xl;
     padding-left: 80px;
 }
 
-.page-title {
-    font-size: $font-size-xl;
-    font-weight: 600;
-    color: $color-text;
+.page-subtitle {
+    font-size: $font-size-sm;
+    color: $color-text-muted;
 }
 
 .backoffice {
@@ -367,7 +373,6 @@ function onEnded() {
     flex: 1;
     gap: $spacing-xl;
     min-height: 0;
-    height: calc(100vh - 180px);
 }
 
 .panel {
@@ -377,6 +382,7 @@ function onEnded() {
     border-radius: $radius-xl;
     padding: $spacing-xl;
     overflow: hidden;
+    box-shadow: $shadow-lg;
 }
 
 .panel-list {
@@ -387,7 +393,6 @@ function onEnded() {
 .panel-detail {
     flex: 1;
     min-width: 0;
-    height: 100%;
 }
 
 .sound-volume {
@@ -397,6 +402,7 @@ function onEnded() {
     z-index: 10;
 }
 
+// Modales : même verre sombre que ModalRoundOver
 .modal-overlay {
     position: fixed;
     inset: 0;
@@ -414,27 +420,40 @@ function onEnded() {
     flex-direction: column;
     gap: $spacing-xl;
     width: 100%;
-    max-width: 420px;
-    padding: $spacing-xl $spacing-3xl;
-    background: lighten($color-black, 6%);
+    max-width: 460px;
+    padding: $spacing-2xl;
+    background: rgba(20, 20, 20, 0.7);
+    backdrop-filter: blur(30px);
     border: 1px solid $color-border;
-    border-radius: 16px;
+    border-radius: $radius-xl;
     box-shadow: $shadow-xl;
     text-align: center;
+    animation: modal-pop $duration-normal $easeOutBack;
+}
+
+.modal-heading {
+    display: flex;
+    flex-direction: column;
+    gap: $spacing-xs;
 }
 
 .modal-title {
-    font-size: $font-size-lg;
-    font-weight: 600;
+    font-size: $font-size-xl;
     color: $color-text;
+}
+
+.modal-subtitle {
+    font-size: $font-size-sm;
+    color: $color-text-muted;
 }
 
 .modal-input {
     width: 100%;
     background: $color-surface;
-    padding: 10px 16px;
+    padding: 12px 25px;
     border-radius: $radius-full;
-    font-size: $font-size-sm;
+    font-size: $font-size-base;
+    text-align: center;
     border: 1px solid $color-border;
     color: $color-text;
     transition: all $duration-normal $authenticMotion;
@@ -478,22 +497,34 @@ function onEnded() {
 .fade-enter-active, .fade-leave-active { transition: opacity 0.2s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 
+@keyframes modal-pop {
+    from {
+        opacity: 0;
+        transform: translateY(-20px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
 @media (max-width: 1000px) {
     .page-container {
+        height: auto;
+        min-height: 100vh;
         padding: 92px $spacing-lg 72px;
     }
 
     .backoffice-header {
         padding-left: 0;
-    }
 
-    .page-title {
-        font-size: $font-size-lg;
+        .t-title {
+            font-size: $font-size-xl;
+        }
     }
 
     .backoffice {
         flex-direction: column;
-        height: auto;
     }
 
     .panel-list {
@@ -502,8 +533,11 @@ function onEnded() {
     }
 
     .panel-detail {
-        flex: 1;
         min-height: 42vh;
+    }
+
+    .modal {
+        padding: $spacing-xl;
     }
 }
 </style>
