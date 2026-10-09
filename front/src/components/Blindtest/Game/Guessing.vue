@@ -1,6 +1,6 @@
 <script setup>
 import { usePlayerStore } from '@/stores/playerStore.js'
-import { computed, ref, watch, onMounted, onBeforeUnmount } from 'vue'
+import { computed, ref, watchEffect, onMounted, onBeforeUnmount } from 'vue'
 import InputAnswer from '@/components/Blindtest/Game/Playing/InputAnswer.vue'
 import SoundVolume from './Utils/SoundVolume.vue'
 
@@ -21,44 +21,9 @@ const progressPercent = computed(() =>
   duration.value ? (currentTime.value / duration.value) * 100 : 0
 )
 
-// Fondu d'entree/sortie : le volume applique est audioVolume * fadeMultiplier,
-// fadeMultiplier passe de 0 a 1 au demarrage de l'extrait puis de 1 a 0 en fin de round.
-const FADE_IN_MS = 600
-const FADE_OUT_MS = 1500
-// Cap le delta pris en compte a chaque frame : si l'onglet est mis en
-// arriere-plan, requestAnimationFrame se met en pause et le prochain
-// callback voit un delta enorme, ce qui ferait sauter le volume a sa
-// valeur finale au lieu de terminer le fondu en douceur au retour.
-const MAX_FRAME_DELTA_MS = 100
-let fadeMultiplier = 0
-let fadeFrame = null
-
-function applyVolume() {
-  if (audioEl.value) audioEl.value.volume = Math.min(1, Math.max(0, audioVolume.value * fadeMultiplier))
-}
-
-watch(audioVolume, applyVolume, { immediate: true })
-
-function fadeTo(target, durationMs) {
-  if (fadeFrame) cancelAnimationFrame(fadeFrame)
-  const start = fadeMultiplier
-  let elapsed = 0
-  let lastTime = performance.now()
-
-  function step(now) {
-    elapsed += Math.min(now - lastTime, MAX_FRAME_DELTA_MS)
-    lastTime = now
-    const progress = Math.min(elapsed / durationMs, 1)
-    fadeMultiplier = start + (target - start) * progress
-    applyVolume()
-    if (progress < 1) fadeFrame = requestAnimationFrame(step)
-  }
-  fadeFrame = requestAnimationFrame(step)
-}
-
-function onPlay() {
-  fadeTo(1, FADE_IN_MS)
-}
+watchEffect(() => {
+  if (audioEl.value) audioEl.value.volume = audioVolume.value
+})
 
 function onTimeUpdate() {
   currentTime.value = audioEl.value?.currentTime ?? 0
@@ -82,12 +47,6 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   clearInterval(timerInterval)
-  if (fadeFrame) cancelAnimationFrame(fadeFrame)
-})
-
-// Fondu de sortie : demarre quand il reste peu de temps avant la fin du round
-watch(timeLeft, (value) => {
-  if (value === 2) fadeTo(0, FADE_OUT_MS)
 })
 
 const timerPercent = computed(() =>
@@ -123,9 +82,8 @@ function getPlayerColor(index) {
     <!-- Audio caché -->
     <audio
       ref="audioEl"
-      :src="musicToGuess.preview_url"
+      :src="musicToGuess.preview"
       autoplay
-      @play="onPlay"
       @timeupdate="onTimeUpdate"
       @loadedmetadata="onLoadedMetadata"
     />
@@ -139,7 +97,7 @@ function getPlayerColor(index) {
       
       <div class="category-info u-flex-direction-column u-align-items-center">
         <span class="category-label">Category</span>
-        <span class="category-name">{{ room.setting?.category?.name || 'Unknown' }}</span>
+        <span class="category-name">{{ room.setting?.category?.title || 'Unknown' }}</span>
       </div>
 
       <SoundVolume />

@@ -1,6 +1,6 @@
 <script setup>
 import { computed } from 'vue'
-import { RefreshCw, Plus } from 'lucide-vue-next'
+import { RefreshCw } from 'lucide-vue-next'
 import PlaylistRow from './PlaylistRow.vue'
 
 const props = defineProps({
@@ -12,7 +12,7 @@ const props = defineProps({
     syncMessage: { type: String, default: null }
 })
 
-defineEmits(['select', 'update:searchQuery', 'sync', 'create'])
+defineEmits(['select', 'update:searchQuery', 'sync'])
 
 const filteredPlaylists = computed(() => {
     const query = props.searchQuery.trim().toLowerCase()
@@ -31,19 +31,15 @@ const filteredPlaylists = computed(() => {
                 <span class="count-badge">{{ playlists.length }} playlist{{ playlists.length !== 1 ? 's' : '' }}</span>
             </div>
             <div class="header-actions u-flex u-align-items-center u-gap8">
-                <button class="btn-primary btn-sm" @click="$emit('create')">
-                    <Plus :size="16" />
-                    Nouvelle playlist
-                </button>
+                <span v-if="syncMessage" class="sync-message">{{ syncMessage }}</span>
                 <button
-                    class="sync-btn"
+                    class="btn-secondary sync-btn"
                     :disabled="isSyncing"
                     @click="$emit('sync')"
                 >
                     <RefreshCw :size="16" :class="{ spinning: isSyncing }" />
                     {{ isSyncing ? 'Sync…' : 'Sync Spotify' }}
                 </button>
-                <span v-if="syncMessage" class="sync-message">{{ syncMessage }}</span>
             </div>
             <input
                 class="search-input"
@@ -99,13 +95,10 @@ const filteredPlaylists = computed(() => {
     margin-bottom: $spacing-md;
 }
 
-// Libellé de section du lobby ("Tracks count")
 .panel-title {
-    font-size: $font-size-xs;
-    font-weight: 700;
-    color: $color-text-muted;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
+    font-size: $font-size-lg;
+    font-weight: 600;
+    color: $color-text;
 }
 
 .header-actions {
@@ -114,36 +107,12 @@ const filteredPlaylists = computed(() => {
 
 .sync-message {
     font-size: $font-size-xs;
-    font-weight: 600;
     color: $color-accent;
 }
 
-// Bouton pilule du lobby ("Copy invite link")
 .sync-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: $spacing-sm;
-    padding: 11px $spacing-lg;
-    border-radius: $radius-full;
-    border: 1px solid $color-border;
-    background: $color-surface;
-    color: $color-text;
-    font-size: $font-size-sm;
-    font-weight: 600;
-    line-height: $line-height-tight;
-    cursor: pointer;
-    transition: all $duration-normal $authenticMotion;
-
-    &:hover:not(:disabled) {
-        background: $color-surface-hover;
-        border-color: $color-border-hover;
-        transform: translateY(-2px);
-    }
-
-    &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
+    padding: $spacing-xs $spacing-md;
+    font-size: $font-size-xs;
 
     .spinning {
         animation: spin 1s linear infinite;
@@ -164,13 +133,12 @@ const filteredPlaylists = computed(() => {
     background: $color-surface;
 }
 
-// Barre de recherche des catégories du lobby
 .search-input {
     width: 100%;
     background: $color-surface;
-    padding: 12px 25px;
+    padding: 8px 16px;
     border-radius: $radius-full;
-    font-size: $font-size-base;
+    font-size: $font-size-sm;
     border: 1px solid $color-border;
     color: $color-text;
     transition: all $duration-normal $authenticMotion;

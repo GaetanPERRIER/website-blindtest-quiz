@@ -1,12 +1,8 @@
-const { CLIENT_URL } = require('./constants');
-
-// CLIENT_URL est la source de verite pour l'origine de production (meme
-// variable d'env que celle utilisee par Socket.IO dans server.js). Les
-// origines localhost restent autorisees pour le dev.
 const allowedOrigins = [
-    CLIENT_URL,
-    'http://localhost:5173',
-    'http://127.0.0.1:5173'
+    'http://localhost:5173', // Dev frontend
+    'http://127.0.0.1:5173', // Alternative localhost
+    'https://votre-domaine.com', // Production
+    'https://www.votre-domaine.com' // WWW
 ];
 
 const corsOptions = {
