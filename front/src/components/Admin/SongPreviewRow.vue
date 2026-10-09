@@ -220,29 +220,19 @@ function onEnded() {
     white-space: nowrap;
 }
 
-.play-btn {
+.play-btn,
+.remove-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px;
-    height: 30px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
+    background: $color-surface;
     border: 1px solid $color-border;
-    color: $color-text;
     cursor: pointer;
-    transition: all $duration-normal $authenticMotion;
+    transition: all $duration-fast $authenticMotion;
     flex-shrink: 0;
-
-    &:hover:not(:disabled) {
-        border-color: $color-accent;
-        color: $color-accent;
-    }
-
-    &.playing {
-        border-color: $color-accent;
-        background: rgba(255, 187, 51, 0.15);
-        color: $color-accent;
-    }
 
     &:disabled {
         opacity: 0.35;
@@ -250,28 +240,29 @@ function onEnded() {
     }
 }
 
-.remove-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    border: 1px solid $color-border;
-    color: $color-text-muted;
-    cursor: pointer;
-    transition: all $duration-normal $authenticMotion;
-    flex-shrink: 0;
+.play-btn {
+    color: $color-text;
 
     &:hover:not(:disabled) {
-        border-color: $color-danger;
-        color: $color-danger;
-        background: rgba(255, 107, 107, 0.15);
+        border-color: $color-accent;
+        color: $color-accent;
     }
 
-    &:disabled {
-        opacity: 0.35;
-        cursor: not-allowed;
+    &.playing {
+        border-color: transparent;
+        background: $color-accent-gradient;
+        color: $color-black;
+    }
+}
+
+// Même comportement que le bouton "Eject player" du lobby
+.remove-btn {
+    color: $color-text-light;
+
+    &:hover:not(:disabled) {
+        background: $color-danger;
+        border-color: transparent;
+        color: $color-white;
     }
 }
 </style>
